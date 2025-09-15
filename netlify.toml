@@ -3,8 +3,8 @@
   command = ""
   # Publish the current directory (where index.html is)
   publish = "."
-  # Force ignore any build process
-  ignore = "/bin/false"
+  # Skip build entirely
+  ignore = "exit 0"
   
 [build.environment]
   # Environment variables for your app
