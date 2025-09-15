@@ -1,0 +1,28 @@
+[build]
+  # Don't run any build command - just serve the static files
+  command = ""
+  # Publish the current directory (where index.html is)
+  publish = "."
+  
+[build.environment]
+  # Environment variables for your app
+  VITE_SUPABASE_URL = "https://zmqayrsopghnzrfuqybw.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InptcWF5cnNvcGdobnpyZnVxeWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyMjM3ODksImV4cCI6MjA3MTc5OTc4OX0.sPrgn7n3MmkfouzKtH6q3XC3J4GfIbGl3j4AeIna24w"
+
+# Handle client-side routing for SPA behavior
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["admin"]}
+  
+# Serve static files with proper headers
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+    
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Content-Type = "text/css"
