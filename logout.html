@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout - Kohza</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+    <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+        <p class="text-lg">Logging you out...</p>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { auth } from './supabase-client.js';
+
+        async function logout() {
+            try {
+                // Sign out from Supabase
+                await auth.signOut();
+                
+                // Clear all local storage
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Clear any cookies (if any)
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                
+                // Redirect to login
+                window.location.href = 'login.html';
+                
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Force redirect anyway
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Execute logout immediately
+        logout();
+    </script>
+</body>
+</html>

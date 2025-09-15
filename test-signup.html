@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Signup - Kohza</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">Signup Test Page</h1>
+        
+        <div class="bg-gray-800 p-6 rounded-lg mb-6">
+            <h2 class="text-xl font-bold mb-4">Test Signup</h2>
+            <form id="test-signup-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Full Name</label>
+                    <input type="text" id="test-fullname" class="w-full p-2 bg-gray-700 rounded" placeholder="Test User" value="Test User">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Email</label>
+                    <input type="email" id="test-email" class="w-full p-2 bg-gray-700 rounded" placeholder="test@example.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Password</label>
+                    <input type="password" id="test-password" class="w-full p-2 bg-gray-700 rounded" placeholder="password123" value="password123">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Role</label>
+                    <select id="test-role" class="w-full p-2 bg-gray-700 rounded">
+                        <option value="student">Student</option>
+                        <option value="coach">Coach</option>
+                    </select>
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded">Test Signup</button>
+            </form>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-lg mb-6">
+            <h2 class="text-xl font-bold mb-4">Test Actions</h2>
+            <div class="space-y-4">
+                <button id="test-auth" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded mr-4">Test Auth Connection</button>
+                <button id="test-profiles-table" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded mr-4">Test Profiles Table</button>
+                <button id="clear-storage" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Clear Storage</button>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-lg">
+            <h2 class="text-xl font-bold mb-4">Log Output</h2>
+            <div id="log" class="bg-black p-4 rounded text-green-400 font-mono text-sm h-64 overflow-y-auto">
+                <p>Logs will appear here...</p>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="role.html" class="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded mr-4">Role Selection</a>
+            <a href="signup.html" class="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded mr-4">Signup Page</a>
+            <a href="login.html" class="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded">Login Page</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, supabase } from './supabase-client.js';
+
+        const logDiv = document.getElementById('log');
+
+        function log(message) {
+            console.log(message);
+            const p = document.createElement('p');
+            p.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logDiv.appendChild(p);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // Test signup form
+        document.getElementById('test-signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('test-fullname').value;
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            const role = document.getElementById('test-role').value;
+
+            log('🧪 Testing signup with: ' + JSON.stringify({ fullName, email, role }));
+
+            try {
+                // Step 1: Test auth signup
+                log('📝 Step 1: Creating auth user...');
+                const { data, error } = await auth.signUp(email, password, {
+                    full_name: fullName,
+                    role: role
+                });
+
+                if (error) {
+                    log('❌ Auth signup error: ' + error.message);
+                    return;
+                }
+
+                log('✅ Auth user created: ' + data.user?.email);
+
+                // Step 2: Test profile creation
+                if (data.user) {
+                    log('📝 Step 2: Creating profile...');
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .insert([{
+                            id: data.user.id,
+                            email: data.user.email,
+                            full_name: fullName,
+                            role: role
+                        }]);
+
+                    if (profileError) {
+                        log('❌ Profile creation error: ' + profileError.message);
+                        log('🔍 Profile error details: ' + JSON.stringify(profileError));
+                    } else {
+                        log('✅ Profile created successfully');
+                    }
+
+                    // Step 3: Verify profile was created
+                    log('📝 Step 3: Verifying profile...');
+                    const { data: profile, error: fetchError } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', data.user.id)
+                        .single();
+
+                    if (fetchError) {
+                        log('❌ Profile fetch error: ' + fetchError.message);
+                    } else {
+                        log('✅ Profile verified: ' + JSON.stringify(profile));
+                    }
+                }
+
+            } catch (error) {
+                log('❌ Signup test failed: ' + error.message);
+            }
+        });
+
+        // Test auth connection
+        document.getElementById('test-auth').addEventListener('click', async () => {
+            log('🧪 Testing auth connection...');
+            try {
+                const { user, error } = await auth.getCurrentUser();
+                log('Auth result: ' + JSON.stringify({ user: user?.email, error: error?.message }));
+            } catch (error) {
+                log('❌ Auth test error: ' + error.message);
+            }
+        });
+
+        // Test profiles table
+        document.getElementById('test-profiles-table').addEventListener('click', async () => {
+            log('🧪 Testing profiles table access...');
+            try {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('id, email, full_name, role')
+                    .limit(5);
+
+                if (error) {
+                    log('❌ Profiles table error: ' + error.message);
+                    log('🔍 Error details: ' + JSON.stringify(error));
+                } else {
+                    log('✅ Profiles table accessible. Found ' + data.length + ' profiles');
+                    if (data.length > 0) {
+                        log('📋 Sample profiles: ' + JSON.stringify(data));
+                    }
+                }
+            } catch (error) {
+                log('❌ Profiles test error: ' + error.message);
+            }
+        });
+
+        // Clear storage
+        document.getElementById('clear-storage').addEventListener('click', () => {
+            localStorage.clear();
+            sessionStorage.clear();
+            log('🧹 Storage cleared');
+        });
+
+        // Generate random email for testing
+        document.getElementById('test-email').value = 'test' + Math.floor(Math.random() * 10000) + '@example.com';
+
+        log('🚀 Test page loaded. Ready for testing!');
+    </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #000;
+  color: #e5e7eb;
+  overflow-x: hidden;
+  transition: background-color 0.3s, color 0.3s;
+}
+h1, h2, h3, .font-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #9333ea; }
+
+/* Main layout */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+@media (min-width: 1024px) {
+  .main-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .main-content {
+    grid-column: span 3 / span 3;
+  }
+  .sidebar {
+    grid-column: span 2 / span 2;
+  }
+}
+
+/* Sidebar Playlist */
+.module-header .arrow-icon {
+  transition: transform 0.3s ease-in-out;
+}
+.module-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out;
+}
+.module.open .module-header .arrow-icon {
+  transform: rotate(90deg);
+}
+.module.open .module-content {
+  max-height: 1000px; /* Large enough to fit content */
+  transition: max-height 0.5s ease-in;
+}
+
+.lesson-link.active {
+    background-color: rgba(147, 51, 234, 0.2);
+    border-left-color: #9333ea;
+}
+.lesson-link.active .lesson-title,
+.lesson-link.active .icon-play {
+    color: #fff;
+    font-weight: 600;
+}
+.lesson-link.active .icon-play {
+    color: #c084fc;
+}
+
+
+/* Transcript */
+#transcript-container {
+    transition: all 0.3s ease-in-out;
+}
+.transcript-content {
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+/* Notes Textarea */
+textarea:focus {
+    outline: none !important;
+    border-color: #7e22ce !important;
+    box-shadow: none !important;
+    background-color: #111;
+}
+
+/* Logout button */
+.logout-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+}
+
+/* Mini-timer running state */
+#mini-timer-toggle.running span {
+    color: #4ade80; /* Tailwind green-400 */
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+}
+
+
+/* --- LIGHT THEME OVERRIDES --- */
+html[data-theme='light'] body {
+    background: #F9FAFB;
+    color: #1F2937;
+}
+html[data-theme='light'] ::-webkit-scrollbar-track { background: #e5e7eb; }
+html[data-theme='light'] ::-webkit-scrollbar-thumb { background: #9ca3af; }
+
+html[data-theme='light'] .bg-blobs {
+    display: none;
+}
+html[data-theme='light'] .header-bg {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-color: #e5e7eb;
+}
+html[data-theme='light'] .brand-text {
+    color: #111827;
+}
+html[data-theme='light'] .brand-text:hover {
+    color: #7e22ce;
+}
+html[data-theme='light'] .nav-item-text {
+    color: #374151;
+}
+html[data-theme='light'] .nav-item-text:hover {
+    color: #111827;
+}
+html[data-theme='light'] .theme-toggle-btn {
+    color: #6b7280;
+}
+html[data-theme='light'] .theme-toggle-btn:hover {
+    color: #111827;
+}
+
+/* Main Content */
+html[data-theme='light'] .heading-text { color: #111827; }
+html[data-theme='light'] .text-gray-300 { color: #374151; }
+html[data-theme='light'] .text-gray-400 { color: #6b7280; }
+html[data-theme='light'] .text-gray-500 { color: #9ca3af; }
+
+html[data-theme='light'] .video-player-wrapper {
+    border-color: #e5e7eb;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+}
+html[data-theme='light'] .transcript-wrapper,
+html[data-theme='light'] #playlist-container,
+html[data-theme='light'] .module {
+    border-color: #e5e7eb;
+}
+
+/* Transcript */
+html[data-theme='light'] #transcript-container {
+    background-color: #f3f4f6;
+}
+
+/* Sidebar */
+html[data-theme='light'] .sidebar-panel {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+}
+
+/* Playlist */
+html[data-theme='light'] .module-header:hover {
+    background-color: #f9fafb;
+}
+html[data-theme='light'] .lesson-link:hover {
+    background-color: #faf5ff;
+}
+html[data-theme='light'] .lesson-link.active {
+    background-color: #f3e8ff;
+    border-color: #9333ea;
+}
+html[data-theme='light'] .lesson-link.active .lesson-title {
+    color: #581c87;
+}
+html[data-theme='light'] .lesson-link.active .icon-play {
+    color: #a855f7;
+}
+
+/* Notes */
+html[data-theme='light'] #notes-textarea {
+    background-color: #f3f4f6;
+    color: #1f2937;
+}
+html[data-theme='light'] #notes-textarea:focus {
+    background-color: #ffffff;
+    border-color: #9333ea;
+}
+
+/* Mini Timer Panel */
+html[data-theme='light'] .mini-timer-panel {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+}
+html[data-theme='light'] .timer-preset-btn {
+    background-color: #f3f4f6;
+    border-color: #e5e7eb;
+    color: #374151;
+}
+html[data-theme='light'] .timer-preset-btn:hover {
+    background-color: #e5e7eb;
+    border-color: #d1d5db;
+    color: #111827;
+}
+html[data-theme='light'] .input-field {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+    color: #1f2937;
+}
+html[data-theme='light'] .input-field:focus {
+    background-color: #ffffff;
+}
+html[data-theme='light'] .custom-time-btn,
+html[data-theme='light'] .reset-btn {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+html[data-theme='light'] .custom-time-btn:hover,
+html[data-theme='light'] .reset-btn:hover {
+    background-color: #d1d5db;
+}

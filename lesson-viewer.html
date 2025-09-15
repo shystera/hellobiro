@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Viewer - Kohza</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- Mux Player -->
+    <script type="module" src="https://unpkg.com/@mux/mux-player@2"></script>
+    
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        purple: {
+                            DEFAULT: '#9333ea', '50': '#faf5ff', '100': '#f3e8ff', '200': '#e9d5ff', '300': '#d8b4fe', '400': '#c084fc', '500': '#a855f7', '600': '#9333ea', '700': '#7e22ce', '800': '#6b21a8', '900': '#581c87', '950': '#3b0764'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div class="absolute w-[80vmax] h-[80vmax] -left-[40vmax] -top-[40vmax] bg-purple-900/40 rounded-full blur-3xl opacity-50"></div>
+    </div>
+    
+    <div class="relative z-10 min-h-screen">
+        <header class="p-6 sm:p-8 flex justify-between items-center">
+            <a href="course-detail.html" class="text-gray-300 hover:text-white transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Back to Course
+            </a>
+        </header>
+
+        <main class="max-w-6xl mx-auto px-6 pb-12">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Video Player -->
+                <div class="lg:col-span-3">
+                    <div class="bg-black rounded-lg overflow-hidden">
+                        <mux-player 
+                            id="lesson-player"
+                            controls
+                            style="width: 100%; aspect-ratio: 16/9;"
+                            loading="Loading lesson..."
+                            error-message="Failed to load video">
+                        </mux-player>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h1 id="lesson-title" class="text-2xl font-bold text-white mb-2">Loading...</h1>
+                        <p id="lesson-description" class="text-gray-300"></p>
+                    </div>
+                </div>
+                
+                <!-- Lesson List Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4">Course Lessons</h3>
+                        <div id="lessons-list" class="space-y-2">
+                            <!-- Lessons will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentCourseId = null;
+        let currentLessonId = null;
+        let lessons = [];
+
+        async function loadCourse() {
+            try {
+                // Get course ID from URL params
+                const urlParams = new URLSearchParams(window.location.search);
+                currentCourseId = urlParams.get('course_id');
+                currentLessonId = urlParams.get('lesson_id');
+
+                if (!currentCourseId) {
+                    alert('No course specified');
+                    return;
+                }
+
+                // Load course modules and lessons
+                const { data: modules, error: modulesError } = await supabase
+                    .from('modules')
+                    .select(`
+                        *,
+                        lessons (*)
+                    `)
+                    .eq('course_id', currentCourseId)
+                    .order('order_index');
+
+                if (modulesError) {
+                    throw modulesError;
+                }
+
+                // Flatten lessons from all modules
+                lessons = [];
+                modules.forEach(module => {
+                    module.lessons.forEach(lesson => {
+                        lessons.push({
+                            ...lesson,
+                            module_title: module.title
+                        });
+                    });
+                });
+
+                renderLessonsList();
+
+                // Load first lesson or specified lesson
+                if (currentLessonId) {
+                    loadLesson(currentLessonId);
+                } else if (lessons.length > 0) {
+                    loadLesson(lessons[0].id);
+                }
+
+            } catch (error) {
+                console.error('Failed to load course:', error);
+                alert('Failed to load course');
+            }
+        }
+
+        function renderLessonsList() {
+            const lessonsList = document.getElementById('lessons-list');
+            
+            lessonsList.innerHTML = lessons.map(lesson => `
+                <div class="lesson-item p-3 rounded-lg cursor-pointer transition-colors ${
+                    lesson.id === currentLessonId ? 'bg-purple-600' : 'bg-gray-700/50 hover:bg-gray-700'
+                }" onclick="loadLesson('${lesson.id}')">
+                    <div class="flex items-center gap-2">
+                        ${lesson.upload_status === 'ready' ? 
+                            '<svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>' :
+                            '<svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>'
+                        }
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-white truncate">${lesson.title}</p>
+                            <p class="text-xs text-gray-400">${lesson.module_title}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadLesson(lessonId) {
+            try {
+                currentLessonId = lessonId;
+                
+                const lesson = lessons.find(l => l.id === lessonId);
+                if (!lesson) {
+                    throw new Error('Lesson not found');
+                }
+
+                // Update UI
+                document.getElementById('lesson-title').textContent = lesson.title;
+                document.getElementById('lesson-description').textContent = lesson.description || '';
+                
+                // Update lesson list highlighting
+                renderLessonsList();
+
+                // Load video if available
+                const player = document.getElementById('lesson-player');
+                
+                if (lesson.mux_playback_id && lesson.upload_status === 'ready') {
+                    player.setAttribute('playback-id', lesson.mux_playback_id);
+                    player.removeAttribute('src'); // Clear any previous src
+                } else {
+                    // Show placeholder or message
+                    player.removeAttribute('playback-id');
+                    player.setAttribute('poster', 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMzMzMyIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2NjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+VmlkZW8gUHJvY2Vzc2luZzwvdGV4dD48L3N2Zz4=');
+                }
+
+                // Update URL without page reload
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('lesson_id', lessonId);
+                window.history.replaceState({}, '', newUrl);
+
+            } catch (error) {
+                console.error('Failed to load lesson:', error);
+                alert('Failed to load lesson');
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', loadCourse);
+    </script>
+</body>
+</html>

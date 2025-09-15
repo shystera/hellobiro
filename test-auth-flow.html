@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Auth Flow - Kohza</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">Authentication Flow Test</h1>
+        
+        <div class="bg-gray-800 p-6 rounded-lg mb-6">
+            <h2 class="text-xl font-bold mb-4">Current Status</h2>
+            <div id="status" class="space-y-2">
+                <p>Loading...</p>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-lg mb-6">
+            <h2 class="text-xl font-bold mb-4">Test Actions</h2>
+            <div class="space-y-4">
+                <button id="test-auth" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded mr-4">Test Auth</button>
+                <button id="test-profile" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded mr-4">Test Profile</button>
+                <button id="test-coach-auth" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded mr-4">Test Coach Auth</button>
+                <button id="clear-all" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Clear All</button>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-lg">
+            <h2 class="text-xl font-bold mb-4">Log Output</h2>
+            <div id="log" class="bg-black p-4 rounded text-green-400 font-mono text-sm h-64 overflow-y-auto">
+                <p>Logs will appear here...</p>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="role.html" class="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded mr-4">Role Selection</a>
+            <a href="login.html" class="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded mr-4">Login</a>
+            <a href="coach-admin-panel.html" class="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded">Coach Panel</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, utils, supabase } from './supabase-client.js';
+
+        const statusDiv = document.getElementById('status');
+        const logDiv = document.getElementById('log');
+
+        function log(message) {
+            console.log(message);
+            const p = document.createElement('p');
+            p.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logDiv.appendChild(p);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function updateStatus() {
+            try {
+                log('🔍 Checking authentication status...');
+                
+                const { user, error } = await auth.getCurrentUser();
+                log(`User: ${user ? user.email : 'Not logged in'}`);
+                log(`User ID: ${user ? user.id : 'N/A'}`);
+                log(`Auth Error: ${error ? error.message : 'None'}`);
+
+                let statusHTML = `
+                    <p><strong>User:</strong> ${user ? user.email : 'Not logged in'}</p>
+                    <p><strong>User ID:</strong> ${user ? user.id : 'N/A'}</p>
+                    <p><strong>Auth Error:</strong> ${error ? error.message : 'None'}</p>
+                `;
+
+                if (user) {
+                    log('👤 Getting user profile...');
+                    const { data: profile, error: profileError } = await auth.getUserProfile(user.id);
+                    log(`Profile: ${profile ? 'Found' : 'Not found'}`);
+                    log(`Role: ${profile ? profile.role : 'N/A'}`);
+                    log(`Profile Error: ${profileError ? profileError.message : 'None'}`);
+
+                    statusHTML += `
+                        <p><strong>Profile:</strong> ${profile ? 'Found' : 'Not found'}</p>
+                        <p><strong>Role:</strong> ${profile ? profile.role : 'N/A'}</p>
+                        <p><strong>Full Name:</strong> ${profile ? profile.full_name : 'N/A'}</p>
+                        <p><strong>Profile Error:</strong> ${profileError ? profileError.message : 'None'}</p>
+                    `;
+                }
+
+                const selectedRole = localStorage.getItem('selectedRole');
+                statusHTML += `<p><strong>Selected Role (localStorage):</strong> ${selectedRole || 'None'}</p>`;
+
+                statusDiv.innerHTML = statusHTML;
+                log('✅ Status updated');
+
+            } catch (error) {
+                log(`❌ Error updating status: ${error.message}`);
+                statusDiv.innerHTML = `<p class="text-red-400">Error: ${error.message}</p>`;
+            }
+        }
+
+        // Event listeners
+        document.getElementById('test-auth').addEventListener('click', async () => {
+            log('🧪 Testing authentication...');
+            await updateStatus();
+        });
+
+        document.getElementById('test-profile').addEventListener('click', async () => {
+            log('🧪 Testing profile retrieval...');
+            try {
+                const { user } = await auth.getCurrentUser();
+                if (user) {
+                    const { data: profile, error } = await auth.getUserProfile(user.id);
+                    log(`Profile data: ${JSON.stringify(profile)}`);
+                    log(`Profile error: ${error ? error.message : 'None'}`);
+                } else {
+                    log('❌ No user logged in');
+                }
+            } catch (error) {
+                log(`❌ Profile test error: ${error.message}`);
+            }
+        });
+
+        document.getElementById('test-coach-auth').addEventListener('click', async () => {
+            log('🧪 Testing coach authentication...');
+            try {
+                const { user, profile, hasRequiredRole } = await utils.requireAuth('coach', true);
+                log(`Coach auth result:`);
+                log(`- User: ${user ? user.email : 'None'}`);
+                log(`- Profile: ${profile ? profile.role : 'None'}`);
+                log(`- Has required role: ${hasRequiredRole}`);
+            } catch (error) {
+                log(`❌ Coach auth test error: ${error.message}`);
+            }
+        });
+
+        document.getElementById('clear-all').addEventListener('click', () => {
+            log('🧹 Clearing all storage...');
+            localStorage.clear();
+            sessionStorage.clear();
+            log('✅ Storage cleared');
+            updateStatus();
+        });
+
+        // Initial status update
+        updateStatus();
+    </script>
+</body>
+</html>

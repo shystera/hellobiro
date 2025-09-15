@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach Demo - Kohza</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        purple: {
+                            DEFAULT: '#9333ea', '50': '#faf5ff', '100': '#f3e8ff', '200': '#e9d5ff', '300': '#d8b4fe', '400': '#c084fc', '500': '#a855f7', '600': '#9333ea', '700': '#7e22ce', '800': '#6b21a8', '900': '#581c87', '950': '#3b0764'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="antialiased bg-gray-950 text-white">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-black/50 backdrop-blur-md border-b border-gray-800">
+            <nav class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-serif font-bold text-white">Kohza Coach Demo</h1>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-gray-400">Complete Course Management System</span>
+                </div>
+            </nav>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-6 py-12">
+            <!-- Demo Overview -->
+            <div class="mb-12">
+                <h2 class="text-4xl font-serif font-bold text-white mb-4">Complete Coach Panel Demo</h2>
+                <p class="text-lg text-gray-300 mb-8">This demo shows the complete flow from course creation to student video playback with Mux integration.</p>
+                
+                <div class="bg-purple-900/20 border border-purple-700/50 rounded-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-white mb-4">🎯 What This Demo Includes:</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>Course creation & management</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>Module & lesson organization</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>Mux video upload & processing</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>Student enrollment system</span>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>Protected video playback</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>Progress tracking</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>Supabase database integration</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                <span>Role-based access control</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Flow -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Coach Flow -->
+                <div class="bg-gray-900/50 border border-gray-800 rounded-lg p-6">
+                    <h3 class="text-2xl font-serif font-bold text-white mb-6 flex items-center gap-3">
+                        <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path></svg>
+                        </div>
+                        Coach Workflow
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">1</div>
+                            <div>
+                                <h4 class="font-semibold text-white">Create Course</h4>
+                                <p class="text-gray-400 text-sm">Set up course details, pricing, and description</p>
+                                <a href="create-course.html" class="inline-block mt-2 text-purple-400 hover:text-purple-300 text-sm">→ Try it</a>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4">
+                            <div class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">2</div>
+                            <div>
+                                <h4 class="font-semibold text-white">Build Course Structure</h4>
+                                <p class="text-gray-400 text-sm">Add modules and organize lessons</p>
+                                <a href="course-editor.html?id=demo" class="inline-block mt-2 text-purple-400 hover:text-purple-300 text-sm">→ Course Editor</a>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4">
+                            <div class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">3</div>
+                            <div>
+                                <h4 class="font-semibold text-white">Upload Videos</h4>
+                                <p class="text-gray-400 text-sm">Upload videos to Mux with automatic processing</p>
+                                <div class="mt-2 text-sm">
+                                    <span class="text-gray-500">Requires:</span>
+                                    <code class="bg-gray-800 px-2 py-1 rounded text-xs">node mux-proxy.js</code>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4">
+                            <div class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">4</div>
+                            <div>
+                                <h4 class="font-semibold text-white">Manage Students</h4>
+                                <p class="text-gray-400 text-sm">Enroll students and track progress</p>
+                                <a href="coach-admin-panel.html" class="inline-block mt-2 text-purple-400 hover:text-purple-300 text-sm">→ Coach Dashboard</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Flow -->
+                <div class="bg-gray-900/50 border border-gray-800 rounded-lg p-6">
+                    <h3 class="text-2xl font-serif font-bold text-white mb-6 flex items-center gap-3">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        Student Experience
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold text-white">1</div>
+                            <div>
+                                <h4 class="font-semibold text-white">Access Dashboard</h4>
+                                <p class="text-gray-400 text-sm">View enrolled courses and progress</p>
+                                <a href="student-panel.html" class="inline-block mt-2 text-blue-400 hover:text-blue-300 text-sm">→ Student Dashboard</a>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4">
+                            <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold text-white">2</div>
+                            <div>
+                                <h4 class="font-semibold text-white">Browse Course</h4>
+                                <p class="text-gray-400 text-sm">Explore modules and lessons</p>
+                                <a href="course-detail.html?id=demo" class="inline-block mt-2 text-blue-400 hover:text-blue-300 text-sm">→ Course Detail</a>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4">
+                            <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold text-white">3</div>
+                            <div>
+                                <h4 class="font-semibold text-white">Watch Videos</h4>
+                                <p class="text-gray-400 text-sm">Secure Mux video playback with progress tracking</p>
+                                <a href="lesson-player-mux.html?lessonId=demo&playbackId=demo" class="inline-block mt-2 text-blue-400 hover:text-blue-300 text-sm">→ Video Player</a>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4">
+                            <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold text-white">4</div>
+                            <div>
+                                <h4 class="font-semibold text-white">Track Progress</h4>
+                                <p class="text-gray-400 text-sm">Automatic progress tracking and completion</p>
+                                <span class="inline-block mt-2 text-green-400 text-sm">✓ Automatic</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Setup -->
+            <div class="mt-12 bg-gray-900/50 border border-gray-800 rounded-lg p-6">
+                <h3 class="text-2xl font-serif font-bold text-white mb-6">🔧 Technical Setup</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-white mb-3">Database (Supabase)</h4>
+                        <ul class="space-y-1 text-sm text-gray-400">
+                            <li>✓ User authentication</li>
+                            <li>✓ Course management</li>
+                            <li>✓ Progress tracking</li>
+                            <li>✓ Row-level security</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-white mb-3">Video (Mux)</h4>
+                        <ul class="space-y-1 text-sm text-gray-400">
+                            <li>✓ Secure video upload</li>
+                            <li>✓ Automatic processing</li>
+                            <li>✓ Protected playback</li>
+                            <li>✓ Analytics tracking</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-white mb-3">Frontend</h4>
+                        <ul class="space-y-1 text-sm text-gray-400">
+                            <li>✓ Role-based routing</li>
+                            <li>✓ Real-time updates</li>
+                            <li>✓ Responsive design</li>
+                            <li>✓ Content protection</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-yellow-900/20 border border-yellow-700/50 rounded-lg">
+                    <h4 class="font-semibold text-yellow-400 mb-2">⚠️ Setup Required</h4>
+                    <p class="text-sm text-gray-300 mb-2">To test video upload functionality:</p>
+                    <code class="block bg-gray-800 p-2 rounded text-sm text-green-400">
+                        npm install express cors node-fetch dotenv<br>
+                        node mux-proxy.js
+                    </code>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="login.html" class="bg-purple-700 hover:bg-purple-600 text-white font-medium py-3 px-4 rounded-md text-center transition-colors">
+                    Login
+                </a>
+                <a href="signup.html" class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-md text-center transition-colors">
+                    Sign Up
+                </a>
+                <a href="coach-admin-panel.html" class="bg-purple-700 hover:bg-purple-600 text-white font-medium py-3 px-4 rounded-md text-center transition-colors">
+                    Coach Panel
+                </a>
+                <a href="student-panel.html" class="bg-blue-700 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-md text-center transition-colors">
+                    Student Panel
+                </a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <title>Choose Your Role - Kohza</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="role.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        purple: {
+                            DEFAULT: '#9333ea', '50': '#faf5ff', '100': '#f3e8ff', '200': '#e9d5ff', '300': '#d8b4fe', '400': '#c084fc', '500': '#a855f7', '600': '#9333ea', '700': '#7e22ce', '800': '#6b21a8', '900': '#581c87', '950': '#3b0764'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="antialiased">
+
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div class="absolute w-[80vmax] h-[80vmax] -left-[40vmax] -top-[40vmax] bg-purple-900/40 rounded-full blur-3xl opacity-50"></div>
+        <div class="absolute w-[60vmax] h-[60vmax] -right-[30vmax] -bottom-[20vmax] bg-purple-800/30 rounded-full blur-3xl opacity-50"></div>
+    </div>
+    
+    <div class="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
+        
+        <header class="absolute top-0 left-0 right-0 p-6 sm:p-8 flex justify-between items-center">
+            <a href="index.html" class="text-3xl font-serif font-bold text-white hover:text-purple-300 transition-colors">Kohza</a>
+            <div class="flex items-center gap-4">
+                <button id="debug-btn" class="text-gray-400 hover:text-purple-400 px-3 py-1 rounded border border-gray-600 text-sm">Debug</button>
+                <button id="logout-btn" class="text-gray-400 hover:text-red-400 px-3 py-1 rounded border border-gray-600 text-sm">Force Logout</button>
+            </div>
+        </header>
+
+        <main class="w-full max-w-2xl">
+            <div class="bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg shadow-purple-950/40 p-8 sm:p-12">
+                <div class="text-center mb-10">
+                    <h1 class="text-4xl lg:text-5xl font-serif text-white">Define Your Path</h1>
+                    <p class="text-gray-400 mt-3">Are you here to teach, or to learn?</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Coach Card -->
+                    <button onclick="selectRole('coach')" class="group block w-full p-8 bg-gray-900/50 border border-gray-700 rounded-lg text-center transition-all duration-300 hover:border-purple-600 hover:bg-gray-900/80 transform hover:-translate-y-1">
+                        <div class="flex justify-center mb-4">
+                            <svg class="w-12 h-12 text-gray-400 group-hover:text-purple-400 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-serif text-white">I am a Coach</h2>
+                        <p class="mt-2 text-sm text-gray-400">Build your sanctuary, host your courses, and lead with purpose.</p>
+                    </button>
+
+                    <!-- Student Card -->
+                    <button onclick="selectRole('student')" class="group block w-full p-8 bg-gray-900/50 border border-gray-700 rounded-lg text-center transition-all duration-300 hover:border-purple-600 hover:bg-gray-900/80 transform hover:-translate-y-1">
+                        <div class="flex justify-center mb-4">
+                            <svg class="w-12 h-12 text-gray-400 group-hover:text-purple-400 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-serif text-white">I am a Student</h2>
+                        <p class="mt-2 text-sm text-gray-400">Join a course, master a discipline, and follow the path.</p>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        
+        // Wait for supabase to load, then import and run
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Wait a bit for supabase to load
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            try {
+                const { auth, utils } = await import('./supabase-client.js');
+            console.log('🎭 Role selection page loaded');
+            console.log('🎭 Current URL:', window.location.href);
+            
+            try {
+                // Check if user is already logged in
+                const { user, error } = await auth.getCurrentUser();
+                console.log('🎭 Current user check:', { user: user?.email, error });
+                
+                if (user) {
+                    console.log('🎭 User is already logged in, checking profile...');
+                    const { data: profile, error: profileError } = await auth.getUserProfile(user.id);
+                    console.log('🎭 Profile check:', { profile, profileError });
+                    
+                    if (profile) {
+                        console.log('🎭 User has profile, redirecting to appropriate dashboard');
+                        console.log('🎭 Profile role:', profile.role);
+                        
+                        // Redirect based on existing profile role
+                        if (profile.role === 'coach') {
+                            console.log('🎯 Redirecting to coach dashboard');
+                            window.location.href = 'coach-admin-panel.html';
+                        } else {
+                            console.log('🎯 Redirecting to student dashboard');
+                            window.location.href = 'student-panel.html';
+                        }
+                        return;
+                    } else {
+                        console.log('🎭 User logged in but no profile, staying on role selection');
+                    }
+                } else {
+                    console.log('🎭 No user logged in, staying on role selection');
+                }
+                } catch (error) {
+                    console.error('🎭 Error checking authentication:', error);
+                }
+                
+                // Debug button functionality
+                document.getElementById('debug-btn').addEventListener('click', () => {
+                    window.location.href = 'debug-auth.html';
+                });
+                
+                // Force logout functionality
+                document.getElementById('logout-btn').addEventListener('click', async () => {
+                    console.log('🚪 Force logout requested');
+                    try {
+                        await auth.signOut();
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        console.log('🚪 Logout completed, clearing page');
+                        alert('Logged out successfully! You can now select a role.');
+                        window.location.reload();
+                    } catch (error) {
+                        console.error('🚪 Logout error:', error);
+                        alert('Logout failed, but clearing storage anyway');
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        window.location.reload();
+                    }
+                });
+                
+            } catch (importError) {
+                console.error('🎭 Error importing supabase client:', importError);
+            }
+        });
+        
+        // Debug button functionality
+        document.getElementById('debug-btn').addEventListener('click', () => {
+            window.location.href = 'debug-auth.html';
+        });
+        
+        // Force logout functionality
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            console.log('🚪 Force logout requested');
+            try {
+                await auth.signOut();
+                localStorage.clear();
+                sessionStorage.clear();
+                console.log('🚪 Logout completed, clearing page');
+                alert('Logged out successfully! You can now select a role.');
+                window.location.reload();
+            } catch (error) {
+                console.error('🚪 Logout error:', error);
+                alert('Logout failed, but clearing storage anyway');
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.reload();
+            }
+        });
+        
+        // Make selectRole function available globally
+        window.selectRole = function(role) {
+            console.log('Selecting role:', role);
+            
+            // Store the selected role in localStorage
+            localStorage.setItem('selectedRole', role);
+            console.log('Role stored in localStorage:', localStorage.getItem('selectedRole'));
+            
+            // Show selection feedback
+            const buttons = document.querySelectorAll('button[onclick]');
+            buttons.forEach(btn => {
+                btn.style.opacity = '0.5';
+                btn.disabled = true;
+            });
+            
+            // Show loading state
+            const selectedButton = event.target.closest('button');
+            selectedButton.innerHTML = `
+                <div class="flex justify-center mb-4">
+                    <div class="w-12 h-12 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <h2 class="text-2xl font-serif text-white">Redirecting...</h2>
+                <p class="mt-2 text-sm text-gray-400">Taking you to login</p>
+            `;
+            
+            // Redirect to login after a short delay
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1000);
+        };
+
+        function selectRole(role) {
+            console.log('Selecting role:', role);
+            
+            // Store the selected role in localStorage
+            localStorage.setItem('selectedRole', role);
+            console.log('Role stored in localStorage:', localStorage.getItem('selectedRole'));
+            
+            // Show selection feedback
+            const buttons = document.querySelectorAll('button[onclick]');
+            buttons.forEach(btn => {
+                btn.style.opacity = '0.5';
+                btn.disabled = true;
+            });
+            
+            // Show loading state
+            const selectedButton = event.target.closest('button');
+            selectedButton.innerHTML = `
+                <div class="flex justify-center mb-4">
+                    <div class="w-12 h-12 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <h2 class="text-2xl font-serif text-white">Redirecting...</h2>
+                <p class="mt-2 text-sm text-gray-400">Taking you to login</p>
+            `;
+            
+            // Redirect to login after a short delay
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

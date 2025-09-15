@@ -1,0 +1,216 @@
+
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(ellipse at top, rgba(88, 28, 135, 0.3), transparent 70%), #000;
+  color: #d1d5db;
+  transition: background-color 0.3s, color 0.3s;
+}
+h1, h2, h3, .font-serif {
+  font-family: 'Playfair Display', serif;
+}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #9333ea; }
+
+.course-card.is-draft {
+    border-color: #f59e0b; /* A yellow-orange for drafts */
+}
+
+/* Modal Styles */
+.hidden {
+    display: none;
+}
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+.modal-panel {
+    background-color: #101010;
+    border: 1px solid #6b21a8;
+    border-radius: 0.75rem;
+    padding: 1.5rem 2rem;
+    max-width: 95%;
+    width: 640px;
+    box-shadow: 0 25px 50px -12px rgba(126, 34, 206, 0.25);
+    display: flex;
+    flex-direction: column;
+}
+.modal-close-button {
+    color: #9ca3af;
+    padding: 0.25rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease-in-out;
+}
+.modal-close-button:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.student-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.student-table th, .student-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #2d2d2d;
+}
+.student-table th {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.student-table td {
+    font-size: 0.95rem;
+    color: #d1d5db;
+}
+.student-table tbody tr:last-child td { border-bottom: none; }
+.student-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+
+/* Edit Course Title Input */
+.course-title-input {
+    line-height: 1.25; /* Match h3 line-height */
+}
+.course-title-input:focus {
+    outline: none;
+    border-color: #7e22ce;
+    box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.5);
+}
+
+/* --- LIGHT THEME OVERRIDES --- */
+html[data-theme='light'] body {
+    background: #F9FAFB;
+    color: #1F2937;
+}
+html[data-theme='light'] ::-webkit-scrollbar-track { background: #e5e7eb; }
+html[data-theme='light'] ::-webkit-scrollbar-thumb { background: #9ca3af; }
+
+html[data-theme='light'] .bg-blobs {
+    display: none;
+}
+html[data-theme='light'] .header-bg {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-color: #e5e7eb;
+}
+html[data-theme='light'] .brand-text {
+    color: #111827;
+}
+html[data-theme='light'] .brand-text:hover {
+    color: #7e22ce;
+}
+html[data-theme='light'] .user-text {
+    color: #1f2937;
+}
+html[data-theme='light'] .theme-toggle-btn {
+    color: #6b7280;
+}
+html[data-theme='light'] .theme-toggle-btn:hover {
+    color: #111827;
+}
+
+/* Main Content */
+html[data-theme='light'] .heading-text {
+    color: #111827;
+}
+html[data-theme='light'] .text-gray-400 {
+    color: #6b7280;
+}
+html[data-theme='light'] .footer-border {
+    border-color: #e5e7eb;
+}
+
+/* Course Cards */
+html[data-theme='light'] .course-card {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+}
+html[data-theme='light'] .course-card:hover {
+    border-color: #d8b4fe;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+}
+html[data-theme='light'] .course-title:hover {
+    color: #7e22ce;
+}
+html[data-theme='light'] .menu-toggle-btn {
+    color: #6b7280;
+    background-color: #f3f4f6;
+}
+html[data-theme='light'] .menu-toggle-btn:hover {
+    background-color: #e5e7eb;
+    color: #111827;
+}
+html[data-theme='light'] .options-dropdown {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+}
+html[data-theme='light'] .dropdown-item {
+    color: #374151;
+}
+html[data-theme='light'] .dropdown-item:hover {
+    background-color: #f3f4f6;
+}
+html[data-theme='light'] .dropdown-item-delete:hover {
+    background-color: #fee2e2;
+}
+
+/* Modal */
+html[data-theme='light'] .modal-overlay {
+    background-color: rgba(17, 24, 39, 0.6);
+}
+html[data-theme='light'] .modal-panel {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+html[data-theme='light'] .modal-close-button {
+    color: #9ca3af;
+}
+html[data-theme='light'] .modal-close-button:hover {
+    color: #111827;
+    background-color: #f3f4f6;
+}
+html[data-theme='light'] .modal-thead {
+    background-color: #f9fafb;
+}
+html[data-theme='light'] .student-table th {
+    color: #6b7280;
+}
+html[data-theme='light'] .student-table td {
+    color: #374151;
+    border-color: #f3f4f6;
+}
+html[data-theme='light'] .student-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Form inputs in modal */
+html[data-theme='light'] .label-text {
+    color: #374151;
+}
+html[data-theme='light'] .input-field {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+    color: #1f2937;
+}
+html[data-theme='light'] .input-field:focus {
+    border-color: #9333ea;
+    background-color: #ffffff;
+}
+html[data-theme='light'] .cancel-btn {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+html[data-theme='light'] .cancel-btn:hover {
+    background-color: #d1d5db;
+}

@@ -1,0 +1,19 @@
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(ellipse at top, rgba(88, 28, 135, 0.3), transparent 70%), #000;
+  color: #d1d5db;
+}
+h1, h2, h3, .font-serif {
+  font-family: 'Playfair Display', serif;
+}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #9333ea; }
+
+/* Mini-timer running state */
+#mini-timer-toggle.running span {
+    color: #4ade80; /* Tailwind green-400 */
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+}

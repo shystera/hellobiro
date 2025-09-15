@@ -1,0 +1,149 @@
+
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(ellipse at top, rgba(88, 28, 135, 0.3), transparent 70%), #000;
+  color: #d1d5db;
+  overflow-x: hidden;
+  transition: background-color 0.3s, color 0.3s;
+}
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+/* When mobile menu is open, prevent body from scrolling */
+body.mobile-menu-open {
+  overflow: hidden;
+}
+
+/* When mobile menu is open, ensure the header behind it is transparent */
+body.mobile-menu-open header {
+  background-color: transparent;
+}
+
+/* --- LIGHT THEME OVERRIDES --- */
+html[data-theme='light'] body {
+    background: #F9FAFB;
+    color: #1F2937;
+}
+
+html[data-theme='light'] .bg-blobs {
+    display: none;
+}
+
+/* Header */
+html[data-theme='light'] #main-header {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e5e7eb;
+}
+html[data-theme='light'] .brand-text {
+    color: #111827;
+}
+html[data-theme='light'] .nav-link,
+html[data-theme='light'] .nav-link-mobile {
+    color: #374151;
+}
+html[data-theme='light'] .nav-link:hover,
+html[data-theme='light'] .nav-link-mobile:hover {
+    color: #7e22ce;
+}
+html[data-theme='light'] .nav-contact {
+    color: #374151;
+    background-color: #f3f4f6;
+    border-color: #e5e7eb;
+}
+html[data-theme='light'] .nav-contact:hover {
+    background-color: #e5e7eb;
+}
+html[data-theme='light'] .theme-toggle-btn {
+    color: #6b7280;
+}
+html[data-theme='light'] .theme-toggle-btn:hover {
+    color: #111827;
+}
+html[data-theme='light'] #menu-btn {
+    color: #1F2937;
+}
+
+/* Mobile Menu */
+html[data-theme='light'] #mobile-menu {
+    background-color: rgba(249, 250, 251, 0.95);
+}
+
+/* Hero */
+html[data-theme='light'] .hero-heading {
+    color: #111827;
+}
+html[data-theme='light'] .text-gray-300 {
+    color: #374151;
+}
+html[data-theme='light'] .star-empty {
+    color: #e5e7eb;
+}
+html[data-theme='light'] .highlight-text {
+    color: #111827;
+}
+
+/* Case Study */
+html[data-theme='light'] .case-study-wrapper {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+}
+html[data-theme='light'] .text-gray-400 {
+    color: #6b7280;
+}
+html[data-theme='light'] .carousel-nav-btn {
+    background-color: #ffffff;
+    color: #374151;
+    border-color: #e5e7eb;
+}
+html[data-theme='light'] .carousel-nav-btn:hover {
+    background-color: #a855f7;
+    border-color: #a855f7;
+    color: #ffffff;
+}
+html[data-theme='light'] .carousel-dot {
+    background-color: #d1d5db;
+}
+html[data-theme='light'] .carousel-dot:hover {
+    background-color: #9ca3af;
+}
+html[data-theme='light'] .carousel-dot.active {
+    background-color: #a855f7;
+}
+
+/* Trusted By */
+html[data-theme='light'] .trusted-by-logo {
+    color: #9ca3af;
+}
+
+/* Features */
+html[data-theme='light'] #features {
+    background-color: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+html[data-theme='light'] .section-heading {
+    color: #111827;
+}
+html[data-theme='light'] .feature-icon-wrapper {
+    background-color: #f3f4f6;
+    border-color: #e5e7eb;
+}
+
+/* Testimonials */
+html[data-theme='light'] .testimonial-card {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+}
+html[data-theme='light'] .text-gray-500 {
+    color: #6b7280;
+}
+
+/* Footer */
+html[data-theme='light'] .footer {
+    background-color: #F9FAFB;
+    border-color: #e5e7eb;
+}

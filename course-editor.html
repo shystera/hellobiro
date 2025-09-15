@@ -1,0 +1,494 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Editor - Kohza</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mux/mux-player"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        purple: {
+                            DEFAULT: '#9333ea', '50': '#faf5ff', '100': '#f3e8ff', '200': '#e9d5ff', '300': '#d8b4fe', '400': '#c084fc', '500': '#a855f7', '600': '#9333ea', '700': '#7e22ce', '800': '#6b21a8', '900': '#581c87', '950': '#3b0764'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="antialiased bg-black text-gray-100">
+    <!-- Background -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div
+            class="absolute w-[80vmax] h-[80vmax] -left-[40vmax] -top-[40vmax] bg-purple-900/20 rounded-full blur-3xl opacity-60">
+        </div>
+        <div
+            class="absolute w-[60vmax] h-[60vmax] -right-[30vmax] -bottom-[20vmax] bg-purple-800/15 rounded-full blur-3xl opacity-50">
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
+        <nav class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <a href="index.html" class="text-2xl font-serif font-bold text-white">Kohza</a>
+                <div class="hidden md:flex items-center gap-1 text-sm text-gray-400">
+                    <a href="coach-admin-panel.html" class="hover:text-purple-400 transition-colors">Dashboard</a>
+                    <svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Course Editor</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="preview-course"
+                    class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2 px-4 rounded-md transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                        </path>
+                    </svg>
+                    Preview
+                </button>
+                <button id="save-course"
+                    class="bg-purple-700 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
+                        </path>
+                    </svg>
+                    Save Course
+                </button>
+                <button id="theme-toggle" class="p-2 text-gray-400 hover:text-white transition-colors">
+                    <svg id="theme-icon-dark" class="w-5 h-5 hidden" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                        </path>
+                    </svg>
+                    <svg id="theme-icon-light" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                        </path>
+                    </svg>
+                </button>
+                <div class="flex items-center gap-2">
+                    <img src="https://i.pravatar.cc/32?u=coach" alt="Coach"
+                        class="w-8 h-8 rounded-full border-2 border-purple-600">
+                    <span class="hidden sm:block text-sm font-medium">Dr. Elena Rodriguez</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+            <!-- Course Structure (Left Sidebar) -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-24 space-y-6">
+                    <!-- Course Info -->
+                    <div class="bg-gray-900/50 border border-gray-800 rounded-lg p-5">
+                        <h3 class="font-serif font-semibold text-lg mb-4">Course Overview</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">Course Title</label>
+                                <input type="text" id="course-title" value="Mindful Leadership Mastery"
+                                    class="w-full bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-md text-sm focus:border-purple-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                                <textarea id="course-description" rows="3"
+                                    class="w-full bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-md text-sm focus:border-purple-500 focus:outline-none">Transform your leadership approach through mindfulness and conscious decision-making.</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">Price</label>
+                                <input type="text" id="course-price" value="$297"
+                                    class="w-full bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-md text-sm focus:border-purple-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-gray-900/50 border border-gray-800 rounded-lg p-5">
+                        <h3 class="font-serif font-semibold text-lg mb-4">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <button id="add-module-btn"
+                                class="w-full bg-purple-700 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Add Module
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="lg:col-span-3">
+                <!-- Course Modules -->
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h1 class="text-3xl font-serif font-bold text-white">Course Content</h1>
+                        <div class="flex items-center gap-3 text-sm text-gray-400">
+                            <span id="total-modules">3 modules</span>
+                            <span>•</span>
+                            <span id="total-lessons">12 lessons</span>
+                            <span>•</span>
+                            <span id="total-duration">4h 32m</span>
+                        </div>
+                    </div>
+
+                    <!-- Modules Container -->
+                    <div id="modules-container" class="space-y-6">
+                        <!-- Modules will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Upload Modal -->
+    <div id="video-upload-modal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-700 rounded-lg w-full max-w-lg">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-serif font-bold">Add New Lesson</h2>
+                    <button id="close-upload-modal" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <form id="add-lesson-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Lesson Title*</label>
+                        <input type="text" id="lesson-title-modal"
+                            class="w-full bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-md focus:border-purple-500 focus:outline-none"
+                            placeholder="Enter lesson title" required>
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Video File*</label>
+                        <label for="lesson-video-file" class="cursor-pointer bg-gray-800 border border-gray-700 text-gray-300 px-3 py-2 rounded-md flex items-center justify-center hover:border-purple-500">
+                            <span id="file-name-display">Choose a video file...</span>
+                        </label>
+                        <input type="file" id="lesson-video-file" accept="video/*" class="sr-only" required>
+                    </div>
+
+                    <div id="upload-progress-container" class="hidden">
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div id="progress-bar" class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <p id="progress-text" class="text-sm text-gray-400 text-center mt-2">0%</p>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3 pt-4">
+                        <button id="cancel-upload" type="button"
+                            class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium py-2 px-4 rounded-md transition-colors">Cancel</button>
+                        <button id="save-lesson" type="submit"
+                            class="bg-purple-700 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            Upload & Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, utils } from './supabase-client.js';
+
+        // Global variables
+        let courseData = null;
+        let currentCourseId = null;
+        let currentModuleIdForUpload = null;
+
+        // DOM elements
+        const modulesContainer = document.getElementById('modules-container');
+        const videoUploadModal = document.getElementById('video-upload-modal');
+        const addLessonForm = document.getElementById('add-lesson-form');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const progressContainer = document.getElementById('upload-progress-container');
+        const saveLessonBtn = document.getElementById('save-lesson');
+
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            const authData = await utils.requireAuth('coach');
+            if (!authData) return;
+            
+            // Get course ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentCourseId = urlParams.get('id');
+
+            if (!currentCourseId) {
+                alert('No course ID provided');
+                window.location.href = '/coach-admin-panel.html';
+                return;
+            }
+
+            await loadCourseData();
+            setupEventListeners();
+        });
+
+        // Load course data from Supabase
+        async function loadCourseData() {
+            try {
+                const { data: course, error } = await db.getCourseWithContent(currentCourseId);
+                if (error) throw error;
+                courseData = course;
+                renderUI();
+            } catch (error) {
+                console.error('Error loading course:', error);
+                alert('Error loading course data');
+            }
+        }
+
+        function renderUI() {
+            document.getElementById('course-title').value = courseData.title;
+            document.getElementById('course-description').value = courseData.description || '';
+            document.getElementById('course-price').value = courseData.price ? `$${courseData.price}` : '$0';
+            renderModules();
+        }
+
+        // Render course modules and lessons
+        function renderModules() {
+             if (!courseData || !courseData.modules || courseData.modules.length === 0) {
+                modulesContainer.innerHTML = '<p class="text-gray-400">No modules found. Add your first module to get started.</p>';
+                return;
+            }
+            
+            modulesContainer.innerHTML = courseData.modules.map(module => `
+                <div class="bg-gray-900/50 border border-gray-800 rounded-lg overflow-hidden">
+                    <div class="p-6 border-b border-gray-800">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-white">Module: ${module.title}</h3>
+                            <button onclick="window.addLesson('${module.id}')" class="bg-purple-700 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-md transition-colors text-sm">Add Lesson</button>
+                        </div>
+                    </div>
+                    <div class="divide-y divide-gray-800">
+                        ${(module.lessons || []).map(renderLesson).join('')}
+                        ${(!module.lessons || module.lessons.length === 0) ? '<p class="p-4 text-gray-500 text-sm">No lessons in this module yet.</p>' : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            updateStats();
+        }
+        
+        function renderLesson(lesson) {
+            let statusIcon;
+            switch(lesson.upload_status) {
+                case 'ready': statusIcon = '<div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg></div>'; break;
+                case 'processing': statusIcon = '<div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-yellow-500 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>'; break;
+                default: statusIcon = '<div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></div>'; break;
+            }
+            return `
+                <div class="p-4 hover:bg-gray-800/30 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            ${statusIcon}
+                            <h4 class="font-medium text-white">${lesson.title}</h4>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update course statistics
+        function updateStats() {
+            if (!courseData || !courseData.modules) return;
+            const totalModules = courseData.modules.length;
+            const totalLessons = courseData.modules.reduce((total, module) => total + (module.lessons?.length || 0), 0);
+            const totalDuration = courseData.modules.reduce((total, module) => total + (module.lessons?.reduce((lessonTotal, lesson) => lessonTotal + (lesson.duration || 0), 0) || 0), 0);
+            document.getElementById('total-modules').textContent = `${totalModules} modules`;
+            document.getElementById('total-lessons').textContent = `${totalLessons} lessons`;
+            const hours = Math.floor(totalDuration / 3600);
+            const minutes = Math.floor((totalDuration % 3600) / 60);
+            document.getElementById('total-duration').textContent = `${hours}h ${minutes}m`;
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            document.getElementById('add-module-btn').addEventListener('click', handleAddModule);
+            document.getElementById('save-course').addEventListener('click', handleSaveCourse);
+            addLessonForm.addEventListener('submit', handleSaveLesson);
+            document.getElementById('lesson-video-file').addEventListener('change', (e) => {
+                document.getElementById('file-name-display').textContent = e.target.files[0]?.name || 'Choose a video file...';
+            });
+            document.getElementById('close-upload-modal').addEventListener('click', closeUploadModal);
+            document.getElementById('cancel-upload').addEventListener('click', closeUploadModal);
+        }
+
+        // Action Handlers
+        window.addLesson = function (moduleId) {
+            currentModuleIdForUpload = moduleId;
+            addLessonForm.reset();
+            document.getElementById('file-name-display').textContent = 'Choose a video file...';
+            progressContainer.classList.add('hidden');
+            saveLessonBtn.disabled = false;
+            videoUploadModal.classList.remove('hidden');
+        };
+
+        async function handleAddModule() {
+            const title = prompt('Enter new module title:');
+            if (title) {
+                try {
+                    await db.createModule({
+                        course_id: currentCourseId,
+                        title: title,
+                        order_index: (courseData.modules.length || 0) + 1
+                    });
+                    await loadCourseData();
+                } catch (error) {
+                    alert('Failed to add module: ' + error.message);
+                }
+            }
+        }
+        
+        async function handleSaveCourse() {
+             try {
+                const updates = {
+                    title: document.getElementById('course-title').value,
+                    description: document.getElementById('course-description').value,
+                    price: parseFloat(document.getElementById('course-price').value.replace('$', '')) || 0,
+                };
+                await db.updateCourse(currentCourseId, updates);
+                alert('Course saved successfully!');
+            } catch (error) {
+                alert('Failed to save course: ' + error.message);
+            }
+        }
+
+        async function handleSaveLesson(e) {
+            e.preventDefault();
+            const title = document.getElementById('lesson-title-modal').value;
+            const file = document.getElementById('lesson-video-file').files[0];
+
+            if (!title || !file) {
+                alert('Please provide a title and select a video file.');
+                return;
+            }
+
+            saveLessonBtn.disabled = true;
+            saveLessonBtn.textContent = 'Uploading...';
+            progressContainer.classList.remove('hidden');
+
+            try {
+                // 1. Create lesson record in Supabase
+                const { data: newLesson, error: createError } = await db.createLesson({
+                    module_id: currentModuleIdForUpload,
+                    title,
+                    description: '', // Can be added later
+                    order_index: (courseData.modules.find(m => m.id === currentModuleIdForUpload)?.lessons.length || 0) + 1,
+                    upload_status: 'uploading'
+                });
+                if (createError) throw createError;
+
+                // 2. Get upload URL from our backend
+                const uploadUrlResponse = await fetch('http://localhost:3001/api/mux/upload-url', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lesson_id: newLesson.id, cors_origin: window.location.origin })
+                });
+                if (!uploadUrlResponse.ok) {
+                    const err = await uploadUrlResponse.json();
+                    throw new Error(err.details || 'Could not get upload URL');
+                }
+                const { url: upload_url } = await uploadUrlResponse.json();
+                
+                // 3. Upload file to Mux
+                const xhr = new XMLHttpRequest();
+                xhr.open('PUT', upload_url, true);
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const percentage = Math.round((event.loaded / event.total) * 100);
+                        progressBar.style.width = `${percentage}%`;
+                        progressText.textContent = `${percentage}%`;
+                    }
+                };
+
+                xhr.onload = async () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        alert('Upload successful! Mux is now processing your video. This may take a few moments.');
+                        closeUploadModal();
+                        await loadCourseData();
+                    } else {
+                        throw new Error(`Upload failed with status: ${xhr.status}`);
+                    }
+                };
+
+                xhr.onerror = () => {
+                    throw new Error('Upload failed due to a network error.');
+                };
+
+                xhr.send(file);
+
+            } catch (error) {
+                alert('Failed to save lesson: ' + error.message);
+                saveLessonBtn.disabled = false;
+                saveLessonBtn.textContent = 'Upload & Save';
+            }
+        }
+        
+        function closeUploadModal() {
+            videoUploadModal.classList.add('hidden');
+            addLessonForm.reset();
+            saveLessonBtn.disabled = false;
+            saveLessonBtn.textContent = 'Upload & Save';
+            progressContainer.classList.add('hidden');
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+        }
+
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const darkIcon = document.getElementById('theme-icon-dark');
+        const lightIcon = document.getElementById('theme-icon-light');
+        const htmlEl = document.documentElement;
+
+        function setTheme(theme) {
+            htmlEl.setAttribute('data-theme', theme);
+            darkIcon.classList.toggle('hidden', theme === 'light');
+            lightIcon.classList.toggle('hidden', theme === 'dark');
+            localStorage.setItem('theme', theme);
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlEl.getAttribute('data-theme');
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+    </script>
+</body>
+
+</html>

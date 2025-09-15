@@ -1,0 +1,486 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Kohza</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="student-panel.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        purple: {
+                            DEFAULT: '#9333ea', '50': '#faf5ff', '100': '#f3e8ff', '200': '#e9d5ff', '300': '#d8b4fe', '400': '#c084fc', '500': '#a855f7', '600': '#9333ea', '700': '#7e22ce', '800': '#6b21a8', '900': '#581c87', '950': '#3b0764'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="antialiased">
+
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div class="absolute w-[60vmax] h-[60vmax] -left-[30vmax] -top-[30vmax] bg-purple-900/30 rounded-full blur-3xl opacity-40"></div>
+        <div class="absolute w-[50vmax] h-[50vmax] -right-[25vmax] -bottom-[25vmax] bg-purple-800/20 rounded-full blur-3xl opacity-40"></div>
+    </div>
+    
+    <div class="relative z-10 min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="sticky top-0 z-50 bg-black/50 backdrop-blur-md border-b border-gray-800/50">
+            <nav class="flex justify-between items-center w-full max-w-screen-xl mx-auto px-6 sm:px-8 py-4">
+                <a href="index.html" class="text-3xl font-serif font-bold text-white transition-colors hover:text-purple-400">Kohza</a>
+                
+                <div class="flex items-center gap-4">
+                     <!-- MINI TIMER -->
+                    <div class="relative" id="mini-timer-container">
+                        <button id="mini-timer-toggle" class="flex items-center gap-2 text-white font-mono rounded-md px-3 py-2 hover:bg-white/10 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.415L11 9.586V6z" clip-rule="evenodd" />
+                            </svg>
+                            <span id="mini-timer-display">25:00</span>
+                        </button>
+                        <div id="mini-timer-panel" class="hidden absolute top-full right-0 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg p-4 z-50">
+                            <p class="text-white font-bold text-center mb-4">Focus Timer</p>
+                            <div id="timer-presets" class="flex justify-center items-center gap-2 mb-4">
+                                <button data-time="25" class="timer-preset-btn text-xs px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-md text-gray-300 font-semibold hover:bg-gray-700 hover:border-purple-700 hover:text-white transition-colors">25 min</button>
+                                <button data-time="50" class="timer-preset-btn text-xs px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-md text-gray-300 font-semibold hover:bg-gray-700 hover:border-purple-700 hover:text-white transition-colors">50 min</button>
+                                <button data-time="90" class="timer-preset-btn text-xs px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-md text-gray-300 font-semibold hover:bg-gray-700 hover:border-purple-700 hover:text-white transition-colors">90 min</button>
+                            </div>
+                            <div class="flex items-center gap-2 mb-4">
+                                <input type="number" id="custom-time-input" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2 text-center text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-purple-500" placeholder="Custom" min="1">
+                                <button id="set-custom-time-btn" class="flex-shrink-0 bg-gray-700 hover:bg-gray-600 text-white font-bold p-2 rounded-md transition-colors">Set</button>
+                            </div>
+                            <div class="flex justify-center items-center gap-2">
+                                <button id="start-pause-btn" class="bg-purple-700 hover:bg-purple-600 text-white font-bold px-6 py-2 rounded-md text-sm transition-colors">Start</button>
+                                <button id="reset-btn" class="bg-white/10 hover:bg-white/20 text-white font-bold px-6 py-2 rounded-md text-sm transition-colors">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END MINI TIMER -->
+                    <div class="text-right hidden sm:block">
+                        <p id="user-display-name" class="font-semibold text-white truncate max-w-xs"></p>
+                        <p id="current-time" class="text-sm text-gray-400"></p>
+                    </div>
+                    <img id="user-avatar" src="" alt="Student Avatar" class="w-10 h-10 rounded-full border-2 border-purple-700">
+                </div>
+            </nav>
+        </header>
+
+        <main class="max-w-screen-xl mx-auto px-6 sm:px-8 py-12 flex-1">
+            
+            <div class="mb-12">
+                <h1 id="welcome-heading" class="text-4xl md:text-5xl font-serif font-bold text-white">Welcome</h1>
+                <p class="mt-2 text-lg text-gray-400">Your path to mastery continues. Focus and persist.</p>
+            </div>
+
+            <!-- Quick Stats Dashboard -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="bg-gradient-to-br from-purple-900/30 to-purple-800/20 border border-purple-700/50 rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-300 text-sm font-medium">Enrolled Courses</p>
+                            <p id="enrolled-count" class="text-3xl font-bold text-white">0</p>
+                        </div>
+                        <div class="bg-purple-600/20 p-3 rounded-lg">
+                            <svg class="w-8 h-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-700/50 rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-300 text-sm font-medium">Study Streak</p>
+                            <p id="study-streak" class="text-3xl font-bold text-white">0 days</p>
+                        </div>
+                        <div class="bg-blue-600/20 p-3 rounded-lg">
+                            <svg class="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-700/50 rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-300 text-sm font-medium">Total Study Time</p>
+                            <p id="total-study-time" class="text-3xl font-bold text-white">0h</p>
+                        </div>
+                        <div class="bg-green-600/20 p-3 rounded-lg">
+                            <svg class="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Continue Learning Section -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-serif font-bold text-white mb-6">Continue Learning</h2>
+                <div id="recent-activity" class="bg-gray-900/50 border border-gray-800 rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white">Recent Activity</h3>
+                        <button id="mark-all-complete" class="text-sm text-purple-400 hover:text-purple-300">Mark all as complete</button>
+                    </div>
+                    <div id="recent-lessons" class="space-y-3">
+                        <!-- Recent lessons will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- My Courses Section -->
+            <section id="my-courses">
+                <h2 class="text-3xl font-serif font-bold text-white mb-8">My Courses</h2>
+                <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- Course cards will be dynamically inserted here -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="bg-transparent mt-16">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500 border-t border-gray-900/50">
+                <p>&copy; 2024 Kohza. All Rights Reserved. Forged in Discipline.</p>
+            </div>
+        </footer>
+    </div>
+    
+    <audio id="timer-complete-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
+    <script type="module">
+        import { auth, db, utils } from './supabase-client.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🎓 Student panel loading...');
+            
+            // Check authentication immediately on page load
+            const { user, profile, hasRequiredRole } = await utils.requireAuth('student');
+            
+            if (!user || !profile || !hasRequiredRole) {
+                console.log('❌ Authentication failed, requireAuth will handle redirect');
+                return;
+            }
+            
+            console.log('✅ Student authenticated:', user.email, 'Profile:', profile);
+            
+            const coursesGrid = document.getElementById('courses-grid');
+            let enrolledCourses = [];
+            
+            // Set up auth state change listener for future changes
+            auth.onAuthStateChange(async (event, session) => {
+                if (event === 'SIGNED_OUT' || !session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+            });
+
+            // Load enrolled courses from Supabase
+            async function loadEnrolledCourses() {
+                try {
+                    console.log('📚 Loading enrolled courses for student:', user.id);
+                    const { data: enrollments, error } = await db.getEnrolledCourses(user.id);
+
+                    if (error) {
+                        console.error('❌ Error loading courses:', error);
+                        console.error('Error details:', {
+                            message: error.message,
+                            details: error.details,
+                            hint: error.hint,
+                            code: error.code
+                        });
+                        coursesGrid.innerHTML = '<p class="text-red-400 col-span-full text-center">Error loading courses. Please refresh the page.</p>';
+                        return;
+                    }
+
+                    console.log('✅ Enrollments loaded:', enrollments);
+                    enrolledCourses = enrollments?.map(enrollment => enrollment.courses) || [];
+                    console.log('📖 Processed courses:', enrolledCourses);
+                    renderDashboard();
+                } catch (error) {
+                    console.error('💥 Exception loading courses:', error);
+                    coursesGrid.innerHTML = '<p class="text-red-400 col-span-full text-center">Error loading courses. Please refresh the page.</p>';
+                }
+            }
+
+            // --- UI RENDERING ---
+            function renderDashboard() {
+                // Update user info
+                const displayName = profile.full_name || user.email.split('@')[0];
+                document.getElementById('user-display-name').textContent = displayName;
+                document.getElementById('welcome-heading').textContent = `Welcome, ${displayName}`;
+                document.getElementById('user-avatar').src = profile.avatar_url || `https://i.pravatar.cc/40?u=${encodeURIComponent(user.email)}`;
+                document.getElementById('user-avatar').alt = `Avatar for ${displayName}`;
+
+                    // Update stats
+                    updateDashboardStats();
+
+                    // Render recent activity
+                    renderRecentActivity();
+
+                    // Render courses
+                    if (enrolledCourses.length === 0) {
+                        coursesGrid.innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-300">No courses enrolled</h3>
+                            <p class="mt-1 text-sm text-gray-400">Contact your coach to get enrolled in courses.</p>
+                        </div>
+                    `;
+                    } else {
+                        coursesGrid.innerHTML = enrolledCourses.map(course => {
+                            const coachName = course.profiles?.full_name || 'Unknown Coach';
+                            const moduleCount = course.modules?.length || 0;
+                            const lessonCount = course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 0;
+
+                            return `
+                            <div class="bg-gray-900/50 border border-gray-800 rounded-lg overflow-hidden shadow-lg flex flex-col transition-all duration-300 hover:border-purple-700/80 hover:shadow-purple-900/40 transform hover:-translate-y-1">
+                                <a href="course-detail.html?id=${course.id}" class="block">
+                                   <img src="${course.thumbnail_url || utils.generateThumbnail(course.title)}" alt="Course thumbnail for ${course.title}" class="w-full h-40 object-cover">
+                                </a>
+                                <div class="p-5 flex flex-col flex-grow">
+                                    <div class="flex-grow">
+                                        <a href="course-detail.html?id=${course.id}" class="block">
+                                            <h3 class="text-xl font-bold font-serif text-white hover:text-purple-400 transition-colors">${course.title}</h3>
+                                            <p class="text-gray-400 text-sm mt-1">by ${coachName}</p>
+                                            <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                                <span>${moduleCount} modules</span>
+                                                <span>${lessonCount} lessons</span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="mt-auto pt-4 space-y-2">
+                                        <!-- Progress Bar -->
+                                        <div class="mb-3">
+                                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                                <span>Progress</span>
+                                                <span>${Math.floor(Math.random() * 80) + 10}%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                                <div class="bg-purple-600 h-2 rounded-full" style="width: ${Math.floor(Math.random() * 80) + 10}%"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <a href="course-detail.html?id=${course.id}" class="block text-center w-full bg-purple-700 text-white font-bold px-4 py-2.5 text-sm rounded-md hover:bg-purple-600 transition-colors duration-300 mb-2">
+                                            Continue Learning
+                                        </a>
+                                        <a href="community.html?courseId=${course.id}&role=student" class="block text-center w-full bg-gray-700 text-white font-bold px-4 py-2 text-sm rounded-md hover:bg-gray-600 transition-colors duration-300">
+                                            View Community
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        }).join('');
+                    }
+                    appendFindNewCoursesCard();
+                }
+
+                function updateDashboardStats() {
+                    // Update enrolled courses count
+                    document.getElementById('enrolled-count').textContent = enrolledCourses.length;
+
+                    // Calculate study streak (mock data for now)
+                    const studyStreak = Math.floor(Math.random() * 15) + 1;
+                    document.getElementById('study-streak').textContent = `${studyStreak} days`;
+
+                    // Calculate total study time (mock data for now)
+                    const totalHours = Math.floor(Math.random() * 50) + 5;
+                    document.getElementById('total-study-time').textContent = `${totalHours}h`;
+                }
+
+                function renderRecentActivity() {
+                    const recentLessons = document.getElementById('recent-lessons');
+
+                    if (enrolledCourses.length === 0) {
+                        recentLessons.innerHTML = `
+                        <div class="text-center py-8">
+                            <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <p class="text-gray-400">No recent activity. Start learning to see your progress here!</p>
+                        </div>
+                    `;
+                        return;
+                    }
+
+                    // Generate mock recent lessons from enrolled courses
+                    const recentItems = enrolledCourses.slice(0, 3).map((course, index) => {
+                        const progress = Math.floor(Math.random() * 80) + 10;
+                        const lastAccessed = ['2 hours ago', '1 day ago', '3 days ago'][index];
+
+                        return `
+                        <div class="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
+                            <div class="flex items-center space-x-4">
+                                <img src="${course.thumbnail_url || utils.generateThumbnail(course.title)}" alt="${course.title}" class="w-12 h-12 rounded-lg object-cover">
+                                <div>
+                                    <h4 class="font-semibold text-white">${course.title}</h4>
+                                    <p class="text-sm text-gray-400">Last accessed ${lastAccessed}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-white">${progress}% complete</p>
+                                    <div class="w-24 bg-gray-700 rounded-full h-2 mt-1">
+                                        <div class="bg-purple-600 h-2 rounded-full" style="width: ${progress}%"></div>
+                                    </div>
+                                </div>
+                                <a href="course-detail.html?id=${course.id}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                    Continue
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    }).join('');
+
+                    recentLessons.innerHTML = recentItems;
+                }
+
+                function appendFindNewCoursesCard() {
+                    coursesGrid.innerHTML += `
+                    <div class="border-2 border-dashed border-gray-700 rounded-lg flex flex-col items-center justify-center text-center p-8 hover:border-purple-600 hover:bg-gray-900/50 transition-all duration-300 group cursor-pointer" onclick="showDiscoverModal()">
+                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-gray-800 group-hover:bg-purple-900/50 mb-4 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-500 group-hover:text-purple-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold font-serif text-white">Discover Courses</h3>
+                        <p class="mt-2 text-gray-400 text-sm">Explore new learning opportunities and expand your knowledge.</p>
+                    </div>
+                `;
+                }
+
+                // Show discover courses modal
+                window.showDiscoverModal = function() {
+                    alert('Course discovery feature coming soon! Contact your coach to get enrolled in new courses.');
+                }
+
+                // --- FOCUS TIMER LOGIC (MINI-TIMER) ---
+                const setupFocusTimer = () => {
+                    const miniTimerContainer = document.getElementById('mini-timer-container');
+                    const miniTimerToggle = document.getElementById('mini-timer-toggle');
+                    const miniTimerPanel = document.getElementById('mini-timer-panel');
+                    const miniTimerDisplay = document.getElementById('mini-timer-display');
+                    const startPauseBtn = miniTimerPanel.querySelector('#start-pause-btn');
+                    const resetBtn = miniTimerPanel.querySelector('#reset-btn');
+                    const presetsContainer = miniTimerPanel.querySelector('#timer-presets');
+                    const customTimeInput = miniTimerPanel.querySelector('#custom-time-input');
+                    const setCustomTimeBtn = miniTimerPanel.querySelector('#set-custom-time-btn');
+                    const completeSound = document.getElementById('timer-complete-sound');
+
+                    let timerInterval = null;
+                    let totalSeconds = 25 * 60;
+                    let secondsLeft = totalSeconds;
+                    let isRunning = false;
+                    const originalTitle = document.title;
+
+                    miniTimerToggle.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        miniTimerPanel.classList.toggle('hidden');
+                    });
+                    document.addEventListener('click', (e) => {
+                        if (!miniTimerContainer.contains(e.target)) {
+                            miniTimerPanel.classList.add('hidden');
+                        }
+                    });
+
+                    const updateDisplay = () => {
+                        const minutes = Math.floor(secondsLeft / 60);
+                        const seconds = secondsLeft % 60;
+                        const displayString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                        miniTimerDisplay.textContent = displayString;
+                        if (isRunning) {
+                            document.title = `${displayString} - ${originalTitle}`;
+                            miniTimerToggle.classList.add('running');
+                        } else {
+                            document.title = originalTitle;
+                            miniTimerToggle.classList.remove('running');
+                        }
+                    };
+
+                    const setTime = (minutes) => {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        totalSeconds = minutes * 60;
+                        secondsLeft = totalSeconds;
+                        startPauseBtn.textContent = 'Start';
+                        updateDisplay();
+                    };
+
+                const startTimer = () => {
+                    if (secondsLeft <= 0) return;
+                    isRunning = true;
+                    startPauseBtn.textContent = 'Pause';
+                    timerInterval = setInterval(() => {
+                        secondsLeft--;
+                        updateDisplay();
+                        if (secondsLeft <= 0) {
+                            clearInterval(timerInterval);
+                            isRunning = false;
+                            startPauseBtn.textContent = 'Start';
+                            document.title = "Time's up! - " + originalTitle;
+                            completeSound.play();
+                            setTimeout(() => setTime(totalSeconds / 60), 2000);
+                        }
+                    }, 1000);
+                };
+
+                const pauseTimer = () => {
+                    isRunning = false;
+                    clearInterval(timerInterval);
+                    startPauseBtn.textContent = 'Resume';
+                    updateDisplay();
+                };
+
+                startPauseBtn.addEventListener('click', () => { isRunning ? pauseTimer() : startTimer(); });
+                resetBtn.addEventListener('click', () => setTime(totalSeconds / 60));
+                presetsContainer.addEventListener('click', (e) => {
+                    if (e.target.matches('.timer-preset-btn')) setTime(parseInt(e.target.dataset.time, 10));
+                });
+                setCustomTimeBtn.addEventListener('click', () => {
+                    const time = parseInt(customTimeInput.value, 10);
+                    if (!isNaN(time) && time > 0) setTime(time);
+                    customTimeInput.value = '';
+                });
+
+                updateDisplay();
+            };
+
+            // Add logout functionality with dropdown
+            const userAvatar = document.getElementById('user-avatar');
+            userAvatar.style.cursor = 'pointer';
+            userAvatar.title = 'Click to logout';
+
+            userAvatar.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    await auth.signOut();
+                    window.location.href = '/login.html';
+                }
+            });
+
+            // --- INITIALIZATION ---
+            await loadEnrolledCourses();
+            setupFocusTimer();
+            document.addEventListener('contextmenu', event => event.preventDefault());
+        });
+    </script>
+</body>
+</html>

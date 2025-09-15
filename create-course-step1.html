@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Course - Step 1 - Kohza</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        purple: {
+                            DEFAULT: '#9333ea', '50': '#faf5ff', '100': '#f3e8ff', '200': '#e9d5ff', '300': '#d8b4fe', '400': '#c084fc', '500': '#a855f7', '600': '#9333ea', '700': '#7e22ce', '800': '#6b21a8', '900': '#581c87', '950': '#3b0764'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div class="absolute w-[80vmax] h-[80vmax] -left-[40vmax] -top-[40vmax] bg-purple-900/40 rounded-full blur-3xl opacity-50"></div>
+    </div>
+    
+    <div class="relative z-10 min-h-screen">
+        <header class="p-6 sm:p-8 flex justify-between items-center">
+            <a href="coach-admin-panel.html" class="text-gray-300 hover:text-white transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Back to Dashboard
+            </a>
+        </header>
+
+        <main class="max-w-6xl mx-auto px-6 pb-12">
+            <!-- Progress Steps -->
+            <div class="mb-12">
+                <div class="flex items-center justify-center space-x-4">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">1</div>
+                        <span class="ml-3 text-white font-medium">Course Details</span>
+                    </div>
+                    <div class="w-20 h-1 bg-gray-600"></div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 font-bold">2</div>
+                        <span class="ml-3 text-gray-400 font-medium">Content & Videos</span>
+                    </div>
+                    <div class="w-20 h-1 bg-gray-600"></div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-gray-400 font-bold">3</div>
+                        <span class="ml-3 text-gray-400 font-medium">Review & Publish</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Course Details Form -->
+                <div class="lg:col-span-2">
+                    <div class="bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg p-8">
+                        <div class="mb-8">
+                            <h1 class="text-3xl font-serif text-white mb-2">Course Basics</h1>
+                            <p class="text-gray-400">Let's start with the fundamental details of your course.</p>
+                        </div>
+
+                        <form id="course-basics-form" class="space-y-6">
+                            <div>
+                                <label for="title" class="block text-lg font-medium text-white mb-2">Course Title *</label>
+                                <input id="title" name="title" type="text" required 
+                                    class="w-full px-4 py-3 bg-gray-900/70 border border-gray-700 rounded-md text-white text-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600" 
+                                    placeholder="e.g., The Art of Stoic Resilience">
+                            </div>
+                            
+                            <div>
+                                <label for="description" class="block text-lg font-medium text-white mb-2">Course Description *</label>
+                                <textarea id="description" name="description" rows="4" required
+                                    class="w-full px-4 py-3 bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600" 
+                                    placeholder="Describe what students will learn and achieve in this course..."></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="price" class="block text-lg font-medium text-white mb-2">Monthly Price ($) *</label>
+                                    <input id="price" name="price" type="number" min="0" step="1" required 
+                                        class="w-full px-4 py-3 bg-gray-900/70 border border-gray-700 rounded-md text-white text-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600" 
+                                        placeholder="99">
+                                </div>
+                                <div>
+                                    <label for="duration" class="block text-lg font-medium text-white mb-2">Estimated Duration (hours)</label>
+                                    <input id="duration" name="duration" type="number" min="1" step="0.5" 
+                                        class="w-full px-4 py-3 bg-gray-900/70 border border-gray-700 rounded-md text-white text-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600" 
+                                        placeholder="10">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-lg font-medium text-white mb-2">Course Thumbnail</label>
+                                <div class="mt-2 flex items-center gap-6">
+                                    <img id="thumbnail-preview" 
+                                        src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDA4IiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDQwOCAyNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjM2IwNzY0IiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM2YjIxYTgiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTAxMDEwIiAvPgogIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZykiIG9wYWNpdHk9IjAuNSIgLz4KICA8cGF0aCBkPSJNMjU2IDgwbC00OCAyOC00OC0yOC00OCAyOCAwIDU2IDQ4IDI4IDQ4LTI4IDQ4IDI4IDAtNTZ6TTIwOCAxMDhsNDggMjggMCAwLTE2LTktNDgtMjh6TTIwOCAxMDhsLTQ4IDI4djI4bDE2LTkgNDgtMjh6IiBmaWxsPSIjZTNlOGZmIiBmaWxsLW9wYWNpdHk9IjAuMSIgLz4KICA8dGV4dCB4PSI1MCIgeT0iNTAlIiBmb250LWZhbWlseT0iSW50ZXIsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNhMGE5YmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5LZWh6YTwvdGV4dD4KPC9zdmc+" 
+                                        alt="Thumbnail preview" 
+                                        class="h-32 w-56 object-cover rounded-lg bg-gray-800 border border-gray-700">
+                                    <div class="flex flex-col gap-3">
+                                        <label for="thumbnail-upload" class="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
+                                            <span>Upload Thumbnail</span>
+                                            <input id="thumbnail-upload" name="thumbnail" type="file" class="sr-only" accept="image/png, image/jpeg, image/webp">
+                                        </label>
+                                        <p class="text-sm text-gray-400">Recommended: 1920x1080px</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Course Preview Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="sticky top-8">
+                        <div class="bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg p-6">
+                            <h3 class="text-xl font-serif text-white mb-4">Course Preview</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="aspect-video bg-gray-800 rounded-lg overflow-hidden">
+                                    <img id="preview-thumbnail" 
+                                        src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDA4IiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDQwOCAyNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjM2IwNzY0IiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM2YjIxYTgiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTAxMDEwIiAvPgogIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZykiIG9wYWNpdHk9IjAuNSIgLz4KICA8cGF0aCBkPSJNMjU2IDgwbC00OCAyOC00OC0yOC00OCAyOCAwIDU2IDQ4IDI4IDQ4LTI4IDQ4IDI4IDAtNTZ6TTIwOCAxMDhsNDggMjggMCAwLTE2LTktNDgtMjh6TTIwOCAxMDhsLTQ4IDI4djI4bDE2LTkgNDgtMjh6IiBmaWxsPSIjZTNlOGZmIiBmaWxsLW9wYWNpdHk9IjAuMSIgLz4KICA8dGV4dCB4PSI1MCIgeT0iNTAlIiBmb250LWZhbWlseT0iSW50ZXIsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNhMGE5YmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5LZWh6YTwvdGV4dD4KPC9zdmc+" 
+                                        alt="Course thumbnail" 
+                                        class="w-full h-full object-cover">
+                                </div>
+                                
+                                <div>
+                                    <h4 id="preview-title" class="text-lg font-semibold text-white">Course Title</h4>
+                                    <p id="preview-description" class="text-gray-400 text-sm mt-1 line-clamp-3">Course description will appear here...</p>
+                                </div>
+                                
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-gray-400">Price:</span>
+                                        <span id="preview-price" class="text-purple-400 font-semibold">$0/month</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-gray-400">Duration:</span>
+                                        <span id="preview-duration" class="text-gray-300">0 hours</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 pt-6 border-t border-gray-700">
+                                <button id="continue-btn" class="w-full py-3 px-4 bg-purple-700 hover:bg-purple-600 text-white font-bold rounded-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Continue to Content
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { auth, utils } from './supabase-client.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🔐 Checking authentication...');
+            
+            // Require coach authentication
+            const { user, profile, hasRequiredRole } = await utils.requireAuth('coach');
+            
+            if (!user || !profile || !hasRequiredRole) {
+                return; // Redirect will happen in requireAuth
+            }
+            
+            console.log('✅ Authenticated as coach:', profile);
+            initializePage(user, profile);
+        });
+
+        function initializePage(user, profile) {
+            const thumbnailInput = document.getElementById('thumbnail-upload');
+            const thumbnailPreview = document.getElementById('thumbnail-preview');
+            const previewThumbnail = document.getElementById('preview-thumbnail');
+            
+            // Form elements
+            const titleInput = document.getElementById('title');
+            const descriptionInput = document.getElementById('description');
+            const priceInput = document.getElementById('price');
+            const durationInput = document.getElementById('duration');
+            
+            // Preview elements
+            const previewTitle = document.getElementById('preview-title');
+            const previewDescription = document.getElementById('preview-description');
+            const previewPrice = document.getElementById('preview-price');
+            const previewDuration = document.getElementById('preview-duration');
+
+            // Load saved data if exists
+            const savedData = JSON.parse(localStorage.getItem('courseCreationData') || '{}');
+            if (savedData.step1) {
+                titleInput.value = savedData.step1.title || '';
+                descriptionInput.value = savedData.step1.description || '';
+                priceInput.value = savedData.step1.price || '';
+                durationInput.value = savedData.step1.duration || '';
+                if (savedData.step1.thumbnailUrl) {
+                    thumbnailPreview.src = savedData.step1.thumbnailUrl;
+                    previewThumbnail.src = savedData.step1.thumbnailUrl;
+                }
+                updatePreview();
+            }
+
+            // Update preview in real-time
+            function updatePreview() {
+                previewTitle.textContent = titleInput.value || 'Course Title';
+                previewDescription.textContent = descriptionInput.value || 'Course description will appear here...';
+                previewPrice.textContent = `$${priceInput.value || 0}/month`;
+                previewDuration.textContent = `${durationInput.value || 0} hours`;
+            }
+
+            // Event listeners for real-time preview
+            titleInput.addEventListener('input', updatePreview);
+            descriptionInput.addEventListener('input', updatePreview);
+            priceInput.addEventListener('input', updatePreview);
+            durationInput.addEventListener('input', updatePreview);
+        
+            // Preview thumbnail image
+            thumbnailInput.addEventListener('change', () => {
+                const file = thumbnailInput.files[0];
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        thumbnailPreview.src = e.target.result;
+                        previewThumbnail.src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Continue button
+            document.getElementById('continue-btn').addEventListener('click', () => {
+                const form = document.getElementById('course-basics-form');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                // Save data to localStorage
+                const formData = new FormData(form);
+                const step1Data = {
+                    title: formData.get('title'),
+                    description: formData.get('description'),
+                    price: parseFloat(formData.get('price')) || 0,
+                    duration: parseFloat(formData.get('duration')) || 0,
+                    thumbnailFile: thumbnailInput.files[0] || null,
+                    thumbnailUrl: thumbnailPreview.src
+                };
+
+                const courseData = JSON.parse(localStorage.getItem('courseCreationData') || '{}');
+                courseData.step1 = step1Data;
+                localStorage.setItem('courseCreationData', JSON.stringify(courseData));
+
+                // Navigate to step 2
+                window.location.href = 'create-course-step2.html';
+            });
+        }
+
+        // Disable right-click
+        document.addEventListener('contextmenu', event => event.preventDefault());
+    </script>
+</body>
+</html>

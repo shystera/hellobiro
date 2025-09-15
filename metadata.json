@@ -1,0 +1,5 @@
+{
+  "name": "pleasework",
+  "description": "A minimalist chat application where you say 'Yo' and a friendly AI 'Yo's' back with creative variations.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Course - Step 3 - Kohza</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        purple: {
+                            DEFAULT: '#9333ea', '50': '#faf5ff', '100': '#f3e8ff', '200': '#e9d5ff', '300': '#d8b4fe', '400': '#c084fc', '500': '#a855f7', '600': '#9333ea', '700': '#7e22ce', '800': '#6b21a8', '900': '#581c87', '950': '#3b0764'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div class="absolute w-[80vmax] h-[80vmax] -left-[40vmax] -top-[40vmax] bg-purple-900/40 rounded-full blur-3xl opacity-50"></div>
+    </div>
+    
+    <div class="relative z-10 min-h-screen">
+        <header class="p-6 sm:p-8 flex justify-between items-center">
+            <a href="create-course-step2.html" class="text-gray-300 hover:text-white transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Back to Content
+            </a>
+        </header>
+
+        <main class="max-w-6xl mx-auto px-6 pb-12">
+            <!-- Progress Steps -->
+            <div class="mb-12">
+                <div class="flex items-center justify-center space-x-4">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">✓</div>
+                        <span class="ml-3 text-green-400 font-medium">Course Details</span>
+                    </div>
+                    <div class="w-20 h-1 bg-green-600"></div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">✓</div>
+                        <span class="ml-3 text-green-400 font-medium">Content & Videos</span>
+                    </div>
+                    <div class="w-20 h-1 bg-green-600"></div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">3</div>
+                        <span class="ml-3 text-white font-medium">Review & Publish</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Course Review -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Course Overview -->
+                    <div class="bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg p-8">
+                        <h1 class="text-3xl font-serif text-white mb-6">Review Your Course</h1>
+                        
+                        <div class="space-y-6">
+                            <!-- Course Details -->
+                            <div class="border border-gray-700 rounded-lg p-6">
+                                <div class="flex items-start gap-6">
+                                    <img id="review-thumbnail" src="" alt="Course thumbnail" class="w-32 h-20 object-cover rounded-lg bg-gray-800">
+                                    <div class="flex-1">
+                                        <h2 id="review-title" class="text-xl font-semibold text-white mb-2">Course Title</h2>
+                                        <p id="review-description" class="text-gray-300 mb-3">Course description</p>
+                                        <div class="flex items-center gap-4 text-sm">
+                                            <span class="text-purple-400 font-semibold" id="review-price">$0/month</span>
+                                            <span class="text-gray-400" id="review-duration">0 hours</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Course Content -->
+                            <div class="border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Course Content</h3>
+                                <div id="review-modules" class="space-y-4">
+                                    <!-- Modules will be rendered here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Publishing Options -->
+                    <div class="bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg p-8">
+                        <h2 class="text-2xl font-serif text-white mb-6">Publishing Options</h2>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <input type="radio" id="save-draft" name="publish-option" value="draft" class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 focus:ring-purple-500" checked>
+                                <label for="save-draft" class="ml-3 text-white">
+                                    <span class="font-medium">Save as Draft</span>
+                                    <p class="text-sm text-gray-400">Save your course privately. You can publish it later.</p>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <input type="radio" id="publish-now" name="publish-option" value="publish" class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 focus:ring-purple-500">
+                                <label for="publish-now" class="ml-3 text-white">
+                                    <span class="font-medium">Publish Now</span>
+                                    <p class="text-sm text-gray-400">Make your course available to students immediately.</p>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="sticky top-8 space-y-6">
+                        <!-- Course Stats -->
+                        <div class="bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-serif text-white mb-4">Course Statistics</h3>
+                            
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Modules:</span>
+                                    <span id="stats-modules" class="text-white font-medium">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Lessons:</span>
+                                    <span id="stats-lessons" class="text-white font-medium">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Videos:</span>
+                                    <span id="stats-videos" class="text-white font-medium">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Total Duration:</span>
+                                    <span id="stats-total-duration" class="text-white font-medium">0 min</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg p-6">
+                            <div class="space-y-3">
+                                <button id="create-course-btn" class="w-full py-3 px-4 bg-purple-700 hover:bg-purple-600 text-white font-bold rounded-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Create Course
+                                </button>
+                                <p class="text-xs text-gray-400 text-center">
+                                    You can always edit your course after creation
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg p-6">
+                            <h4 class="text-sm font-medium text-white mb-3">Quick Actions</h4>
+                            <div class="space-y-2 text-sm">
+                                <button class="w-full text-left text-gray-300 hover:text-white py-1" onclick="window.location.href='create-course-step1.html'">
+                                    ← Edit Course Details
+                                </button>
+                                <button class="w-full text-left text-gray-300 hover:text-white py-1" onclick="window.location.href='create-course-step2.html'">
+                                    ← Edit Content & Videos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { auth, db, supabase } from './supabase-client.js';
+
+        let courseData = {};
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            try {
+                const { user, error: userError } = await auth.getCurrentUser();
+                if (userError || !user) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                // Temporarily disabled for testing
+                // const { data: profile } = await auth.getUserProfile(user.id);
+                // if (!profile || profile.role !== 'coach') {
+                //     window.location.href = '/role.html';
+                //     return;
+                // }
+                console.log('🧪 Testing mode - authentication disabled');
+
+                currentUser = user;
+
+                // Check if previous steps data exists
+                courseData = JSON.parse(localStorage.getItem('courseCreationData') || '{}');
+                if (!courseData.step1 || !courseData.step2) {
+                    alert('Missing course data. Please complete all previous steps.');
+                    window.location.href = 'create-course-step1.html';
+                    return;
+                }
+
+                initializePage();
+            } catch (error) {
+                console.error('Authentication error:', error);
+                window.location.href = '/login.html';
+            }
+        });
+
+        function initializePage() {
+            renderCourseReview();
+            setupEventListeners();
+        }
+
+        function renderCourseReview() {
+            const { step1, step2 } = courseData;
+
+            // Course details
+            document.getElementById('review-title').textContent = step1.title;
+            document.getElementById('review-description').textContent = step1.description;
+            document.getElementById('review-price').textContent = `$${step1.price}/month`;
+            document.getElementById('review-duration').textContent = `${step1.duration || 0} hours`;
+            document.getElementById('review-thumbnail').src = step1.thumbnailUrl;
+
+            // Course content
+            const modulesContainer = document.getElementById('review-modules');
+            modulesContainer.innerHTML = '';
+
+            step2.modules.forEach((module, moduleIndex) => {
+                const moduleHtml = `
+                    <div class="border border-gray-600 rounded-lg p-4">
+                        <h4 class="font-medium text-white mb-2">Module ${moduleIndex + 1}: ${module.title}</h4>
+                        <p class="text-sm text-gray-400 mb-3">${module.description || 'No description'}</p>
+                        <div class="space-y-2">
+                            ${module.lessons.map((lesson, lessonIndex) => `
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-300">
+                                        ${lessonIndex + 1}. ${lesson.title}
+                                    </span>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-gray-400">${lesson.duration} min</span>
+                                        ${lesson.hasVideo ? 
+                                            '<span class="text-green-400 text-xs">✓ Video</span>' : 
+                                            '<span class="text-gray-500 text-xs">No video</span>'
+                                        }
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                modulesContainer.insertAdjacentHTML('beforeend', moduleHtml);
+            });
+
+            // Statistics
+            const totalModules = step2.modules.length;
+            const totalLessons = step2.modules.reduce((total, module) => total + module.lessons.length, 0);
+            const totalVideos = step2.modules.reduce((total, module) => 
+                total + module.lessons.filter(lesson => lesson.hasVideo).length, 0);
+            const totalDuration = step2.modules.reduce((total, module) => 
+                total + module.lessons.reduce((lessonTotal, lesson) => lessonTotal + lesson.duration, 0), 0);
+
+            document.getElementById('stats-modules').textContent = totalModules;
+            document.getElementById('stats-lessons').textContent = totalLessons;
+            document.getElementById('stats-videos').textContent = totalVideos;
+            document.getElementById('stats-total-duration').textContent = `${totalDuration} min`;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('create-course-btn').addEventListener('click', createCourse);
+        }
+
+        async function createCourse() {
+            const submitButton = document.getElementById('create-course-btn');
+            const publishOption = document.querySelector('input[name="publish-option"]:checked').value;
+            const isPublished = publishOption === 'publish';
+
+            try {
+                submitButton.textContent = 'Creating Course...';
+                submitButton.disabled = true;
+
+                const { step1, step2 } = courseData;
+
+                // Upload thumbnail if provided
+                let thumbnailUrl = null;
+                if (step1.thumbnailFile) {
+                    const fileExt = step1.thumbnailFile.name.split('.').pop();
+                    const fileName = `${currentUser.id}/${Date.now()}.${fileExt}`;
+                    
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('course-thumbnails')
+                        .upload(fileName, step1.thumbnailFile);
+
+                    if (uploadError) {
+                        console.warn('Thumbnail upload failed:', uploadError);
+                    } else {
+                        const { data: { publicUrl } } = supabase.storage
+                            .from('course-thumbnails')
+                            .getPublicUrl(fileName);
+                        thumbnailUrl = publicUrl;
+                    }
+                }
+
+                // Create course in Supabase
+                const { data: newCourse, error: courseError } = await db.createCourse({
+                    title: step1.title,
+                    description: step1.description,
+                    price: step1.price,
+                    coach_id: currentUser.id,
+                    published: isPublished,
+                    thumbnail_url: thumbnailUrl
+                });
+
+                if (courseError) throw courseError;
+
+                // Create modules and lessons
+                for (let i = 0; i < step2.modules.length; i++) {
+                    const moduleData = step2.modules[i];
+                    
+                    const { data: newModule, error: moduleError } = await db.createModule({
+                        course_id: newCourse.id,
+                        title: moduleData.title,
+                        description: moduleData.description
+                    });
+
+                    if (moduleError) {
+                        console.warn('Failed to create module:', moduleError);
+                        continue;
+                    }
+
+                    // Create lessons for this module
+                    for (let j = 0; j < moduleData.lessons.length; j++) {
+                        const lessonData = moduleData.lessons[j];
+                        
+                        const { error: lessonError } = await db.createLesson({
+                            module_id: newModule.id,
+                            title: lessonData.title,
+                            description: lessonData.description || '',
+                            mux_asset_id: lessonData.muxAssetId || null,
+                            mux_playback_id: lessonData.muxPlaybackId || null
+                        });
+
+                        if (lessonError) {
+                            console.warn('Failed to create lesson:', lessonError);
+                        }
+                    }
+                }
+
+                // Clear localStorage
+                localStorage.removeItem('courseCreationData');
+
+                // Show success message
+                const message = isPublished ? 
+                    'Course created and published successfully! Students can now enroll.' :
+                    'Course created as draft successfully! You can publish it later from your dashboard.';
+                
+                alert(message);
+
+                // Redirect to course editor or dashboard
+                window.location.href = `course-editor.html?id=${newCourse.id}`;
+
+            } catch (error) {
+                console.error('Error creating course:', error);
+                alert(`Error creating course: ${error.message || 'Please try again.'}`);
+                
+                submitButton.textContent = 'Create Course';
+                submitButton.disabled = false;
+            }
+        }
+
+        // Disable right-click
+        document.addEventListener('contextmenu', event => event.preventDefault());
+    </script>
+</body>
+</html>

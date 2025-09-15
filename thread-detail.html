@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discussion - Kohza</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="thread-detail.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        purple: {
+                            DEFAULT: '#9333ea', '50': '#faf5ff', '100': '#f3e8ff', '200': '#e9d5ff', '300': '#d8b4fe', '400': '#c084fc', '500': '#a855f7', '600': '#9333ea', '700': '#7e22ce', '800': '#6b21a8', '900': '#581c87', '950': '#3b0764'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="antialiased">
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-blobs">
+        <div class="absolute w-[60vmax] h-[60vmax] -left-[30vmax] -top-[30vmax] bg-purple-900/30 rounded-full blur-3xl opacity-40"></div>
+    </div>
+    
+    <div class="flex flex-col min-h-screen">
+        <header class="sticky top-0 z-50 header-bg bg-black/70 backdrop-blur-md border-b border-gray-800/50">
+            <nav class="flex justify-between items-center w-full max-w-4xl mx-auto px-4 sm:px-6 py-4">
+                <a id="back-to-community-link" href="#" class="nav-link text-gray-300 hover:text-white transition-colors flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                    Back to Community
+                </a>
+                <div class="flex items-center gap-4">
+                    <img id="user-avatar" src="https://i.pravatar.cc/40?u=user" alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-purple-700">
+                    <button id="theme-toggle" type="button" class="theme-toggle-btn text-gray-400 hover:text-white focus:outline-none p-2 rounded-md">
+                        <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        <svg id="theme-icon-light" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    </button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="w-full max-w-4xl mx-auto px-4 sm:px-6 py-10 flex-grow">
+            <!-- Main Post -->
+            <div id="main-post-container" class="mb-8">
+                <!-- Main post is injected here -->
+            </div>
+
+            <!-- Replies Section -->
+            <div id="replies-section" class="border-t border-gray-700 pt-6">
+                <h2 id="replies-count" class="text-2xl font-serif font-semibold heading-text mb-6">No replies yet</h2>
+                <div id="replies-list" class="space-y-6">
+                    <!-- Replies injected here -->
+                </div>
+            </div>
+
+            <!-- Reply Form -->
+            <div class="mt-10 pt-6 border-t border-gray-700">
+                <div class="flex items-start gap-4">
+                    <img id="user-reply-avatar" src="" alt="Your avatar" class="w-10 h-10 rounded-full">
+                    <div class="flex-1">
+                        <form id="reply-form">
+                            <label for="reply-textarea" class="sr-only">Write a reply</label>
+                            <textarea id="reply-textarea" rows="4" placeholder="Write a reply..." required></textarea>
+                            <div class="mt-3 flex justify-end">
+                                <button type="submit" class="bg-purple-700 text-white font-bold px-6 py-2.5 rounded-md hover:bg-purple-600 transition-colors duration-300">Post Reply</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const placeholderData = {
+                'course-1': {
+                    title: 'The Art of Stoic Resilience',
+                    threads: [
+                        { id: 'thread-1', author: 'Seneca', avatar: 'student1', title: 'Question about the Dichotomy of Control', time: '2 hours ago', content: 'I understand the concept, but how do you apply it when dealing with difficult family members? Their actions are not in my control, but they deeply affect my tranquility.', replies: [
+                            { author: 'Zeno', avatar: 'student3', time: '1 hour ago', content: 'Focus on your reaction. That is the only thing you truly command.' },
+                            { author: 'Marcus Aurelius', avatar: 'coach', time: '30 minutes ago', content: 'A great question, Seneca. Your tranquility is disturbed not by their actions, but by your judgment of their actions. We will discuss this in our next session.' }
+                        ]},
+                        { id: 'thread-2', author: 'Marcus Aurelius', avatar: 'coach', title: 'Weekly Challenge: Memento Mori', time: '1 day ago', content: 'This week, I challenge each of you to contemplate your mortality each morning. Not to be morbid, but to appreciate the day ahead. Share your reflections here.', replies: [
+                             { author: 'Epictetus', avatar: 'student2', time: '22 hours ago', content: 'A sobering, yet clarifying exercise. It puts trivial annoyances into perspective.' },
+                             { author: 'Seneca', avatar: 'student1', time: '19 hours ago', content: 'I found this surprisingly uplifting. It adds a certain weight and beauty to the mundane.' },
+                             { author: 'Cato', avatar: 'student4', time: '15 hours ago', content: 'It is not death that a man should fear, but he should fear never beginning to live.' }
+                        ]},
+                        { id: 'thread-3', author: 'Epictetus', avatar: 'student2', title: 'Feedback on Module 1', time: '3 days ago', content: 'The lesson on "Amor Fati" was profound. The explanation was clear and the examples were relatable. Perhaps a worksheet could help solidify the concept?', replies: [] },
+                    ]
+                },
+                'course-3': {
+                    title: 'High-Impact Performance Habits',
+                    threads: [
+                         { id: 'thread-4', author: 'Kobe', avatar: 'student3', title: 'How to structure a "Deep Work" block?', time: '5 hours ago', content: 'I\'m struggling to avoid distractions. What tools or techniques do you all use to create an impenetrable bubble of focus for 90-minute sprints?', replies: [
+                            { author: 'Coach Carter', avatar: 'coach2', time: '4 hours ago', content: 'Great question. Start with 50 minutes, not 90. Remove your phone from the room entirely. Let me know how it goes.'}
+                         ]},
+                         { id: 'thread-5', author: 'Coach Carter', avatar: 'coach2', title: 'Accountability Thread - Week 5', time: '2 days ago', content: 'Post your primary goal for this week. Check in daily. Let\'s hold each other to a higher standard. My goal is to finish the script for the next module.', replies: [] },
+                    ]
+                }
+            };
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('courseId');
+            const threadId = urlParams.get('threadId');
+            const role = urlParams.get('role') || 'student';
+
+            const course = placeholderData[courseId];
+            const thread = course ? course.threads.find(t => t.id === threadId) : null;
+            
+            if (!thread) {
+                document.querySelector('main').innerHTML = '<p class="text-center text-red-400">Thread not found.</p>';
+                return;
+            }
+
+            // --- Page Setup ---
+            document.title = `${thread.title} - Kohza`;
+            document.getElementById('back-to-community-link').href = `community.html?courseId=${courseId}&role=${role}`;
+            document.getElementById('user-avatar').src = `https://i.pravatar.cc/40?u=${role}`;
+            document.getElementById('user-reply-avatar').src = `https://i.pravatar.cc/40?u=${role}`;
+
+            // --- Render Main Post ---
+            const mainPostContainer = document.getElementById('main-post-container');
+            mainPostContainer.innerHTML = `
+                <h1 class="text-3xl md:text-4xl font-serif font-bold heading-text mb-3">${thread.title}</h1>
+                <div class="flex items-center gap-3 text-sm text-gray-400 mb-6">
+                    <img src="https://i.pravatar.cc/40?u=${thread.avatar}" alt="Avatar of ${thread.author}" class="w-10 h-10 rounded-full border-2 border-gray-700">
+                    <div>
+                        <span class="font-semibold text-gray-300">${thread.author}</span>
+                        <span>&bull;</span>
+                        <span>${thread.time}</span>
+                    </div>
+                </div>
+                <div class="text-lg text-gray-300 leading-relaxed">${thread.content || thread.snippet}</div>
+            `;
+            
+            // --- Render Replies ---
+            const repliesList = document.getElementById('replies-list');
+            const repliesCountEl = document.getElementById('replies-count');
+            
+            if (thread.replies && thread.replies.length > 0) {
+                const replyCount = thread.replies.length;
+                repliesCountEl.textContent = `${replyCount} ${replyCount === 1 ? 'Reply' : 'Replies'}`;
+                repliesList.innerHTML = thread.replies.map(reply => `
+                    <div class="reply-item flex items-start gap-4">
+                        <img src="https://i.pravatar.cc/40?u=${reply.avatar}" alt="Avatar for ${reply.author}" class="w-10 h-10 rounded-full mt-1">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 text-sm text-gray-400 mb-1">
+                                <span class="font-semibold text-gray-300">${reply.author}</span>
+                                <span>&bull;</span>
+                                <span>${reply.time}</span>
+                            </div>
+                            <div class="reply-content">
+                                <p class="text-gray-300">${reply.content}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                 repliesCountEl.textContent = 'No Replies Yet';
+            }
+            
+            // --- Reply Form Logic ---
+            document.getElementById('reply-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Replying is not implemented in this demo.');
+                e.target.reset();
+            });
+
+            // --- Theme Switcher ---
+            const themeToggle = document.getElementById('theme-toggle');
+            const darkIcon = document.getElementById('theme-icon-dark');
+            const lightIcon = document.getElementById('theme-icon-light');
+            const htmlEl = document.documentElement;
+    
+            function setTheme(theme) {
+                htmlEl.setAttribute('data-theme', theme);
+                darkIcon.classList.toggle('hidden', theme === 'light');
+                lightIcon.classList.toggle('hidden', theme === 'dark');
+                localStorage.setItem('theme', theme);
+            }
+    
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = htmlEl.getAttribute('data-theme');
+                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            });
+    
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            setTheme(savedTheme);
+
+            // Disable context menu
+            document.addEventListener('contextmenu', event => event.preventDefault());
+        });
+    </script>
+</body>
+</html>

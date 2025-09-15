@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up - Kohza</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="login.css"/>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            purple: {
+              DEFAULT: '#9333ea',
+              '50': '#faf5ff',
+              '100': '#f3e8ff',
+              '200': '#e9d5ff',
+              '300': '#d8b4fe',
+              '400': '#c084fc',
+              '500': '#a855f7',
+              '600': '#9333ea',
+              '700': '#7e22ce',
+              '800': '#6b21a8',
+              '900': '#581c87',
+              '950': '#3b0764',
+            },
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="antialiased">
+  <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-blobs">
+    <div class="absolute w-[80vmax] h-[80vmax] -left-[40vmax] -top-[40vmax] bg-purple-900/40 rounded-full blur-3xl opacity-50"></div>
+    <div class="absolute w-[60vmax] h-[60vmax] -right-[30vmax] -bottom-[20vmax] bg-purple-800/30 rounded-full blur-3xl opacity-50"></div>
+  </div>
+
+  <div class="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
+    <header class="absolute top-0 left-0 right-0 p-6 sm:p-8 flex justify-between items-center">
+      <a href="index.html" class="text-3xl font-serif font-bold brand-text hover:text-purple-300 transition-colors">Kohza</a>
+      <button id="theme-toggle" type="button" class="theme-toggle-btn text-gray-400 hover:text-white focus:outline-none p-2 rounded-md">
+        <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        <svg id="theme-icon-light" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+      </button>
+    </header>
+
+    <main class="w-full max-w-md">
+      <div class="login-card bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg shadow-purple-950/40 p-8">
+        <div class="text-center mb-8">
+          <h1 class="text-4xl font-serif heading-text">Join Kohza</h1>
+          <p class="text-gray-400 mt-2">Begin your disciplined path.</p>
+        </div>
+
+        <form id="signup-form">
+          <div class="space-y-6">
+            <div>
+              <label for="full_name" class="block text-sm font-medium label-text">Full Name</label>
+              <div class="mt-1">
+                <input id="full_name" name="full_name" type="text" required class="w-full px-4 py-3 input-field bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600" placeholder="Your full name"/>
+              </div>
+            </div>
+
+            <div>
+              <label for="email" class="block text-sm font-medium label-text">Email Address</label>
+              <div class="mt-1">
+                <input id="email" name="email" type="email" required class="w-full px-4 py-3 input-field bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600" placeholder="you@example.com"/>
+              </div>
+            </div>
+
+            <div>
+              <label for="role" class="block text-sm font-medium label-text">I am a...</label>
+              <div class="mt-1">
+                <select id="role" name="role" required class="w-full px-4 py-3 input-field bg-gray-900/70 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600">
+                  <option value="">Select your role</option>
+                  <option value="student">Student - I want to learn</option>
+                  <option value="coach">Coach - I want to teach</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="password" class="block text-sm font-medium label-text">Password</label>
+              <div class="mt-1">
+                <input id="password" name="password" type="password" required minlength="6" class="w-full px-4 py-3 input-field bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600" placeholder="••••••••"/>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
+            </div>
+
+            <div>
+              <label for="confirm_password" class="block text-sm font-medium label-text">Confirm Password</label>
+              <div class="mt-1">
+                <input id="confirm_password" name="confirm_password" type="password" required class="w-full px-4 py-3 input-field bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600" placeholder="••••••••"/>
+              </div>
+            </div>
+
+            <div>
+              <button type="submit" class="w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-white bg-purple-700 hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-purple-500 transition-all duration-300 transform hover:-translate-y-0.5">
+                Create Account
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { auth, supabase } from './supabase-client.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const signupForm = document.getElementById('signup-form');
+      const submitButton = signupForm.querySelector('button[type="submit"]');
+      
+      // Check if user is already logged in
+const { user } = await auth.getCurrentUser();
+if (user) {
+  window.location.href = 'index.html';
+  return;
+}
+
+      // Get role from URL parameter or localStorage
+      const urlParams = new URLSearchParams(window.location.search);
+      const roleFromUrl = urlParams.get('role');
+      const roleFromStorage = localStorage.getItem('selectedRole');
+      const selectedRole = roleFromUrl || roleFromStorage;
+
+      if (!selectedRole) {
+        // If no role selected, redirect to role selection
+        window.location.href = 'role.html';
+        return;
+      }
+
+      // Pre-fill and hide the role field
+      const roleSelect = document.getElementById('role');
+      roleSelect.value = selectedRole;
+      roleSelect.disabled = true;
+      roleSelect.parentElement.style.display = 'none';
+
+      // Update page title
+      const pageTitle = document.querySelector('h1');
+      if (pageTitle) {
+        pageTitle.textContent = `Sign up as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}`;
+      }
+
+      // Add role indicator
+      const roleIndicator = document.createElement('div');
+      roleIndicator.className = 'text-center mb-4 p-2 bg-purple-900/30 border border-purple-700 rounded-md';
+      roleIndicator.innerHTML = `
+        <span class="text-purple-300 text-sm">Creating account as: <strong>${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}</strong></span>
+        <button onclick="changeRole()" class="ml-2 text-xs text-purple-400 hover:text-purple-300 underline">Change</button>
+      `;
+      signupForm.insertBefore(roleIndicator, signupForm.firstChild);
+
+      signupForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        
+        const fullName = document.getElementById('full_name').value;
+        const email = document.getElementById('email').value;
+        const role = document.getElementById('role').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        
+        // Validate passwords match
+        if (password !== confirmPassword) {
+          showError('Passwords do not match.');
+          return;
+        }
+        
+        // Show loading state
+        submitButton.textContent = 'Creating Account...';
+        submitButton.disabled = true;
+        
+        try {
+          console.log('🔐 Attempting signup with:', { email, fullName, role });
+          
+          // Sign up with Supabase
+          const { data, error } = await auth.signUp(email, password, {
+            full_name: fullName,
+            role: role
+          });
+          
+          console.log('🔐 Signup response:', { data, error });
+          
+          if (error) {
+            throw error;
+          }
+          
+          if (data.user) {
+            console.log('✅ User created:', data.user.email);
+            
+            // Manually create profile since trigger might not exist
+            try {
+              const { error: profileError } = await supabase
+                .from('profiles')
+                .insert([{
+                  id: data.user.id,
+                  email: data.user.email,
+                  full_name: fullName,
+                  role: role
+                }]);
+
+              if (profileError) {
+                console.error('Profile creation error:', profileError);
+                // Don't fail the signup for this, user can create profile later
+              } else {
+                console.log('✅ Profile created successfully');
+              }
+            } catch (profileError) {
+              console.error('Profile creation failed:', profileError);
+            }
+            
+            // Clear the selected role since we're done with signup
+            localStorage.removeItem('selectedRole');
+            
+            // Show success message
+            showSuccess('Account created successfully! Redirecting to login...');
+            
+            // Redirect to login after a delay
+            setTimeout(() => {
+              window.location.href = 'login.html';
+            }, 2000);
+          }
+        } catch (error) {
+          console.error('Signup error:', error);
+          
+          let errorMessage = 'Account creation failed. Please try again.';
+          if (error.message.includes('already registered')) {
+            errorMessage = 'An account with this email already exists.';
+          } else if (error.message.includes('Password should be')) {
+            errorMessage = 'Password must be at least 6 characters long.';
+          } else if (error.message.includes('For security purposes')) {
+            const match = error.message.match(/after (\d+) seconds/);
+            const waitTime = match ? `for ${match[1]} seconds` : 'a moment';
+            errorMessage = `Too many requests. Please wait ${waitTime} and try again.`;
+          }
+          
+          showError(errorMessage);
+          
+          // Reset button
+          submitButton.textContent = 'Create Account';
+          submitButton.disabled = false;
+        }
+      });
+
+      function showError(message) {
+        let errorDiv = document.getElementById('signup-error');
+        if (!errorDiv) {
+          errorDiv = document.createElement('div');
+          errorDiv.id = 'signup-error';
+          errorDiv.className = 'mt-4 p-3 bg-red-900/50 border border-red-700 rounded-md text-red-300 text-sm';
+          signupForm.appendChild(errorDiv);
+        }
+        errorDiv.textContent = message;
+        
+        // Remove success message if exists
+        const successDiv = document.getElementById('signup-success');
+        if (successDiv) successDiv.remove();
+      }
+
+      function showSuccess(message) {
+        let successDiv = document.getElementById('signup-success');
+        if (!successDiv) {
+          successDiv = document.createElement('div');
+          successDiv.id = 'signup-success';
+          successDiv.className = 'mt-4 p-3 bg-green-900/50 border border-green-700 rounded-md text-green-300 text-sm';
+          signupForm.appendChild(successDiv);
+        }
+        successDiv.textContent = message;
+        
+        // Remove error message if exists
+        const errorDiv = document.getElementById('signup-error');
+        if (errorDiv) errorDiv.remove();
+      }
+
+      // Add link to login page
+      const loginLink = document.createElement('div');
+      loginLink.className = 'text-center mt-6';
+      loginLink.innerHTML = `
+        <p class="text-gray-400">
+          Already have an account? 
+          <a href="login.html" class="text-purple-500 hover:text-purple-400 font-medium">Sign in</a>
+        </p>
+      `;
+      signupForm.parentElement.appendChild(loginLink);
+
+      // Store role in localStorage for login page
+      localStorage.setItem('selectedRole', selectedRole);
+
+      document.addEventListener("contextmenu", event => event.preventDefault());
+    });
+
+    // Function to change role selection
+    window.changeRole = function() {
+      localStorage.removeItem('selectedRole');
+      window.location.href = 'role.html';
+    }
+  </script>
+  
+  <script>
+    // --- THEME SWITCHER ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeToggle = document.getElementById('theme-toggle');
+        if (!themeToggle) return;
+
+        const darkIcon = document.getElementById('theme-icon-dark');
+        const lightIcon = document.getElementById('theme-icon-light');
+        const htmlEl = document.documentElement;
+
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                htmlEl.setAttribute('data-theme', 'dark');
+                if (darkIcon) darkIcon.classList.remove('hidden');
+                if (lightIcon) lightIcon.classList.add('hidden');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                htmlEl.setAttribute('data-theme', 'light');
+                if (darkIcon) darkIcon.classList.add('hidden');
+                if (lightIcon) lightIcon.classList.remove('hidden');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlEl.getAttribute('data-theme');
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else if (prefersDark) {
+            setTheme('dark');
+        } else {
+            setTheme('light');
+        }
+    });
+  </script>
+</body>
+</html>

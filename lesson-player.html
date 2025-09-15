@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Player - Kohza</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mux/mux-player"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="lesson-player.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        purple: {
+                            DEFAULT: '#9333ea', '50': '#faf5ff', '100': '#f3e8ff', '200': '#e9d5ff', '300': '#d8b4fe', '400': '#c084fc', '500': '#a855f7', '600': '#9333ea', '700': '#7e22ce', '800': '#6b21a8', '900': '#581c87', '950': '#3b0764'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="antialiased">
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-blobs">
+        <div
+            class="absolute w-[60vmax] h-[60vmax] -left-[30vmax] -top-[30vmax] bg-purple-900/30 rounded-full blur-3xl opacity-40">
+        </div>
+    </div>
+
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="sticky top-0 z-50 header-bg bg-black/70 backdrop-blur-md border-b border-gray-800/50">
+            <nav class="flex justify-between items-center w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                <a id="brand-link" href="#"
+                    class="text-3xl font-serif font-bold brand-text transition-colors hover:text-purple-400">Kohza</a>
+                <div class="flex items-center gap-4">
+                    <!-- MINI TIMER -->
+                    <div class="relative" id="mini-timer-container">
+                        <button id="mini-timer-toggle"
+                            class="flex items-center gap-2 nav-item-text font-mono rounded-md px-3 py-2 hover:bg-white/10 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.415L11 9.586V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span id="mini-timer-display">25:00</span>
+                        </button>
+                        <div id="mini-timer-panel"
+                            class="hidden absolute top-full right-0 mt-2 w-64 mini-timer-panel bg-gray-900 border border-gray-700 rounded-lg shadow-lg p-4 z-50">
+                            <p class="nav-item-text font-bold text-center mb-4">Focus Timer</p>
+                            <div id="timer-presets" class="flex justify-center items-center gap-2 mb-4">
+                                <button data-time="25"
+                                    class="timer-preset-btn text-xs px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-md text-gray-300 font-semibold hover:bg-gray-700 hover:border-purple-700 hover:text-white transition-colors">25
+                                    min</button>
+                                <button data-time="50"
+                                    class="timer-preset-btn text-xs px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-md text-gray-300 font-semibold hover:bg-gray-700 hover:border-purple-700 hover:text-white transition-colors">50
+                                    min</button>
+                                <button data-time="90"
+                                    class="timer-preset-btn text-xs px-3 py-1 bg-gray-800/50 border border-gray-700 rounded-md text-gray-300 font-semibold hover:bg-gray-700 hover:border-purple-700 hover:text-white transition-colors">90
+                                    min</button>
+                            </div>
+                            <div class="flex items-center gap-2 mb-4">
+                                <input type="number" id="custom-time-input"
+                                    class="w-full input-field bg-gray-800 border border-gray-600 rounded-md p-2 text-center text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                    placeholder="Custom" min="1">
+                                <button id="set-custom-time-btn"
+                                    class="flex-shrink-0 custom-time-btn bg-gray-700 hover:bg-gray-600 text-white font-bold p-2 rounded-md transition-colors">Set</button>
+                            </div>
+                            <div class="flex justify-center items-center gap-2">
+                                <button id="start-pause-btn"
+                                    class="bg-purple-700 hover:bg-purple-600 text-white font-bold px-6 py-2 rounded-md text-sm transition-colors">Start</button>
+                                <button id="reset-btn"
+                                    class="reset-btn bg-white/10 hover:bg-white/20 text-white font-bold px-6 py-2 rounded-md text-sm transition-colors">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END MINI TIMER -->
+                    <a id="my-courses-link" href="#"
+                        class="text-sm font-medium nav-item-text hover:text-white transition-colors">My Courses</a>
+                    <button id="logout-btn"
+                        class="logout-button text-sm font-medium nav-item-text hover:text-white transition-colors">Logout</button>
+                    <img id="user-avatar" src="https://i.pravatar.cc/40?u=student" alt="Student Avatar"
+                        class="w-10 h-10 rounded-full border-2 border-purple-700">
+                    <button id="theme-toggle" type="button"
+                        class="theme-toggle-btn text-gray-400 hover:text-white focus:outline-none p-2 rounded-md">
+                        <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                            </path>
+                        </svg>
+                        <svg id="theme-icon-light" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+            </nav>
+        </header>
+
+        <div id="content-area" class="w-full max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8 flex-grow">
+            <!-- Main Content Grid -->
+            <div class="main-grid">
+                <!-- Left Column -->
+                <main class="main-content">
+                    <div
+                        class="aspect-video w-full bg-black rounded-lg overflow-hidden shadow-2xl shadow-purple-950/40 border border-gray-800 video-player-wrapper relative">
+                        <mux-player id="lesson-video" style="width: 100%; height: 100%;" accent-color="#9333ea" controls
+                            autoplay="muted" aria-label="Course video player">
+                        </mux-player>
+
+                        <!-- Content Protection Overlay -->
+                        <div id="protection-overlay" class="absolute inset-0 pointer-events-none">
+                            <div
+                                class="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-xs font-medium">
+                                🔒 Protected Content
+                            </div>
+                            <div
+                                class="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-xs font-medium">
+                                © Kohza - Unauthorized sharing prohibited
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 py-4">
+                        <h1 id="lesson-title" class="text-3xl md:text-4xl font-bold font-serif heading-text">Loading...
+                        </h1>
+                        <p id="course-breadcrumb" class="text-gray-400 mt-1">From: Loading...</p>
+                    </div>
+
+                    <div class="mt-4 border-t border-gray-800 pt-6 transcript-wrapper">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-2xl font-serif font-semibold heading-text">Transcript</h2>
+                            <button id="toggle-transcript-btn"
+                                class="text-sm font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-2">
+                                <span id="transcript-btn-text">Show</span>
+                                <svg id="transcript-btn-icon" xmlns="http://www.w3.org/2000/svg"
+                                    class="h-5 w-5 transition-transform" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="transcript-container"
+                            class="hidden mt-4 pr-4 max-h-96 overflow-y-auto bg-black/30 p-4 rounded-md">
+                            <p id="transcript-content" class="transcript-content text-gray-300">Loading transcript...
+                            </p>
+                        </div>
+                    </div>
+                </main>
+
+                <!-- Right Column (Sidebar) -->
+                <aside class="sidebar">
+                    <div class="sticky top-24 space-y-8">
+                        <!-- Module Playlist -->
+                        <div id="playlist-panel" class="sidebar-panel bg-gray-900/50 border border-gray-800 rounded-lg">
+                            <h2 id="playlist-title" class="text-2xl font-serif font-semibold heading-text p-5">Course
+                                Content</h2>
+                            <div id="playlist-container" class="border-t border-gray-700 max-h-[40vh] overflow-y-auto">
+                                <!-- Playlist content will be dynamically inserted here -->
+                            </div>
+                        </div>
+                        <!-- Notes -->
+                        <div id="notes-panel"
+                            class="sidebar-panel bg-gray-900/50 border border-gray-800 rounded-lg p-5">
+                            <h2 class="text-2xl font-serif font-semibold heading-text mb-4">My Notes</h2>
+                            <textarea id="notes-textarea"
+                                class="w-full h-48 bg-black/30 p-3 rounded-md border-2 border-transparent focus:border-purple-700 text-gray-300 placeholder-gray-500 transition-colors"
+                                placeholder="Take notes on this lesson..."></textarea>
+                            <button id="save-notes-btn"
+                                class="w-full mt-4 bg-purple-700 text-white font-bold py-2 px-4 rounded-md hover:bg-purple-600 transition-colors">Save
+                                Notes</button>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+    <audio id="timer-complete-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
+        preload="auto"></audio>
+
+    <script type="module">
+        // --- DATA SIMULATION ---
+        const courseData = {
+            id: '1',
+            title: 'The Art of Stoic Resilience',
+            modules: [
+                {
+                    id: 'mod-1',
+                    title: 'Module 1: The Foundation',
+                    lessons: [
+                        {
+                            id: '101',
+                            title: 'Introduction to Stoicism',
+                            duration: '12:34',
+                            muxPlaybackId: 'demo-stoicism-intro',
+                            muxAssetId: 'mux-asset-101',
+                            videoUrl: 'https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM.m3u8',
+                            transcript: 'This is the transcript for the Introduction to Stoicism. Stoicism is a school of Hellenistic philosophy founded by Zeno of Citium in Athens in the early 3rd century BC. It is a philosophy of personal eudaimonic virtue ethics informed by its system of logic and its views on the natural world, asserting that the practice of virtue is both necessary and sufficient to achieve eudaimonia—flourishing by living an ethical life.'
+                        },
+                        {
+                            id: '102',
+                            title: 'The Dichotomy of Control',
+                            duration: '15:02',
+                            muxPlaybackId: 'demo-dichotomy-control',
+                            muxAssetId: 'mux-asset-102',
+                            videoUrl: 'https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM.m3u8',
+                            transcript: 'Transcript for The Dichotomy of Control. Some things are in our control, while others are not. We control our opinions, aspirations, desires, and the things that repel us. We do not control our body, property, reputation, or commands.'
+                        },
+                    ]
+                },
+                {
+                    id: 'mod-2',
+                    title: 'Module 2: Practical Application',
+                    lessons: [
+                        {
+                            id: '201',
+                            title: 'Negative Visualization',
+                            duration: '18:50',
+                            muxPlaybackId: 'demo-negative-visualization',
+                            muxAssetId: 'mux-asset-201',
+                            videoUrl: 'https://stream.mux.com/v69RSHhFelSm4701snP22dYz2jICy4E4FUyk02rW4gxRM.m3u8',
+                            transcript: 'Transcript for Negative Visualization. This technique involves imagining the loss of things you value. It helps you appreciate what you have and prepares you for potential future hardships, making you more resilient.'
+                        }
+                    ]
+                }
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let activeLessonId = null;
+
+            // --- ELEMENT SELECTORS ---
+            const muxPlayer = document.getElementById('lesson-video');
+            const lessonTitleEl = document.getElementById('lesson-title');
+            const breadcrumbEl = document.getElementById('course-breadcrumb');
+            const transcriptContentEl = document.getElementById('transcript-content');
+            const playlistContainer = document.getElementById('playlist-container');
+            const playlistTitleEl = document.getElementById('playlist-title');
+            const notesTextarea = document.getElementById('notes-textarea');
+            const saveNotesBtn = document.getElementById('save-notes-btn');
+
+            // --- INITIALIZATION ---
+            function init() {
+                const urlParams = new URLSearchParams(window.location.search);
+                activeLessonId = urlParams.get('lessonId') || courseData.modules[0].lessons[0].id;
+                const role = urlParams.get('role') || 'student';
+
+                // Set dynamic dashboard links
+                const dashboardUrl = role === 'coach' ? 'coach-admin-panel.html' : 'student-panel.html';
+                document.getElementById('brand-link').href = dashboardUrl;
+                document.getElementById('my-courses-link').href = dashboardUrl;
+                document.getElementById('user-avatar').src = `https://i.pravatar.cc/40?u=${role}`;
+
+
+                initPlaylist();
+                renderLessonContent(activeLessonId);
+                initTranscriptToggle();
+                initNotes();
+                initFocusTimer();
+                initLogout();
+                initThemeToggle();
+                initMuxPlayer();
+                enableContentProtection();
+                document.addEventListener('contextmenu', event => event.preventDefault());
+            }
+
+            // --- RENDER FUNCTIONS ---
+            function renderLessonContent(lessonId) {
+                let lesson, module;
+                for (const mod of courseData.modules) {
+                    const found = mod.lessons.find(l => l.id === lessonId);
+                    if (found) {
+                        lesson = found;
+                        module = mod;
+                        break;
+                    }
+                }
+
+                if (!lesson) {
+                    console.error("Lesson not found!");
+                    lessonTitleEl.textContent = 'Lesson not found.';
+                    return;
+                }
+
+                activeLessonId = lessonId;
+
+                // Set up Mux Player
+                if (lesson.muxPlaybackId) {
+                    muxPlayer.setAttribute('playback-id', lesson.muxPlaybackId);
+                }
+                if (lesson.videoUrl) {
+                    muxPlayer.setAttribute('src', lesson.videoUrl);
+                }
+
+                // Set metadata for analytics
+                muxPlayer.setAttribute('metadata-video-title', lesson.title);
+                muxPlayer.setAttribute('metadata-video-id', lesson.id);
+                muxPlayer.setAttribute('metadata-viewer-user-id', 'student-123');
+
+                lessonTitleEl.textContent = lesson.title;
+                breadcrumbEl.textContent = `From: ${courseData.title}`;
+                transcriptContentEl.textContent = lesson.transcript;
+
+                // Update active link in playlist
+                document.querySelectorAll('.lesson-link').forEach(link => {
+                    link.classList.toggle('active', link.dataset.lessonId === lessonId);
+                });
+
+                // Load notes for this lesson
+                notesTextarea.value = localStorage.getItem(`notes-${lessonId}`) || '';
+
+                document.title = `${lesson.title} - ${courseData.title}`;
+            }
+
+            function initPlaylist() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const role = urlParams.get('role') || 'student';
+                playlistTitleEl.textContent = courseData.title;
+                playlistContainer.innerHTML = courseData.modules.map(mod => `
+                    <div class="module open border-b border-gray-800">
+                        <div class="module-header flex justify-between items-center p-4 cursor-pointer hover:bg-gray-800/60 transition-colors">
+                            <h3 class="text-lg font-semibold heading-text">${mod.title}</h3>
+                            <svg class="arrow-icon w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+                        <div class="module-content">
+                            <ul class="divide-y divide-gray-800/50">
+                                ${mod.lessons.map(les => `
+                                    <li>
+                                        <a href="?lessonId=${les.id}&role=${role}" data-lesson-id="${les.id}" class="lesson-link flex justify-between items-center p-4 pl-6 border-l-4 border-transparent hover:bg-purple-900/30 transition-colors">
+                                            <div class="flex items-center gap-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 icon-play" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                                                <span class="lesson-title text-gray-300">${les.title}</span>
+                                            </div>
+                                            <span class="text-sm text-gray-500 font-mono">${les.duration}</span>
+                                        </a>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Accordion logic
+                playlistContainer.addEventListener('click', e => {
+                    const header = e.target.closest('.module-header');
+                    if (header) {
+                        header.parentElement.classList.toggle('open');
+                    }
+                    // Handle navigation without page reload
+                    const lessonLink = e.target.closest('.lesson-link');
+                    if (lessonLink) {
+                        e.preventDefault();
+                        const lessonId = lessonLink.dataset.lessonId;
+                        const url = new URL(window.location);
+                        url.searchParams.set('lessonId', lessonId);
+                        history.pushState({ lessonId }, '', url);
+                        renderLessonContent(lessonId);
+                    }
+                });
+            }
+
+            // --- FEATURE INITIALIZERS ---
+            function initTranscriptToggle() {
+                const toggleBtn = document.getElementById('toggle-transcript-btn');
+                const btnText = document.getElementById('transcript-btn-text');
+                const btnIcon = document.getElementById('transcript-btn-icon');
+                const transcriptContainer = document.getElementById('transcript-container');
+
+                toggleBtn.addEventListener('click', () => {
+                    const isHidden = transcriptContainer.classList.contains('hidden');
+                    transcriptContainer.classList.toggle('hidden');
+                    btnText.textContent = isHidden ? 'Hide' : 'Show';
+                    btnIcon.classList.toggle('rotate-180', isHidden);
+                });
+            }
+
+            function initNotes() {
+                saveNotesBtn.addEventListener('click', () => {
+                    localStorage.setItem(`notes-${activeLessonId}`, notesTextarea.value);
+                    saveNotesBtn.textContent = 'Saved!';
+                    setTimeout(() => { saveNotesBtn.textContent = 'Save Notes'; }, 2000);
+                });
+            }
+
+            function initLogout() {
+                document.getElementById('logout-btn').addEventListener('click', () => {
+                    // In a real app, this would clear tokens etc.
+                    window.location.href = 'role.html';
+                });
+            }
+
+            function initFocusTimer() {
+                const container = document.getElementById('mini-timer-container');
+                const toggle = document.getElementById('mini-timer-toggle');
+                const panel = document.getElementById('mini-timer-panel');
+                const display = document.getElementById('mini-timer-display');
+                const startPauseBtn = panel.querySelector('#start-pause-btn');
+                const resetBtn = panel.querySelector('#reset-btn');
+                const presetsContainer = panel.querySelector('#timer-presets');
+                const customInput = panel.querySelector('#custom-time-input');
+                const setCustomBtn = panel.querySelector('#set-custom-time-btn');
+                const sound = document.getElementById('timer-complete-sound');
+
+                let timerInterval = null;
+                let totalSeconds = 25 * 60;
+                let secondsLeft = totalSeconds;
+                let isRunning = false;
+                const originalTitle = document.title;
+
+                toggle.addEventListener('click', e => {
+                    e.stopPropagation();
+                    panel.classList.toggle('hidden');
+                });
+                document.addEventListener('click', e => {
+                    if (!container.contains(e.target)) panel.classList.add('hidden');
+                });
+
+                const updateDisplay = () => {
+                    const minutes = Math.floor(secondsLeft / 60);
+                    const seconds = secondsLeft % 60;
+                    const str = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    display.textContent = str;
+                    if (isRunning) {
+                        document.title = `${str} - Focus`;
+                        toggle.classList.add('running');
+                    } else {
+                        document.title = originalTitle;
+                        toggle.classList.remove('running');
+                    }
+                };
+
+                const setTime = (minutes) => {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    totalSeconds = minutes * 60;
+                    secondsLeft = totalSeconds;
+                    startPauseBtn.textContent = 'Start';
+                    updateDisplay();
+                };
+
+                startPauseBtn.addEventListener('click', () => {
+                    if (isRunning) { // Pause
+                        isRunning = false;
+                        clearInterval(timerInterval);
+                        startPauseBtn.textContent = 'Resume';
+                    } else { // Start/Resume
+                        if (secondsLeft <= 0) return;
+                        isRunning = true;
+                        startPauseBtn.textContent = 'Pause';
+                        timerInterval = setInterval(() => {
+                            secondsLeft--;
+                            updateDisplay();
+                            if (secondsLeft <= 0) {
+                                clearInterval(timerInterval);
+                                isRunning = false;
+                                startPauseBtn.textContent = 'Start';
+                                sound.play();
+                                alert("Focus session complete!");
+                                setTime(totalSeconds / 60);
+                            }
+                        }, 1000);
+                    }
+                    updateDisplay();
+                });
+
+                resetBtn.addEventListener('click', () => setTime(totalSeconds / 60));
+                presetsContainer.addEventListener('click', e => e.target.matches('.timer-preset-btn') && setTime(parseInt(e.target.dataset.time, 10)));
+                setCustomBtn.addEventListener('click', () => {
+                    const time = parseInt(customInput.value, 10);
+                    if (!isNaN(time) && time > 0) setTime(time);
+                    customInput.value = '';
+                });
+
+                updateDisplay();
+            };
+
+            function initMuxPlayer() {
+                // Mux Player event listeners
+                muxPlayer.addEventListener('loadstart', () => {
+                    console.log('Video loading started');
+                });
+
+                muxPlayer.addEventListener('play', () => {
+                    console.log('Video started playing');
+                    // Track play event for analytics
+                });
+
+                muxPlayer.addEventListener('pause', () => {
+                    console.log('Video paused');
+                    // Track pause event for analytics
+                });
+
+                muxPlayer.addEventListener('timeupdate', () => {
+                    const currentTime = muxPlayer.currentTime;
+                    const duration = muxPlayer.duration;
+                    if (duration > 0) {
+                        const progress = (currentTime / duration) * 100;
+                        // Update progress tracking if needed
+                    }
+                });
+
+                muxPlayer.addEventListener('ended', () => {
+                    console.log('Video ended');
+                    // Mark lesson as complete or move to next lesson
+                    markLessonComplete();
+                });
+
+                muxPlayer.addEventListener('error', (e) => {
+                    console.error('Mux Player error:', e);
+                });
+            }
+
+            function enableContentProtection() {
+                // Disable right-click context menu on video
+                muxPlayer.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                });
+
+                // Disable text selection on video
+                muxPlayer.style.userSelect = 'none';
+                muxPlayer.style.webkitUserSelect = 'none';
+
+                // Disable drag
+                muxPlayer.addEventListener('dragstart', (e) => e.preventDefault());
+
+                // Show protection overlay periodically
+                const overlay = document.getElementById('protection-overlay');
+                setInterval(() => {
+                    overlay.style.opacity = '1';
+                    setTimeout(() => {
+                        overlay.style.opacity = '0.7';
+                    }, 2000);
+                }, 30000); // Every 30 seconds
+
+                // Disable keyboard shortcuts that might be used for recording
+                document.addEventListener('keydown', (e) => {
+                    // Disable F12, Ctrl+Shift+I, Ctrl+U, etc.
+                    if (e.key === 'F12' ||
+                        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                        (e.ctrlKey && e.key === 'u')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            function markLessonComplete() {
+                // In a real app, this would update the backend
+                console.log(`Lesson ${activeLessonId} completed`);
+
+                // Update local storage or send to backend
+                const completedLessons = JSON.parse(localStorage.getItem('completedLessons') || '[]');
+                if (!completedLessons.includes(activeLessonId)) {
+                    completedLessons.push(activeLessonId);
+                    localStorage.setItem('completedLessons', JSON.stringify(completedLessons));
+                }
+
+                // Show completion notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg z-50';
+                notification.textContent = 'Lesson completed! 🎉';
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            function initThemeToggle() {
+                const themeToggle = document.getElementById('theme-toggle');
+                if (!themeToggle) return;
+                const darkIcon = document.getElementById('theme-icon-dark');
+                const lightIcon = document.getElementById('theme-icon-light');
+                const htmlEl = document.documentElement;
+
+                function setTheme(theme) {
+                    htmlEl.setAttribute('data-theme', theme);
+                    if (darkIcon) darkIcon.classList.toggle('hidden', theme === 'light');
+                    if (lightIcon) lightIcon.classList.toggle('hidden', theme === 'dark');
+                    localStorage.setItem('theme', theme);
+
+                    // Update Mux player theme
+                    muxPlayer.setAttribute('accent-color', theme === 'dark' ? '#9333ea' : '#7e22ce');
+                }
+
+                themeToggle.addEventListener('click', () => {
+                    const currentTheme = htmlEl.getAttribute('data-theme');
+                    setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+                });
+
+                const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                setTheme(savedTheme);
+            }
+
+            // Start the app
+            init();
+
+            window.onpopstate = (event) => {
+                if (event.state && event.state.lessonId) {
+                    renderLessonContent(event.state.lessonId);
+                }
+            };
+        });
+    </script>
+</body>
+
+</html>

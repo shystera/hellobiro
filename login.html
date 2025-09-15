@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Kohza</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="login.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            purple: {
+              DEFAULT: '#9333ea',
+              '50': '#faf5ff',
+              '100': '#f3e8ff',
+              '200': '#e9d5ff',
+              '300': '#d8b4fe',
+              '400': '#c084fc',
+              '500': '#a855f7',
+              '600': '#9333ea',
+              '700': '#7e22ce',
+              '800': '#6b21a8',
+              '900': '#581c87',
+              '950': '#3b0764',
+            },
+          },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="antialiased">
+  <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-blobs">
+    <div
+      class="absolute w-[80vmax] h-[80vmax] -left-[40vmax] -top-[40vmax] bg-purple-900/40 rounded-full blur-3xl opacity-50">
+    </div>
+    <div
+      class="absolute w-[60vmax] h-[60vmax] -right-[30vmax] -bottom-[20vmax] bg-purple-800/30 rounded-full blur-3xl opacity-50">
+    </div>
+  </div>
+
+  <div class="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
+    <header class="absolute top-0 left-0 right-0 p-6 sm:p-8 flex justify-between items-center">
+      <a href="index.html"
+        class="text-3xl font-serif font-bold brand-text hover:text-purple-300 transition-colors">Kohza</a>
+      <button id="theme-toggle" type="button"
+        class="theme-toggle-btn text-gray-400 hover:text-white focus:outline-none p-2 rounded-md">
+        <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+          stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+        <svg id="theme-icon-light" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+          stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+          </path>
+        </svg>
+      </button>
+    </header>
+
+    <main class="w-full max-w-md">
+      <div
+        class="login-card bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg shadow-purple-950/40 p-8">
+        <div class="text-center mb-8">
+          <h1 class="text-4xl font-serif heading-text">Welcome Back</h1>
+          <p class="text-gray-400 mt-2">Continue your path of discipline.</p>
+        </div>
+
+        <form id="login-form">
+          <div class="space-y-6">
+            <div>
+              <label for="email" class="block text-sm font-medium label-text">Email Address</label>
+              <div class="mt-1">
+                <input id="email" name="email" type="email" required
+                  class="w-full px-4 py-3 input-field bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
+                  placeholder="you@example.com" />
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between">
+                <label for="password" class="block text-sm font-medium label-text">Password</label>
+                <a href="#" class="text-sm font-medium text-purple-500 hover:text-purple-400">Forgot password?</a>
+              </div>
+              <div class="mt-1">
+                <input id="password" name="password" type="password" required
+                  class="w-full px-4 py-3 input-field bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
+                  placeholder="••••••••" />
+              </div>
+            </div>
+
+            <div>
+              <button type="submit"
+                class="w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-white bg-purple-700 hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-purple-500 transition-all duration-300 transform hover:-translate-y-0.5">
+                Continue to Kohza
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { auth, utils, supabase } from './supabase-client.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const loginForm = document.getElementById('login-form');
+      const submitButton = loginForm.querySelector('button[type="submit"]');
+
+      // Check URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const forceLogin = urlParams.get('force') === 'true';
+      const logout = urlParams.get('logout') === 'true';
+
+      // If logout parameter is present, sign out first
+      if (logout) {
+        await auth.signOut();
+        localStorage.clear();
+        sessionStorage.clear();
+        // Remove logout parameter from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      // Check if user is already logged in (unless forced login)
+      if (!forceLogin && !logout) {
+        const { user } = await auth.getCurrentUser();
+        if (user) {
+          // Check if user has a profile
+          const { data: profile } = await auth.getUserProfile(user.id);
+          if (profile) {
+            // User has profile, redirect to dashboard
+            console.log('✅ User already logged in with profile:', profile);
+            if (profile.role === 'coach') {
+              console.log('🎯 Redirecting to coach dashboard');
+              window.location.href = 'coach-admin-panel.html';
+            } else {
+              console.log('🎯 Redirecting to student dashboard');
+              window.location.href = 'student-panel.html';
+            }
+            return;
+          }
+          // If no profile but user is logged in, continue with login flow to create profile
+        }
+      }
+
+      // Get the selected role from localStorage
+      const selectedRole = localStorage.getItem('selectedRole');
+      console.log('Login page - Selected role from localStorage:', selectedRole);
+
+      if (!selectedRole) {
+        console.log('No role found in localStorage, redirecting to role selection');
+        // If no role selected, redirect back to role selection
+        console.log('🎯 Redirecting to role.html because no role is selected');
+        window.location.href = 'role.html';
+        return;
+      }
+
+      console.log('Role found, continuing with login flow for role:', selectedRole);
+
+      // Update the page title to show selected role
+      const pageTitle = document.querySelector('h1');
+      if (pageTitle) {
+        pageTitle.textContent = `Login as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}`;
+      }
+
+      // Add role indicator
+      const roleIndicator = document.createElement('div');
+      roleIndicator.className = 'text-center mb-4 p-2 bg-purple-900/30 border border-purple-700 rounded-md';
+      roleIndicator.innerHTML = `
+        <span class="text-purple-300 text-sm">Selected Role: <strong>${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}</strong></span>
+        <button onclick="changeRole()" class="ml-2 text-xs text-purple-400 hover:text-purple-300 underline">Change</button>
+      `;
+      loginForm.insertBefore(roleIndicator, loginForm.firstChild);
+
+      loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Show loading state
+        submitButton.textContent = 'Signing in...';
+        submitButton.disabled = true;
+
+        try {
+          console.log('🔐 Attempting login with email:', email);
+          console.log('🔐 Selected role:', selectedRole);
+
+          // Sign in with Supabase
+          const { data, error } = await auth.signIn(email, password);
+
+          console.log('🔐 Login response:', { data, error });
+
+          if (error) {
+            throw error;
+          }
+
+          if (data.user) {
+            console.log('✅ User authenticated:', data.user.email);
+            // Get user profile to determine role
+            console.log('👤 Getting user profile for ID:', data.user.id);
+            const { data: profile, error: profileError } = await auth.getUserProfile(data.user.id);
+
+            console.log('👤 Profile response:', { profile, profileError });
+            
+            if (profile) {
+              // Existing user: Validate that their stored role matches the selected role
+              console.log(`👤 Existing profile found with role: '${profile.role}'. Validating against selected role: '${selectedRole}'.`);
+              if (profile.role !== selectedRole) {
+                const message = `You are trying to log in as a '${selectedRole}', but this account is registered as a '${profile.role}'. Please select the correct role to continue.`;
+                console.log(`❌ Role mismatch. Alerting user: "${message}"`);
+                alert(message);
+                
+                // Log them out fully and reset the flow
+                await auth.signOut();
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'role.html';
+                return;
+              }
+
+              // Roles match, proceed with redirection
+              localStorage.removeItem('selectedRole');
+              console.log(`✅ Roles match. Redirecting to ${profile.role} dashboard.`);
+              if (profile.role === 'coach') {
+                window.location.href = 'coach-admin-panel.html';
+              } else {
+                window.location.href = 'student-panel.html';
+              }
+
+            } else {
+              // No profile exists: Create one with the selected role
+              console.log('❌ No profile found, creating new profile with role:', selectedRole);
+
+              // Ensure selectedRole is valid
+              if (!selectedRole) {
+                console.warn('❌ selectedRole is empty when creating profile. Redirecting to role selection.');
+                window.location.href = 'role.html';
+                return;
+              }
+
+              try {
+                const { error: createError } = await supabase
+                  .from('profiles')
+                  .insert([{
+                    id: data.user.id,
+                    email: data.user.email,
+                    full_name: data.user.email.split('@')[0],
+                    role: selectedRole
+                  }]);
+
+                if (createError) {
+                  console.error('Profile creation failed:', createError);
+                  throw createError;
+                }
+
+                localStorage.removeItem('selectedRole');
+                console.log('✅ Profile created, redirecting based on role:', selectedRole);
+                if (selectedRole === 'coach') {
+                  window.location.href = 'coach-admin-panel.html';
+                } else {
+                  window.location.href = 'student-panel.html';
+                }
+              } catch (error) {
+                console.error('Error creating profile:', error);
+                alert('Failed to create user profile. Please try again.');
+                // Reset button
+                submitButton.textContent = 'Continue to Kohza';
+                submitButton.disabled = false;
+                return;
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Login error:', error);
+
+          // Show error message
+          let errorMessage = 'Login failed. Please try again.';
+          if (error.message.includes('Invalid login credentials')) {
+            errorMessage = 'Invalid email or password.';
+          } else if (error.message.includes('Email not confirmed')) {
+            errorMessage = 'Please check your email and confirm your account.';
+          }
+
+          // Create or update error display
+          let errorDiv = document.getElementById('login-error');
+          if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'login-error';
+            errorDiv.className = 'mt-4 p-3 bg-red-900/50 border border-red-700 rounded-md text-red-300 text-sm';
+            loginForm.appendChild(errorDiv);
+          }
+          errorDiv.textContent = errorMessage;
+
+          // Reset button
+          submitButton.textContent = 'Continue to Kohza';
+          submitButton.disabled = false;
+        }
+      });
+
+      // Add link to signup page
+      const signupLink = document.createElement('div');
+      signupLink.className = 'text-center mt-6';
+      signupLink.innerHTML = `
+        <p class="text-gray-400">
+          Don't have an account? 
+          <a href="signup.html?role=${selectedRole}" class="text-purple-500 hover:text-purple-400 font-medium">Sign up as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}</a>
+        </p>
+      `;
+      loginForm.parentElement.appendChild(signupLink);
+
+      document.addEventListener("contextmenu", event => event.preventDefault());
+    });
+
+    // Function to change role selection
+    window.changeRole = function () {
+      console.log('changeRole called - clearing localStorage and redirecting');
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = 'role.html';
+    }
+  </script>
+  <script>
+    // --- THEME SWITCHER ---
+    document.addEventListener('DOMContentLoaded', () => {
+      const themeToggle = document.getElementById('theme-toggle');
+      if (!themeToggle) return;
+
+      const darkIcon = document.getElementById('theme-icon-dark');
+      const lightIcon = document.getElementById('theme-icon-light');
+      const htmlEl = document.documentElement;
+
+      function setTheme(theme) {
+        if (theme === 'dark') {
+          htmlEl.setAttribute('data-theme', 'dark');
+          if (darkIcon) darkIcon.classList.remove('hidden');
+          if (lightIcon) lightIcon.classList.add('hidden');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          htmlEl.setAttribute('data-theme', 'light');
+          if (darkIcon) darkIcon.classList.add('hidden');
+          if (lightIcon) lightIcon.classList.remove('hidden');
+          localStorage.setItem('theme', 'light');
+        }
+      }
+
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = htmlEl.getAttribute('data-theme');
+        setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+      });
+
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      if (savedTheme) {
+        setTheme(savedTheme);
+      } else if (prefersDark) {
+        setTheme('dark');
+      } else {
+        setTheme('light');
+      }
+    });
+  </script>
+</body>
+
+</html>
