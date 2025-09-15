@@ -1,8 +1,10 @@
 [build]
-  # Don't run any build command - just serve the static files
+  # Override any UI settings - don't run any build command
   command = ""
   # Publish the current directory (where index.html is)
   publish = "."
+  # Ignore package.json scripts
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF"
   
 [build.environment]
   # Environment variables for your app
