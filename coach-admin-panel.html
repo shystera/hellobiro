@@ -686,16 +686,31 @@
                 e.preventDefault();
                 const form = e.currentTarget;
                 const submitButton = document.getElementById('confirm-enroll-btn');
-                const email = form['student-email'].value.trim().toLowerCase();
-                const courseId = form['course-select'].value;
-
-                // Basic email validation
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                // Enhanced email validation and normalization
+                let email = form['student-email'].value;
+                if (!email) {
+                    alert('Please enter an email address.');
+                    return;
+                }
+                
+                // Normalize email: trim whitespace and convert to lowercase
+                email = email.trim().toLowerCase();
+                
+                // Enhanced email validation
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 if (!emailRegex.test(email)) {
                     alert('Please enter a valid email address.');
                     return;
                 }
-
+                
+                // Check for common email issues
+                if (email.includes('..') || email.startsWith('.') || email.endsWith('.')) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+                
+                const courseId = form['course-select'].value;
                 if (!courseId) {
                     alert('Please select a course.');
                     return;
@@ -715,15 +730,24 @@
                             .from('profiles')
                             .select('id, role, full_name')
                             .eq('email', email)
-                            .single();
+                            .maybeSingle(); // Use maybeSingle instead of single to avoid errors when no rows
                         
-                        if (profileError && profileError.code !== 'PGRST116') { // PGRST116 = no rows returned
-                            console.warn('Profile lookup error (might be RLS related):', profileError);
+                        if (profileError) {
+                            // Handle different types of profile lookup errors
+                            if (profileError.code === 'PGRST116') {
+                                // No rows found - this is expected for new users
+                                console.log('No existing profile found - new user');
+                            } else if (profileError.message && profileError.message.includes('406')) {
+                                // 406 Not Acceptable - likely RLS policy issue
+                                console.warn('Profile lookup blocked by RLS policies, proceeding as new user');
+                            } else {
+                                console.warn('Profile lookup error:', profileError);
+                            }
                         } else {
                             existingProfile = data;
                         }
                     } catch (relsError) {
-                        console.warn('RLS prevented profile lookup, proceeding with signup attempt:', relsError);
+                        console.warn('Profile lookup failed, proceeding as new user:', relsError);
                     }
 
                     let studentId;
@@ -762,42 +786,32 @@
                         if (signUpError) {
                             console.log('Signup error details:', signUpError);
                             
+                            // Handle different types of signup errors with specific guidance
                             if (signUpError.message.includes('already registered') || 
                                 signUpError.message.includes('User already registered') ||
                                 signUpError.status === 422) {
-                                // Auth user exists but no profile - this is the orphaned account scenario
-                                console.log('🔄 Detected orphaned auth user. Attempting to send password reset...');
                                 
-                                // Try to send password reset to let them log in and complete setup
-                                try {
-                                    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-                                        redirectTo: `${window.location.origin}/student-panel.html`
-                                    });
-                                    
-                                    if (resetError) {
-                                        console.warn('Could not send password reset:', resetError);
-                                        throw new Error(`An account for this email exists but is not fully set up. Please ask the user to log in with their existing password, or use the "Forgot Password" link on the login page to reset it.`);
-                                    } else {
-                                        throw new Error(`An account for this email exists but needs to be completed. A password reset email has been sent to ${email}. Please ask them to follow the link in the email to complete their account setup, then try enrolling them again.`);
-                                    }
-                                } catch (resetAttemptError) {
-                                    console.warn('Password reset attempt failed:', resetAttemptError);
-                                    throw new Error(`An account for this email already exists but is incomplete. Please ask the user to:
+                                // This is an orphaned auth account - provide specific instructions
+                                console.log('🔄 Detected orphaned auth user for:', email);
+                                
+                                throw new Error(`An account for "${email}" already exists but is not fully set up. Please ask the student to:
 
-1. Try logging in with their existing password
-2. Use "Forgot Password" on the login page if needed
-3. Complete their profile setup
+✅ OPTION 1: Try logging in with their existing password at the login page
+✅ OPTION 2: Use "Forgot Password" on the login page to reset their password
+✅ OPTION 3: Complete their profile setup after logging in
 
-Then try enrolling them again.`);
-                                }
+Once they complete their account setup, you can try enrolling them again.`);
+                            }
+                            
+                            // Handle email validation errors
+                            if (signUpError.message.includes('Invalid email') || 
+                                signUpError.message.includes('invalid') ||
+                                signUpError.status === 400) {
+                                throw new Error(`The email address "${email}" appears to be invalid. Please check the email address and try again.`);
                             }
                             
                             // Handle other signup errors
-                            if (signUpError.message.includes('Invalid email')) {
-                                throw new Error('Please enter a valid email address.');
-                            }
-                            
-                            throw signUpError;
+                            throw new Error(`Failed to create account: ${signUpError.message}`);
                         }
 
                         if (!signUpData.user) {
@@ -848,22 +862,34 @@ Then try enrolling them again.`);
                 } catch (error) {
                     console.error('Error enrolling student:', error);
                     
-                    // Provide more helpful error messages
-                    let errorMessage = 'Failed to enroll student: ' + error.message;
+                    // Provide specific error messages based on the error type
+                    let errorMessage;
                     
-                    if (error.message.includes('needs to be completed')) {
-                        // This is our custom message for orphaned accounts
+                    if (error.message.includes('already exists but is not fully set up') || 
+                        error.message.includes('OPTION 1') ||
+                        error.message.includes('OPTION 2')) {
+                        // This is our custom message for orphaned accounts - show as-is
                         errorMessage = error.message;
                     } else if (error.message.includes('already enrolled')) {
                         errorMessage = 'This student is already enrolled in the selected course.';
-                    } else if (error.message.includes('already registered')) {
-                        errorMessage = 'An account exists for this email but needs setup. Please ask the student to log in or use "Forgot Password" to complete their account.';
+                    } else if (error.message.includes('invalid') && error.message.includes('email')) {
+                        errorMessage = `The email address appears to be invalid. Please check the spelling and format.`;
+                    } else if (error.message.includes('registered to a')) {
+                        errorMessage = error.message; // Role mismatch error
+                    } else {
+                        errorMessage = 'Failed to enroll student: ' + error.message;
                     }
                     
                     alert(errorMessage);
                 } finally {
                     submitButton.textContent = 'Enroll Student';
                     submitButton.disabled = false;
+                    
+                    // Clear the email field if there was an email validation error
+                    if (error && error.message && error.message.includes('invalid') && error.message.includes('email')) {
+                        form['student-email'].value = '';
+                        form['student-email'].focus();
+                    }
                 }
             });
 
