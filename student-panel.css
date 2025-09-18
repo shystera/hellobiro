@@ -1,19 +1,311 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background: radial-gradient(ellipse at top, rgba(88, 28, 135, 0.3), transparent 70%), #000;
-  color: #d1d5db;
+  background: radial-gradient(ellipse at top, rgba(88, 28, 135, 0.15), transparent 50%), #0a0a0a;
+  color: #e5e7eb;
+  transition: background-color 0.3s, color 0.3s;
 }
 h1, h2, h3, .font-serif {
   font-family: 'Playfair Display', serif;
 }
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #111; }
-::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #9333ea; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #1a1a1a; }
+::-webkit-scrollbar-thumb { background: #404040; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #7c3aed; }
+
+/* Stats and Action Cards */
+.stats-card {
+    transition: all 0.2s ease;
+}
+.stats-card:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Premium Course Card Enhancements */
+.course-card {
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.course-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Enhanced Theme Classes */
+.header-bg {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(16px);
+}
+
+.brand-text {
+    color: #ffffff;
+    transition: color 0.3s ease;
+}
+
+.user-text {
+    color: #d8b4fe;
+    transition: color 0.3s ease;
+}
+
+.heading-text {
+    color: #ffffff;
+    transition: color 0.3s ease;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
 
 /* Mini-timer running state */
 #mini-timer-toggle.running span {
     color: #4ade80; /* Tailwind green-400 */
     text-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+}
+
+/* Premium Action Buttons */
+.premium-action-btn {
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.premium-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.premium-action-btn:hover::before {
+    left: 100%;
+}
+
+.premium-action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced Filter and View Toggle Buttons */
+.filter-btn {
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+}
+
+.filter-btn:hover {
+    transform: translateY(-1px);
+}
+
+.view-toggle {
+    transition: all 0.2s ease;
+}
+
+.view-toggle:hover {
+    transform: scale(1.05);
+}
+
+/* Enhanced Card Animations */
+.stats-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stats-card:hover {
+    transform: scale(1.02);
+}
+
+/* Modal Enhancements */
+.modal-backdrop {
+    backdrop-filter: blur(12px);
+}
+
+/* Smooth Animations */
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-in {
+    animation: slideInFromRight 0.3s ease-out;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+/* --- LIGHT THEME OVERRIDES --- */
+html[data-theme='light'] body {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    color: #0f172a;
+    font-weight: 400;
+}
+
+html[data-theme='light'] ::-webkit-scrollbar-track { background: #f1f5f9; }
+html[data-theme='light'] ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+html[data-theme='light'] ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+html[data-theme='light'] .bg-blobs {
+    display: none;
+}
+
+/* Enhanced Header and Navigation for Light Mode */
+html[data-theme='light'] .header-bg {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme='light'] .brand-text {
+    color: #0f172a !important;
+    font-weight: 800;
+}
+
+html[data-theme='light'] .user-text {
+    color: #7c3aed !important;
+    font-weight: 600;
+}
+
+html[data-theme='light'] .heading-text {
+    color: #0f172a !important;
+    font-weight: 700;
+}
+
+/* Enhanced Text Colors for Light Mode */
+html[data-theme='light'] .text-white {
+    color: #0f172a !important;
+}
+
+html[data-theme='light'] .text-gray-300 {
+    color: #475569 !important;
+}
+
+html[data-theme='light'] .text-gray-400 {
+    color: #64748b !important;
+}
+
+html[data-theme='light'] .text-gray-500 {
+    color: #64748b !important;
+}
+
+html[data-theme='light'] .text-purple-300 {
+    color: #7c3aed !important;
+}
+
+html[data-theme='light'] .text-purple-400 {
+    color: #7c3aed !important;
+}
+
+html[data-theme='light'] .text-blue-300 {
+    color: #2563eb !important;
+}
+
+html[data-theme='light'] .text-blue-400 {
+    color: #2563eb !important;
+}
+
+html[data-theme='light'] .text-green-300 {
+    color: #059669 !important;
+}
+
+html[data-theme='light'] .text-green-400 {
+    color: #059669 !important;
+}
+
+html[data-theme='light'] .text-yellow-300 {
+    color: #d97706 !important;
+}
+
+html[data-theme='light'] .text-yellow-400 {
+    color: #d97706 !important;
+}
+
+/* Light Mode Card Styling */
+html[data-theme='light'] .stats-card {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    backdrop-filter: blur(10px);
+}
+
+html[data-theme='light'] .stats-card:hover {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Light Mode Course Cards */
+html[data-theme='light'] .course-card {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme='light'] .course-card:hover {
+    background: rgba(255, 255, 255, 1) !important;
+    border-color: rgba(124, 58, 237, 0.3) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Light Mode Button Styling */
+html[data-theme='light'] .theme-toggle-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme='light'] .text-gray-400:hover:not(.hover\:text-red-400):not(.hover\:text-purple-400) {
+    color: #374151 !important;
+}
+
+html[data-theme='light'] .hover\:text-red-400:hover {
+    color: #dc2626 !important;
+}
+
+html[data-theme='light'] .hover\:text-purple-400:hover {
+    color: #7c3aed !important;
+}
+
+/* Light Mode General Background Elements */
+html[data-theme='light'] .bg-gray-900\/50,
+html[data-theme='light'] .bg-white\/5 {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme='light'] .bg-gray-800\/50 {
+    background: rgba(248, 250, 252, 0.9) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme='light'] .border-gray-800,
+html[data-theme='light'] .border-white\/10 {
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html[data-theme='light'] .border-gray-700 {
+    border-color: rgba(0, 0, 0, 0.15) !important;
 }

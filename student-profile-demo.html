@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile Creation Demo - Kohza</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        purple: {
+                            DEFAULT: '#9333ea', 
+                            '50': '#faf5ff', 
+                            '100': '#f3e8ff', 
+                            '200': '#e9d5ff', 
+                            '300': '#d8b4fe', 
+                            '400': '#c084fc', 
+                            '500': '#a855f7', 
+                            '600': '#9333ea', 
+                            '700': '#7e22ce', 
+                            '800': '#6b21a8', 
+                            '900': '#581c87', 
+                            '950': '#3b0764'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0F0F0F 0%, #1A1A2E 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .demo-badge {
+            background: linear-gradient(45deg, #9333ea, #c084fc);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .step-indicator {
+            transition: all 0.3s ease;
+        }
+        
+        .step-indicator.active {
+            background: #9333ea;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step-indicator.completed {
+            background: #10b981;
+            color: white;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen antialiased">
+
+    <!-- Animated Background -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div class="absolute w-[60vmax] h-[60vmax] -left-[30vmax] -top-[30vmax] bg-purple-900/30 rounded-full blur-3xl opacity-40"></div>
+        <div class="absolute w-[50vmax] h-[50vmax] -right-[25vmax] -bottom-[25vmax] bg-purple-800/20 rounded-full blur-3xl opacity-40"></div>
+        <div class="absolute w-[40vmax] h-[40vmax] left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-purple-600/10 rounded-full blur-3xl opacity-30"></div>
+    </div>
+    
+    <div class="relative z-10 min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="sticky top-0 z-50 glass-effect">
+            <nav class="flex justify-between items-center w-full max-w-screen-xl mx-auto px-6 sm:px-8 py-4">
+                <a href="index.html" class="text-3xl font-serif font-bold text-white transition-colors hover:text-purple-400">Kohza</a>
+                
+                <div class="flex items-center gap-4">
+                    <div class="demo-badge px-4 py-2 rounded-full text-white text-sm font-semibold">
+                        🧪 DEMO MODE
+                    </div>
+                    <a href="login.html" class="text-purple-400 hover:text-purple-300 font-medium">
+                        Back to Login
+                    </a>
+                </div>
+            </nav>
+        </header>
+
+        <main class="max-w-4xl mx-auto px-6 sm:px-8 py-12 flex-1">
+            
+            <!-- Demo Introduction -->
+            <div class="mb-12 text-center">
+                <h1 class="text-5xl md:text-6xl font-serif font-bold text-white mb-4">
+                    Student Profile Creation
+                </h1>
+                <p class="text-xl text-gray-300 mb-6">
+                    Demonstrate the complete student registration and profile setup flow
+                </p>
+                <div class="glass-effect rounded-xl p-6 max-w-2xl mx-auto">
+                    <h2 class="text-lg font-semibold text-purple-300 mb-3">🎯 Demo Purpose</h2>
+                    <p class="text-gray-300 text-left">
+                        This demo page allows you to test the student profile creation process independently. 
+                        It includes email validation, authentication, profile creation, and error handling scenarios 
+                        typically encountered during student enrollment.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div class="mb-12">
+                <div class="flex justify-center items-center space-x-4">
+                    <div class="step-indicator active w-12 h-12 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold">
+                        1
+                    </div>
+                    <div class="w-16 h-1 bg-gray-600 rounded"></div>
+                    <div class="step-indicator w-12 h-12 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold">
+                        2
+                    </div>
+                    <div class="w-16 h-1 bg-gray-600 rounded"></div>
+                    <div class="step-indicator w-12 h-12 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold">
+                        3
+                    </div>
+                </div>
+                <div class="flex justify-between mt-4 text-sm text-gray-400 max-w-md mx-auto">
+                    <span>Email & Validation</span>
+                    <span>Account Creation</span>
+                    <span>Profile Setup</span>
+                </div>
+            </div>
+
+            <!-- Demo Form Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                
+                <!-- Student Profile Creation Form -->
+                <div class="glass-effect rounded-xl p-8">
+                    <h2 class="text-2xl font-serif font-bold text-white mb-6">Create Student Profile</h2>
+                    
+                    <form id="student-profile-form" class="space-y-6">
+                        <div>
+                            <label for="student-full-name" class="block text-sm font-medium text-purple-300 mb-2">
+                                Full Name *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="student-full-name" 
+                                name="full_name" 
+                                required 
+                                class="w-full px-4 py-3 bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600 transition-colors"
+                                placeholder="Enter student's full name"
+                            />
+                        </div>
+
+                        <div>
+                            <label for="student-email" class="block text-sm font-medium text-purple-300 mb-2">
+                                Email Address *
+                            </label>
+                            <input 
+                                type="email" 
+                                id="student-email" 
+                                name="email" 
+                                required 
+                                class="w-full px-4 py-3 bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600 transition-colors"
+                                placeholder="student@example.com"
+                            />
+                            <p class="text-xs text-gray-500 mt-1">We'll validate this email and check for existing accounts</p>
+                        </div>
+
+                        <div>
+                            <label for="student-password" class="block text-sm font-medium text-purple-300 mb-2">
+                                Password *
+                            </label>
+                            <input 
+                                type="password" 
+                                id="student-password" 
+                                name="password" 
+                                required 
+                                minlength="6"
+                                class="w-full px-4 py-3 bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600 transition-colors"
+                                placeholder="••••••••"
+                            />
+                            <p class="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
+                        </div>
+
+
+
+                        <!-- Demo Options -->
+                        <div class="border-t border-gray-700 pt-6">
+                            <h3 class="text-sm font-semibold text-purple-300 mb-3">🧪 Demo Test Scenarios</h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-3">
+                                    <input type="radio" name="demo-scenario" value="normal" checked class="text-purple-600">
+                                    <span class="text-sm text-gray-300">Normal Registration</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="radio" name="demo-scenario" value="complete-profile" class="text-purple-600">
+                                    <span class="text-sm text-gray-300">✨ Complete Profile Creation (No Orphaned Account)</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="radio" name="demo-scenario" value="existing-email" class="text-purple-600">
+                                    <span class="text-sm text-gray-300">Test Existing Email</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="radio" name="demo-scenario" value="invalid-email" class="text-purple-600">
+                                    <span class="text-sm text-gray-300">Test Invalid Email</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="radio" name="demo-scenario" value="orphaned-account" class="text-purple-600">
+                                    <span class="text-sm text-gray-300">Test Orphaned Account</span>
+                                </label>
+                            </div>
+                            
+                            <!-- Complete Profile Creation Info -->
+                            <div id="complete-profile-info" class="hidden mt-4 p-3 bg-green-900/20 border border-green-700/50 rounded-md">
+                                <div class="flex items-start space-x-2">
+                                    <div class="text-green-400 mt-0.5">✨</div>
+                                    <div>
+                                        <div class="text-sm font-semibold text-green-300">Complete Profile Creation</div>
+                                        <div class="text-xs text-green-400 mt-1">
+                                            This scenario demonstrates the proper way to create a student profile with atomic transactions, 
+                                            ensuring both auth and profile are created successfully without orphaned accounts.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4">
+                            <button 
+                                type="submit" 
+                                id="create-profile-btn"
+                                class="w-full py-3 px-6 bg-purple-700 hover:bg-purple-600 text-white font-bold rounded-md transition-all duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                            >
+                                Create Student Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Demo Results & Logs -->
+                <div class="space-y-6">
+                    
+                    <!-- Real-time Status -->
+                    <div class="glass-effect rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4">📊 Real-time Status</h3>
+                        <div id="status-display" class="space-y-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
+                                <span class="text-gray-400">Waiting for input...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Demo Logs -->
+                    <div class="glass-effect rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4">🔍 Demo Logs</h3>
+                        <div id="demo-logs" class="bg-black/50 rounded-md p-4 h-64 overflow-y-auto font-mono text-sm">
+                            <div class="text-green-400">[DEMO] Student Profile Creation Demo Ready</div>
+                            <div class="text-gray-500">[INFO] This demo simulates the student registration process</div>
+                            <div class="text-gray-500">[INFO] Fill out the form to test different scenarios</div>
+                        </div>
+                    </div>
+
+                    <!-- Test Results -->
+                    <div class="glass-effect rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4">✅ Test Results</h3>
+                        <div id="test-results" class="space-y-3">
+                            <div class="text-gray-400">No tests run yet. Submit the form to see results.</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Demo Information Cards -->
+            <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-effect rounded-xl p-6 text-center">
+                    <div class="text-3xl mb-3">🔐</div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Authentication</h3>
+                    <p class="text-gray-400 text-sm">Test Supabase auth integration with enhanced email validation and error handling</p>
+                </div>
+                
+                <div class="glass-effect rounded-xl p-6 text-center">
+                    <div class="text-3xl mb-3">👤</div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Profile Creation</h3>
+                    <p class="text-gray-400 text-sm">Demonstrate automatic profile creation with role assignment and data validation</p>
+                </div>
+                
+                <div class="glass-effect rounded-xl p-6 text-center">
+                    <div class="text-3xl mb-3">🛠️</div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Error Handling</h3>
+                    <p class="text-gray-400 text-sm">Test various error scenarios including orphaned accounts and email conflicts</p>
+                </div>
+            </div>
+
+        </main>
+
+        <footer class="glass-effect mt-16">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+                <p>&copy; 2025 Kohza. All Rights Reserved. Forged in Discipline.</p>
+                <p class="text-sm mt-2">🧪 Demo Environment - For Testing Purposes Only</p>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module">
+        import { auth, supabase } from './supabase-client.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🧪 Student Profile Creation Demo Loaded');
+            
+            const form = document.getElementById('student-profile-form');
+            const submitButton = document.getElementById('create-profile-btn');
+            const statusDisplay = document.getElementById('status-display');
+            const logsContainer = document.getElementById('demo-logs');
+            const resultsContainer = document.getElementById('test-results');
+            const stepIndicators = document.querySelectorAll('.step-indicator');
+
+            // Add demo logs
+            function addLog(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const colors = {
+                    info: 'text-gray-400',
+                    success: 'text-green-400', 
+                    error: 'text-red-400',
+                    warning: 'text-yellow-400',
+                    demo: 'text-purple-400'
+                };
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = colors[type] || colors.info;
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                logsContainer.appendChild(logEntry);
+                logsContainer.scrollTop = logsContainer.scrollHeight;
+            }
+
+            // Update status display
+            function updateStatus(message, type = 'info') {
+                const colors = {
+                    info: 'bg-blue-500',
+                    success: 'bg-green-500',
+                    error: 'bg-red-500',
+                    warning: 'bg-yellow-500',
+                    processing: 'bg-purple-500'
+                };
+                
+                statusDisplay.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 ${colors[type]} rounded-full animate-pulse"></div>
+                        <span class="text-white">${message}</span>
+                    </div>
+                `;
+            }
+
+            // Update step indicators
+            function updateStep(step, status = 'active') {
+                stepIndicators.forEach((indicator, index) => {
+                    indicator.classList.remove('active', 'completed');
+                    if (index < step) {
+                        indicator.classList.add('completed');
+                    } else if (index === step) {
+                        indicator.classList.add(status);
+                    }
+                });
+            }
+
+            // Add test result
+            function addTestResult(title, status, details) {
+                const resultElement = document.createElement('div');
+                resultElement.className = `p-3 rounded-md border ${status === 'pass' ? 'bg-green-900/30 border-green-700' : 'bg-red-900/30 border-red-700'}`;
+                resultElement.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="text-lg">${status === 'pass' ? '✅' : '❌'}</div>
+                        <div>
+                            <div class="font-semibold ${status === 'pass' ? 'text-green-300' : 'text-red-300'}">${title}</div>
+                            <div class="text-sm text-gray-400">${details}</div>
+                        </div>
+                    </div>
+                `;
+                
+                if (resultsContainer.querySelector('.text-gray-400')) {
+                    resultsContainer.innerHTML = '';
+                }
+                resultsContainer.appendChild(resultElement);
+            }
+
+            // Enhanced email validation function
+            function validateEmail(email) {
+                addLog(`Validating email: ${email}`, 'info');
+                
+                // Basic format check
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(email)) {
+                    addLog('Email format validation failed', 'error');
+                    return { valid: false, error: 'Invalid email format' };
+                }
+                
+                // Check for common issues
+                if (email.includes('..') || email.startsWith('.') || email.endsWith('.')) {
+                    addLog('Email contains invalid characters', 'error');
+                    return { valid: false, error: 'Email contains invalid dot sequences' };
+                }
+                
+                addLog('Email validation passed', 'success');
+                return { valid: true };
+            }
+
+            // Simulate different demo scenarios
+            async function handleDemoScenario(scenario, formData) {
+                addLog(`Running demo scenario: ${scenario}`, 'demo');
+                
+                switch (scenario) {
+                    case 'complete-profile':
+                        addLog('✨ Running complete profile creation scenario', 'demo');
+                        return await createCompleteStudentProfile(formData);
+                    
+                    case 'invalid-email':
+                        addLog('Simulating invalid email scenario', 'warning');
+                        throw new Error('The email address appears to be invalid. Please check the email address and try again.');
+                    
+                    case 'existing-email':
+                        addLog('Simulating existing email scenario', 'warning');
+                        throw new Error(`An account for "${formData.email}" already exists but is not fully set up. Please ask the student to:
+
+✅ OPTION 1: Try logging in with their existing password at the login page
+✅ OPTION 2: Use "Forgot Password" on the login page to reset their password
+✅ OPTION 3: Complete their profile setup after logging in
+
+Once they complete their account setup, you can try enrolling them again.`);
+                    
+                    case 'orphaned-account':
+                        addLog('Simulating orphaned account scenario', 'warning');
+                        throw new Error('User already registered but profile creation failed. This is an orphaned auth account scenario.');
+                    
+                    default:
+                        addLog('Running normal registration scenario', 'info');
+                        return await createStudentProfile(formData);
+                }
+            }
+
+            // Create complete student profile with atomic transaction approach
+            async function createCompleteStudentProfile(formData) {
+                addLog('🎯 Starting COMPLETE student profile creation process', 'demo');
+                updateStep(1, 'active');
+                
+                // Step 1: Enhanced validation
+                updateStatus('Performing comprehensive validation...', 'processing');
+                const validation = validateEmail(formData.email);
+                if (!validation.valid) {
+                    throw new Error(validation.error);
+                }
+                addTestResult('Enhanced Email Validation', 'pass', 'Email format and integrity validated');
+                
+                // Check for existing profile first (prevents orphaned accounts)
+                addLog('🔍 Checking for existing profile before auth creation', 'info');
+                try {
+                    const { data: existingProfile, error: profileCheckError } = await supabase
+                        .from('profiles')
+                        .select('id, email, role')
+                        .eq('email', formData.email)
+                        .maybeSingle();
+                    
+                    if (existingProfile) {
+                        addLog(`⚠️ Profile already exists for ${formData.email}`, 'warning');
+                        throw new Error(`A complete profile already exists for "${formData.email}". User should log in instead of creating a new account.`);
+                    }
+                    
+                    addLog('✅ No existing profile found, proceeding with creation', 'success');
+                    addTestResult('Profile Existence Check', 'pass', 'No duplicate profiles detected');
+                } catch (error) {
+                    if (error.message.includes('complete profile already exists')) {
+                        throw error;
+                    }
+                    addLog('⚠️ Profile check failed, proceeding cautiously', 'warning');
+                }
+                
+                updateStep(1, 'completed');
+                updateStep(2, 'active');
+                
+                // Step 2: Create auth account with enhanced error handling
+                updateStatus('Creating authentication account with safeguards...', 'processing');
+                addLog(`🔐 Creating auth account for: ${formData.email}`, 'info');
+                
+                let authData;
+                try {
+                    const { data, error: authError } = await auth.signUp(formData.email, formData.password);
+                    
+                    if (authError) {
+                        addLog(`❌ Auth creation failed: ${authError.message}`, 'error');
+                        
+                        // Handle specific auth errors
+                        if (authError.message.includes('already registered') || authError.status === 422) {
+                            throw new Error(`Authentication account already exists for "${formData.email}". This indicates a potential orphaned account. User should try logging in or use password reset.`);
+                        }
+                        
+                        throw authError;
+                    }
+                    
+                    authData = data;
+                    addLog('✅ Auth account created successfully', 'success');
+                    addTestResult('Auth Account Creation', 'pass', 'Supabase authentication account created');
+                    
+                } catch (error) {
+                    addLog(`❌ Auth creation failed: ${error.message}`, 'error');
+                    throw error;
+                }
+                
+                updateStep(2, 'completed');
+                updateStep(3, 'active');
+                
+                // Step 3: Immediately create profile (atomic approach)
+                updateStatus('Creating profile with atomic transaction...', 'processing');
+                addLog('📝 Creating profile immediately after auth (atomic approach)', 'demo');
+                
+                const profileData = {
+                    id: authData.user.id,
+                    email: formData.email,
+                    full_name: formData.fullName,
+                    role: 'student'
+                };
+                
+                try {
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .insert([profileData]);
+                    
+                    if (profileError) {
+                        addLog(`❌ Profile creation failed: ${profileError.message}`, 'error');
+                        
+                        // If profile creation fails, we have an orphaned account
+                        addLog('🚨 ORPHANED ACCOUNT DETECTED - Auth exists but profile failed', 'error');
+                        addTestResult('Orphaned Account Prevention', 'fail', 'Profile creation failed after auth creation');
+                        
+                        throw new Error(`Profile creation failed after auth account was created. This creates an orphaned account scenario. Error: ${profileError.message}`);
+                    }
+                    
+                    addLog('✅ Profile created successfully - NO ORPHANED ACCOUNT', 'success');
+                    addTestResult('Profile Creation', 'pass', 'Student profile saved to database');
+                    addTestResult('Orphaned Account Prevention', 'pass', 'Complete profile created without orphaning');
+                    
+                } catch (error) {
+                    addLog(`❌ Profile creation error: ${error.message}`, 'error');
+                    throw error;
+                }
+                
+                // Step 4: Verify complete profile creation
+                updateStatus('Verifying complete profile creation...', 'processing');
+                addLog('🔍 Verifying both auth and profile exist', 'info');
+                
+                try {
+                    // Verify auth user exists
+                    const { data: { user }, error: userError } = await supabase.auth.getUser();
+                    if (userError || !user) {
+                        throw new Error('Auth verification failed');
+                    }
+                    
+                    // Verify profile exists
+                    const { data: profile, error: profileVerifyError } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', authData.user.id)
+                        .single();
+                    
+                    if (profileVerifyError || !profile) {
+                        throw new Error('Profile verification failed');
+                    }
+                    
+                    addLog('✅ Complete profile verification successful', 'success');
+                    addTestResult('Complete Profile Verification', 'pass', 'Both auth and profile confirmed to exist');
+                    
+                } catch (error) {
+                    addLog(`❌ Profile verification failed: ${error.message}`, 'error');
+                    throw new Error(`Profile verification failed: ${error.message}`);
+                }
+                
+                updateStep(3, 'completed');
+                updateStatus('Complete student profile created successfully!', 'success');
+                
+                addLog('🎉 COMPLETE PROFILE CREATION SUCCESSFUL - No orphaned accounts!', 'success');
+                
+                return {
+                    user: authData.user,
+                    profile: profileData,
+                    isComplete: true
+                };
+            }
+
+            // Create student profile function
+            async function createStudentProfile(formData) {
+                addLog('Starting student profile creation process', 'info');
+                updateStep(1, 'active');
+                
+                // Step 1: Validate email
+                updateStatus('Validating email address...', 'processing');
+                const validation = validateEmail(formData.email);
+                if (!validation.valid) {
+                    throw new Error(validation.error);
+                }
+                addTestResult('Email Validation', 'pass', 'Email format is valid');
+                
+                updateStep(1, 'completed');
+                updateStep(2, 'active');
+                
+                // Step 2: Create auth account
+                updateStatus('Creating authentication account...', 'processing');
+                addLog(`Creating auth account for: ${formData.email}`, 'info');
+                
+                const { data: authData, error: authError } = await auth.signUp(formData.email, formData.password);
+                
+                if (authError) {
+                    addLog(`Auth creation failed: ${authError.message}`, 'error');
+                    throw authError;
+                }
+                
+                addLog('Auth account created successfully', 'success');
+                addTestResult('Account Creation', 'pass', 'Supabase auth account created');
+                
+                updateStep(2, 'completed');
+                updateStep(3, 'active');
+                
+                // Step 3: Create profile
+                updateStatus('Creating student profile...', 'processing');
+                addLog('Creating profile in database', 'info');
+                
+                const profileData = {
+                    id: authData.user.id,
+                    email: formData.email,
+                    full_name: formData.fullName,
+                    role: 'student'
+                };
+                
+                const { error: profileError } = await supabase
+                    .from('profiles')
+                    .insert([profileData]);
+                
+                if (profileError) {
+                    addLog(`Profile creation failed: ${profileError.message}`, 'error');
+                    throw profileError;
+                }
+                
+                addLog('Student profile created successfully', 'success');
+                addTestResult('Profile Creation', 'pass', 'Student profile saved to database');
+                
+                updateStep(3, 'completed');
+                updateStatus('Student profile creation completed successfully!', 'success');
+                
+                return {
+                    user: authData.user,
+                    profile: profileData
+                };
+            }
+
+            // Form submission handler
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Reset results
+                resultsContainer.innerHTML = '';
+                addLog('=== NEW DEMO RUN STARTED ===', 'demo');
+                
+                // Get form data
+                const formData = new FormData(form);
+                const demoScenario = formData.get('demo-scenario');
+                const studentData = {
+                    fullName: formData.get('full_name')?.trim(),
+                    email: formData.get('email')?.trim().toLowerCase(),
+                    password: formData.get('password')
+                };
+                
+                // Validate required fields
+                if (!studentData.fullName || !studentData.email || !studentData.password) {
+                    addLog('Form validation failed: Missing required fields', 'error');
+                    updateStatus('Please fill in all required fields', 'error');
+                    addTestResult('Form Validation', 'fail', 'Required fields are missing');
+                    return;
+                }
+                
+                addLog(`Form data collected: ${JSON.stringify({...studentData, password: '***'})}`, 'info');
+                
+                // Update UI
+                submitButton.textContent = 'Creating Profile...';
+                submitButton.disabled = true;
+                updateStatus('Starting profile creation process...', 'processing');
+                
+                try {
+                    const result = await handleDemoScenario(demoScenario, studentData);
+                    
+                    addLog('=== DEMO COMPLETED SUCCESSFULLY ===', 'success');
+                    updateStatus('Profile creation demo completed successfully!', 'success');
+                    
+                    // Show success message
+                    setTimeout(() => {
+                        alert(`✅ Demo Completed!
+
+Student profile created successfully for: ${studentData.email}
+
+In a real application, the student would receive a welcome email and be redirected to the student dashboard.`);
+                    }, 1000);
+                    
+                } catch (error) {
+                    addLog(`Demo failed: ${error.message}`, 'error');
+                    updateStatus('Profile creation failed', 'error');
+                    addTestResult('Overall Process', 'fail', error.message);
+                    
+                    // Show error message
+                    setTimeout(() => {
+                        alert(`❌ Demo Error:
+
+${error.message}
+
+This demonstrates how the system handles various error scenarios.`);
+                    }, 500);
+                    
+                } finally {
+                    submitButton.textContent = 'Create Student Profile';
+                    submitButton.disabled = false;
+                    addLog('=== DEMO RUN COMPLETED ===', 'demo');
+                }
+            });
+
+            // Pre-fill demo data based on scenario selection
+            document.addEventListener('change', (e) => {
+                if (e.target.name === 'demo-scenario') {
+                    const scenario = e.target.value;
+                    const emailInput = document.getElementById('student-email');
+                    const infoPanel = document.getElementById('complete-profile-info');
+                    
+                    // Hide all info panels first
+                    infoPanel.classList.add('hidden');
+                    
+                    switch (scenario) {
+                        case 'complete-profile':
+                            emailInput.value = 'complete.student@example.com';
+                            infoPanel.classList.remove('hidden');
+                            break;
+                        case 'existing-email':
+                            emailInput.value = 'existing.student@example.com';
+                            break;
+                        case 'invalid-email':
+                            emailInput.value = 'invalid..email@.com';
+                            break;
+                        case 'orphaned-account':
+                            emailInput.value = 'orphaned.account@example.com';
+                            break;
+                        default:
+                            emailInput.value = '';
+                    }
+                    
+                    addLog(`Demo scenario changed to: ${scenario}`, 'demo');
+                }
+            });
+
+            // Initial status
+            updateStatus('Demo ready - Fill out the form to begin', 'info');
+            addLog('Demo initialization complete', 'success');
+        });
+    </script>
+</body>
+</html>

@@ -100,22 +100,21 @@
 
         <main class="max-w-screen-xl mx-auto px-6 sm:px-8 py-12 flex-1">
 
-            <div class="mb-12">
-                <h1 id="coach-welcome" class="text-4xl md:text-5xl font-serif font-bold heading-text"></h1>
-                <p class="mt-2 text-lg text-gray-400">This is your sanctuary. Let's shape some minds.</p>
+            <div class="mb-16">
+                <h1 id="coach-welcome" class="text-3xl md:text-4xl font-serif font-bold heading-text mb-2"></h1>
+                <p class="text-base text-gray-500">Manage your courses and students</p>
             </div>
 
             <!-- Coach Dashboard Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-                <div
-                    class="bg-gradient-to-br from-purple-900/30 to-purple-800/20 border border-purple-700/50 rounded-xl p-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                <div class="stats-card bg-white/5 border border-white/10 rounded-lg p-5">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-purple-300 text-sm font-medium">Total Courses</p>
-                            <p id="total-courses" class="text-3xl font-bold text-white">0</p>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wide">Courses</p>
+                            <p id="total-courses" class="text-2xl font-semibold text-white mt-1">0</p>
                         </div>
-                        <div class="bg-purple-600/20 p-3 rounded-lg">
-                            <svg class="w-8 h-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="w-10 h-10 bg-purple-500/10 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
@@ -123,14 +122,14 @@
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-700/50 rounded-xl p-6">
+                <div class="stats-card bg-white/5 border border-white/10 rounded-lg p-5">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-blue-300 text-sm font-medium">Total Students</p>
-                            <p id="total-students" class="text-3xl font-bold text-white">0</p>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wide">Students</p>
+                            <p id="total-students" class="text-2xl font-semibold text-white mt-1">0</p>
                         </div>
-                        <div class="bg-blue-600/20 p-3 rounded-lg">
-                            <svg class="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
@@ -138,15 +137,14 @@
                     </div>
                 </div>
 
-                <div
-                    class="bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-700/50 rounded-xl p-6">
+                <div class="stats-card bg-white/5 border border-white/10 rounded-lg p-5">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-green-300 text-sm font-medium">Published</p>
-                            <p id="published-courses" class="text-3xl font-bold text-white">0</p>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wide">Published</p>
+                            <p id="published-courses" class="text-2xl font-semibold text-white mt-1">0</p>
                         </div>
-                        <div class="bg-green-600/20 p-3 rounded-lg">
-                            <svg class="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="w-10 h-10 bg-green-500/10 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -154,15 +152,14 @@
                     </div>
                 </div>
 
-                <div
-                    class="bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 border border-yellow-700/50 rounded-xl p-6">
+                <div class="stats-card bg-white/5 border border-white/10 rounded-lg p-5">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-yellow-300 text-sm font-medium">Drafts</p>
-                            <p id="draft-courses" class="text-3xl font-bold text-white">0</p>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wide">Drafts</p>
+                            <p id="draft-courses" class="text-2xl font-semibold text-white mt-1">0</p>
                         </div>
-                        <div class="bg-yellow-600/20 p-3 rounded-lg">
-                            <svg class="w-8 h-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="w-10 h-10 bg-yellow-500/10 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536l10.732-10.732z" />
                             </svg>
@@ -172,66 +169,72 @@
             </div>
 
             <!-- Quick Actions -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
                 <a href="create-course-step1.html"
-                    class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-xl p-6 text-white transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold">Create New Course</h3>
-                            <p class="text-purple-200 text-sm mt-1">Start building your next masterpiece</p>
+                    class="action-card bg-white/5 border border-white/10 hover:border-purple-500/50 rounded-lg p-5 text-white transition-all duration-200 hover:bg-white/10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
                         </div>
-                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
+                        <div>
+                            <h3 class="font-semibold">Create Course</h3>
+                            <p class="text-gray-400 text-sm">Build your next course</p>
+                        </div>
                     </div>
                 </a>
 
                 <button onclick="openEnrollModal()"
-                    class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl p-6 text-white transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg text-left">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold">Enroll Student</h3>
-                            <p class="text-blue-200 text-sm mt-1">Add new students to your courses</p>
+                    class="action-card bg-white/5 border border-white/10 hover:border-blue-500/50 rounded-lg p-5 text-white transition-all duration-200 hover:bg-white/10 text-left">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
                         </div>
-                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                        </svg>
+                        <div>
+                            <h3 class="font-semibold">Enroll Student</h3>
+                            <p class="text-gray-400 text-sm">Add students to courses</p>
+                        </div>
                     </div>
                 </button>
 
                 <a href="community.html?role=coach"
-                    class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl p-6 text-white transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold">Community Hub</h3>
-                            <p class="text-green-200 text-sm mt-1">Engage with your students</p>
+                    class="action-card bg-white/5 border border-white/10 hover:border-green-500/50 rounded-lg p-5 text-white transition-all duration-200 hover:bg-white/10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                            </svg>
                         </div>
-                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-                        </svg>
+                        <div>
+                            <h3 class="font-semibold">Community</h3>
+                            <p class="text-gray-400 text-sm">Engage with students</p>
+                        </div>
                     </div>
                 </a>
             </div>
 
             <!-- Courses Section -->
             <section>
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-serif font-bold heading-text">Your Courses</h2>
-                    <div class="flex items-center gap-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-serif font-bold heading-text">Courses</h2>
+                    <div class="flex items-center gap-3">
                         <button id="enroll-student-btn"
-                            class="bg-blue-700 text-white font-bold px-5 py-2.5 rounded-md hover:bg-blue-600 transition-colors duration-300 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                            class="bg-blue-600 text-white font-medium px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
                                 fill="currentColor">
                                 <path
                                     d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 11a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1v-1z" />
                             </svg>
-                            Enroll Student
+                            Enroll
                         </button>
                         <a id="new-course-btn" href="create-course-step1.html"
-                            class="bg-purple-700 text-white font-bold px-5 py-2.5 rounded-md hover:bg-purple-600 transition-colors duration-300 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            class="bg-purple-600 text-white font-medium px-4 py-2 rounded-md hover:bg-purple-700 transition-colors flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
@@ -241,7 +244,7 @@
                     </div>
                 </div>
 
-                <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Course cards will be dynamically inserted here by the script -->
                 </div>
             </section>
@@ -566,33 +569,71 @@
                 const studentCount = course.enrollments_count || 0;
                 const isDraft = !course.published;
                 const dropdownMenuItems = `
-                    <li class="p-1"><a href="community.html?courseId=${course.id}&role=coach" class="flex items-center gap-3 w-full text-left px-3 py-2 text-sm dropdown-item rounded-md transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-1.707 1.707A1 1 0 003 15v1a1 1 0 001 1h12a1 1 0 001-1v-1a1 1 0 00-.293-.707L16 11.586V8a6 6 0 00-6-6zM8 18a2 2 0 114 0H8z" /></svg>View Community</a></li>
-                    <li class="p-1"><a href="course-editor.html?id=${course.id}" class="flex items-center gap-3 w-full text-left px-3 py-2 text-sm dropdown-item rounded-md transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536l10.732-10.732z" /></svg>Edit Course</a></li>
-                    <li class="p-1"><a href="video-upload.html?courseId=${course.id}" class="flex items-center gap-3 w-full text-left px-3 py-2 text-sm dropdown-item rounded-md transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l3 3m0 0l3-3m-3 3V9"></path></svg>Upload Videos</a></li>
-                    ${!isDraft ? `<li class="p-1"><button data-action="unpublish" data-course-id="${course.id}" class="flex items-center gap-3 w-full text-left px-3 py-2 text-sm dropdown-item rounded-md transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" /></svg>Unpublish</button></li>` : ''}
-                    <li class="p-1"><button data-action="delete" data-course-id="${course.id}" data-course-title="${course.title}" class="flex items-center gap-3 w-full text-left px-3 py-2 text-sm text-red-400 dropdown-item-delete rounded-md transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>Delete Course</button></li>
+                    <li class="px-1"><a href="community.html?courseId=${course.id}&role=coach" class="flex items-center gap-3 w-full text-left px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-md transition-all duration-200"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-1.707 1.707A1 1 0 003 15v1a1 1 0 001 1h12a1 1 0 001-1v-1a1 1 0 00-.293-.707L16 11.586V8a6 6 0 00-6-6zM8 18a2 2 0 114 0H8z" /></svg>Community</a></li>
+                    <li class="px-1"><a href="course-editor.html?id=${course.id}" class="flex items-center gap-3 w-full text-left px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-md transition-all duration-200"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536l10.732-10.732z" /></svg>Edit Course</a></li>
+                    <li class="px-1"><a href="video-upload.html?courseId=${course.id}" class="flex items-center gap-3 w-full text-left px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-md transition-all duration-200"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l3 3m0 0l3-3m-3 3V9"></path></svg>Upload Videos</a></li>
+                    ${!isDraft ? `<li class="px-1"><button data-action="unpublish" data-course-id="${course.id}" class="flex items-center gap-3 w-full text-left px-3 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-md transition-all duration-200"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" /></svg>Unpublish</button></li>` : ''}
+                    <li class="px-1 mt-1 pt-1 border-t border-gray-700/50"><button data-action="delete" data-course-id="${course.id}" data-course-title="${course.title}" class="flex items-center gap-3 w-full text-left px-3 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-md transition-all duration-200"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>Delete Course</button></li>
                 `;
 
                 let mainActionButtons;
                 if (isDraft) {
-                    mainActionButtons = `<button data-action="publish" data-course-id="${course.id}" class="w-full bg-green-600 text-white font-bold py-2.5 px-4 text-sm rounded-md hover:bg-green-500 transition-colors">Publish Course</button>`;
+                    mainActionButtons = `<button data-action="publish" data-course-id="${course.id}" class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium py-2.5 px-4 text-sm rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Publish Course
+                    </button>`;
                 } else {
-                    mainActionButtons = `<button data-action="view-students" data-course-id="${course.id}" data-course-title="${course.title}" class="w-full bg-purple-700/80 border border-purple-700 text-white font-bold py-2.5 px-4 text-sm rounded-md hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>View Students (${studentCount})</button>`;
+                    mainActionButtons = `<button data-action="view-students" data-course-id="${course.id}" data-course-title="${course.title}" class="w-full bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/30 text-white font-medium py-2.5 px-4 text-sm rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        View Students
+                    </button>`;
                 }
 
                 return `
-                    <div id="${course.id}" class="course-card ${isDraft ? 'is-draft' : ''} bg-gray-900/50 border border-gray-800 rounded-lg overflow-hidden shadow-lg transition-all duration-300 hover:border-purple-700/80 hover:shadow-purple-900/40 transform hover:-translate-y-1 flex flex-col group">
-                        <div class="relative">
-                            <a href="community.html?courseId=${course.id}&role=coach" aria-label="View community for ${course.title}"><img src="${course.thumbnail_url || utils.generateThumbnail(course.title)}" alt="Course thumbnail" class="w-full h-40 object-cover ${isDraft ? 'opacity-70' : ''} transition-transform duration-300 group-hover:scale-105"></a>
-                            <div class="absolute top-2 right-2">
-                                <button data-action="toggle-menu" aria-haspopup="true" aria-expanded="false" class="menu-toggle-btn p-2 rounded-full text-gray-300 bg-black/40 hover:bg-black/70 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" /></svg></button>
-                                <div class="options-dropdown hidden absolute top-full right-0 z-20 w-48 mt-2 bg-gray-900 border border-gray-700 rounded-md shadow-lg" role="menu"><ul class="py-1" role="none">${dropdownMenuItems}</ul></div>
+                    <div id="${course.id}" class="course-card ${isDraft ? 'is-draft' : ''} bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all duration-300 hover:border-purple-500/40 hover:bg-white/10 hover:shadow-lg hover:shadow-purple-500/10 flex flex-col group">
+                        <div class="relative overflow-hidden">
+                            <a href="community.html?courseId=${course.id}&role=coach" aria-label="View community for ${course.title}">
+                                <img src="${course.thumbnail_url || utils.generateThumbnail(course.title)}" 
+                                     alt="Course thumbnail" 
+                                     class="w-full h-52 object-cover ${isDraft ? 'opacity-70' : ''} transition-transform duration-300 group-hover:scale-105">
+                            </a>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="absolute top-4 right-4">
+                                <button data-action="toggle-menu" aria-haspopup="true" aria-expanded="false" 
+                                        class="menu-toggle-btn p-2.5 rounded-full text-white bg-black/40 hover:bg-black/60 backdrop-blur-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                    </svg>
+                                </button>
+                                <div class="options-dropdown hidden absolute top-full right-0 z-20 w-48 mt-2 bg-gray-900/95 backdrop-blur-md border border-gray-700/50 rounded-lg shadow-xl" role="menu">
+                                    <ul class="py-2" role="none">${dropdownMenuItems}</ul>
+                                </div>
                             </div>
-                            ${isDraft ? '<div class="absolute top-3 left-3 bg-yellow-500/10 text-yellow-400 text-xs font-bold px-2 py-1 rounded">DRAFT</div>' : ''}
+                            ${isDraft ? '<div class="absolute top-4 left-4 bg-amber-500/90 text-amber-100 text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">DRAFT</div>' : ''}
+                            ${!isDraft ? '<div class="absolute bottom-4 left-4 bg-green-500/90 text-green-100 text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm flex items-center gap-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>PUBLISHED</div>' : ''}
                         </div>
-                        <div class="p-5 flex flex-col flex-grow">
-                            <div class="course-title-container min-h-[56px] flex-grow"><a href="community.html?courseId=${course.id}&role=coach"><h3 class="course-title text-xl font-bold font-serif heading-text group-hover:text-purple-400 transition-colors">${course.title}</h3></a></div>
-                            <div class="mt-auto pt-4"><div class="flex items-center gap-3">${mainActionButtons}</div></div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex-grow mb-4">
+                                <a href="community.html?courseId=${course.id}&role=coach">
+                                    <h3 class="course-title text-lg font-semibold text-white hover:text-purple-400 transition-colors mb-3 line-clamp-2 leading-tight">${course.title}</h3>
+                                </a>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-400 flex items-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        ${studentCount} student${studentCount !== 1 ? 's' : ''}
+                                    </span>
+                                    ${!isDraft ? '<span class="text-green-400 text-xs font-medium">LIVE</span>' : '<span class="text-amber-400 text-xs font-medium">DRAFT</span>'}
+                                </div>
+                            </div>
+                            <div class="border-t border-white/10 pt-4">
+                                ${mainActionButtons}
+                            </div>
                         </div>
                     </div>`;
             }).join('');
@@ -773,85 +814,124 @@
                         alert(`Existing student ${studentName} (${email}) has been enrolled successfully!`);
 
                     } else {
-                        // No profile exists - try to create new account
-                        console.log('✨ No profile found. Creating new student account...');
+                        // No profile exists - try to create new account with atomic transaction
+                        console.log('✨ No profile found. Creating new student account with atomic transaction...');
                         const randomPassword = Math.random().toString(36).slice(-10) + 'aB1!';
 
-                        console.log('🔐 Signing up new user...');
-                        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-                            email: email,
-                            password: randomPassword
-                        });
+                        let authData = null;
+                        let transactionFailed = false;
 
-                        if (signUpError) {
-                            console.log('Signup error details:', signUpError);
-                            
-                            // Handle different types of signup errors with specific guidance
-                            if (signUpError.message.includes('already registered') || 
-                                signUpError.message.includes('User already registered') ||
-                                signUpError.status === 422) {
+                        try {
+                            console.log('🔐 Step 1: Creating auth user...');
+                            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                                email: email,
+                                password: randomPassword
+                            });
+
+                            if (signUpError) {
+                                console.log('Signup error details:', signUpError);
                                 
-                                // This is an orphaned auth account - provide specific instructions
-                                console.log('🔄 Detected orphaned auth user for:', email);
-                                
-                                throw new Error(`An account for "${email}" already exists but is not fully set up. Please ask the student to:
+                                // Handle different types of signup errors with specific guidance
+                                if (signUpError.message.includes('already registered') || 
+                                    signUpError.message.includes('User already registered') ||
+                                    signUpError.status === 422) {
+                                    
+                                    // This is an orphaned auth account - provide specific instructions
+                                    console.log('🔄 Detected orphaned auth user for:', email);
+                                    
+                                    throw new Error(`An account for "${email}" already exists but is not fully set up. Please ask the student to:
 
 ✅ OPTION 1: Try logging in with their existing password at the login page
 ✅ OPTION 2: Use "Forgot Password" on the login page to reset their password
 ✅ OPTION 3: Complete their profile setup after logging in
 
 Once they complete their account setup, you can try enrolling them again.`);
+                                }
+                                
+                                // Handle email validation errors
+                                if (signUpError.message.includes('Invalid email') || 
+                                    signUpError.message.includes('invalid') ||
+                                    signUpError.status === 400) {
+                                    throw new Error(`The email address "${email}" appears to be invalid. Please check the email address and try again.`);
+                                }
+                                
+                                // Handle other signup errors
+                                throw new Error(`Failed to create account: ${signUpError.message}`);
                             }
-                            
-                            // Handle email validation errors
-                            if (signUpError.message.includes('Invalid email') || 
-                                signUpError.message.includes('invalid') ||
-                                signUpError.status === 400) {
-                                throw new Error(`The email address "${email}" appears to be invalid. Please check the email address and try again.`);
+
+                            if (!signUpData.user) {
+                                throw new Error('Failed to create a new user account.');
                             }
-                            
-                            // Handle other signup errors
-                            throw new Error(`Failed to create account: ${signUpError.message}`);
-                        }
 
-                        if (!signUpData.user) {
-                            throw new Error('Failed to create a new user account.');
-                        }
+                            authData = signUpData;
+                            studentId = signUpData.user.id;
+                            studentName = email.split('@')[0];
 
-                        studentId = signUpData.user.id;
-                        studentName = email.split('@')[0];
+                            console.log('✅ Auth user created successfully:', studentId);
+                            console.log('🔐 Step 2: Creating profile immediately (atomic approach)...');
 
-                        // Manually create profile
-                        console.log('✍️ Creating profile for new user...');
-                        const { error: createProfileError } = await supabase
-                            .from('profiles')
-                            .insert([{
-                                id: studentId,
-                                email: email,
-                                full_name: studentName,
-                                role: 'student'
-                            }]);
+                            // Immediately create profile after auth success (atomic approach)
+                            const { error: createProfileError } = await supabase
+                                .from('profiles')
+                                .insert([{
+                                    id: studentId,
+                                    email: email,
+                                    full_name: studentName,
+                                    role: 'student'
+                                }]);
 
-                        if (createProfileError) {
-                            console.error('Could not create profile for new user:', createProfileError);
-                            throw new Error('Failed to create profile for the new user.');
-                        }
+                            if (createProfileError) {
+                                console.error('❌ Profile creation failed:', createProfileError);
+                                transactionFailed = true;
+                                
+                                // If profile creation fails, we need to clean up the auth user to prevent orphaned accounts
+                                console.log('🧹 Cleaning up orphaned auth user due to profile creation failure...');
+                                try {
+                                    // Note: Supabase doesn't allow deleting auth users from client side
+                                    // The auth user will remain but we'll provide clear guidance
+                                    throw new Error(`Profile creation failed after auth account was created. This created an orphaned account for "${email}". 
 
-                        console.log(`➕ Enrolling new student ${studentId} in course ${courseId}`);
-                        const { error: enrollError } = await db.enrollStudent(studentId, courseId);
-                        if (enrollError) throw enrollError;
+Please ask the student to:
+1. Try logging in with the password that was sent to them
+2. Or use "Forgot Password" to reset their credentials
+3. Complete their profile setup after logging in
 
-                        // Send password reset email
-                        console.log(`📧 Sending password setup email to ${email}`);
-                        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-                            redirectTo: `${window.location.origin}/student-panel.html`
-                        });
+Technical details: ${createProfileError.message}`);
+                                } catch (cleanupError) {
+                                    console.warn('Could not clean up auth user:', cleanupError);
+                                    throw new Error(`Profile creation failed and cleanup unsuccessful. Account for "${email}" is now orphaned. Student should use "Forgot Password" to recover their account. Technical details: ${createProfileError.message}`);
+                                }
+                            }
 
-                        if (resetError) {
-                            console.warn("Could not send password reset email automatically:", resetError);
-                            alert(`Student ${email} has been created and enrolled! They will need to use the "Forgot Password" link on the login page to set their password.`);
-                        } else {
-                            alert(`An invitation has been sent to ${email}. They can set their password via the email link to access the course.`);
+                            console.log('✅ Profile created successfully for new user');
+                            console.log('🔐 Step 3: Enrolling student in course...');
+
+                            const { error: enrollError } = await db.enrollStudent(studentId, courseId);
+                            if (enrollError) {
+                                if (enrollError.code === '23505') { // unique_violation code for PostgreSQL
+                                    throw new Error('This student is already enrolled in this course.');
+                                }
+                                throw enrollError;
+                            }
+
+                            console.log('✅ Student enrollment completed successfully');
+
+                            // Send password reset email for account setup
+                            console.log(`📧 Sending password setup email to ${email}`);
+                            const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+                                redirectTo: `${window.location.origin}/student-panel.html`
+                            });
+
+                            if (resetError) {
+                                console.warn("Could not send password reset email automatically:", resetError);
+                                alert(`Student ${email} has been created and enrolled successfully! They will need to use the "Forgot Password" link on the login page to set their password.`);
+                            } else {
+                                alert(`Student ${email} has been created and enrolled successfully! An invitation email has been sent to help them set up their password.`);
+                            }
+
+                        } catch (error) {
+                            console.error('Transaction failed:', error);
+                            throw error; // Re-throw to be handled by outer catch
                         }
                     }
 

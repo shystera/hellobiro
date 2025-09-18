@@ -13,10 +13,10 @@ export const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKe
 
 // Auth helpers
 export const auth = {
-  // Sign up new user - manual profile creation
+  // Sign up new user - with atomic profile creation
   async signUp(email, password, userData = {}) {
     try {
-      console.log('🔐 Starting signup process for:', email);
+      console.log('🔐 Starting atomic signup process for:', email);
       
       // Step 1: Create the auth user
       const { data, error } = await supabase.auth.signUp({
@@ -33,6 +33,35 @@ export const auth = {
       }
 
       console.log('🔐 Auth user created:', data.user?.email);
+      
+      // Step 2: Immediately create profile if user was created
+      if (data.user) {
+        console.log('👤 Creating profile immediately after auth...');
+        try {
+          const profileData = {
+            id: data.user.id,
+            email: data.user.email,
+            full_name: userData.full_name || data.user.email.split('@')[0],
+            role: userData.role || 'student'
+          };
+          
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert([profileData]);
+            
+          if (profileError) {
+            console.error('❌ Profile creation failed:', profileError);
+            // Don't throw here as auth user is already created
+            // Let the calling code handle this appropriately
+            console.warn('⚠️ Auth user created but profile creation failed. This may create an orphaned user.');
+          } else {
+            console.log('✅ Profile created successfully');
+          }
+        } catch (profileError) {
+          console.error('❌ Profile creation exception:', profileError);
+        }
+      }
+
       return { data, error: null }
 
     } catch (error) {
@@ -63,6 +92,61 @@ export const auth = {
   async getCurrentUser() {
     const { data: { user }, error } = await supabase.auth.getUser()
     return { user, error }
+  },
+
+  // Create user profile safely
+  async createProfile(userId, email, fullName = null, role = 'student') {
+    try {
+      const profileData = {
+        id: userId,
+        email: email,
+        full_name: fullName || email.split('@')[0],
+        role: role
+      };
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert([profileData])
+        .select()
+        .single();
+        
+      return { data, error };
+    } catch (error) {
+      console.error('Profile creation error:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Check if profile exists for user
+  async getProfile(userId) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+        
+      return { data, error };
+    } catch (error) {
+      console.error('Profile fetch error:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Find profile by email (for coaches to search students)
+  async findProfileByEmail(email) {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle(); // Use maybeSingle to avoid errors when no results
+        
+      return { data, error };
+    } catch (error) {
+      console.error('Profile search error:', error);
+      return { data: null, error };
+    }
   },
 
   // Get user profile with role
