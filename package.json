@@ -1,0 +1,24 @@
+{
+  "name": "kohza-learning-platform",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "fullstack": "concurrently \"npm run dev\" \"npm run server\"",
+    "server": "node server/index.js"
+  },
+  "dependencies": {
+    "@mux/mux-node": "^12.7.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "concurrently": "^8.2.2"
+  }
+}

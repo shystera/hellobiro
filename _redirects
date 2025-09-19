@@ -1,5 +1,0 @@
-# Netlify redirects file for static site
-# This handles client-side routing and ensures all routes work
-
-# Redirect root to index.html if not found
-/* /index.html 200

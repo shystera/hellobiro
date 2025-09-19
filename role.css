@@ -1,0 +1,10 @@
+
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(ellipse at top, rgba(88, 28, 135, 0.3), transparent 70%), #000;
+  color: #d1d5db;
+}
+h1, h2, .font-serif {
+  font-family: 'Playfair Display', serif;
+}
