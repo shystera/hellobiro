@@ -804,13 +804,14 @@
                         studentName = existingProfile.full_name || 'Existing Student';
 
                         console.log(`➕ Enrolling existing student ${studentId} in course ${courseId}`);
-                        const { error: enrollError } = await db.enrollStudent(studentId, courseId);
+                        const { data: enrollmentData, error: enrollError } = await db.enrollStudent(studentId, courseId);
                         if (enrollError) {
                             if (enrollError.code === '23505') { // unique_violation code for PostgreSQL
                                 throw new Error('This student is already enrolled in this course.');
                             }
                             throw enrollError;
                         }
+                        console.log('✅ Enrollment created:', enrollmentData);
                         alert(`Existing student ${studentName} (${email}) has been enrolled successfully!`);
 
                     } else {
@@ -905,8 +906,9 @@ Technical details: ${createProfileError.message}`);
 
                             console.log('✅ Profile created successfully for new user');
                             console.log('🔐 Step 3: Enrolling student in course...');
+                            console.log('📝 Enrollment details:', { studentId, courseId });
 
-                            const { error: enrollError } = await db.enrollStudent(studentId, courseId);
+                            const { data: enrollmentData, error: enrollError } = await db.enrollStudent(studentId, courseId);
                             if (enrollError) {
                                 if (enrollError.code === '23505') { // unique_violation code for PostgreSQL
                                     throw new Error('This student is already enrolled in this course.');
@@ -915,6 +917,7 @@ Technical details: ${createProfileError.message}`);
                             }
 
                             console.log('✅ Student enrollment completed successfully');
+                            console.log('📊 Enrollment record:', enrollmentData);
 
                             // Send password reset email for account setup
                             console.log(`📧 Sending password setup email to ${email}`);
@@ -942,6 +945,9 @@ Technical details: ${createProfileError.message}`);
                 } catch (error) {
                     console.error('Error enrolling student:', error);
                     
+                    // Store error for use in finally block
+                    window.lastEnrollmentError = error;
+                    
                     // Provide specific error messages based on the error type
                     let errorMessage;
                     
@@ -966,10 +972,14 @@ Technical details: ${createProfileError.message}`);
                     submitButton.disabled = false;
                     
                     // Clear the email field if there was an email validation error
-                    if (error && error.message && error.message.includes('invalid') && error.message.includes('email')) {
+                    const lastError = window.lastEnrollmentError;
+                    if (lastError && lastError.message && lastError.message.includes('invalid') && lastError.message.includes('email')) {
                         form['student-email'].value = '';
                         form['student-email'].focus();
                     }
+                    
+                    // Clean up the temporary error reference
+                    window.lastEnrollmentError = null;
                 }
             });
 

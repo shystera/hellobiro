@@ -669,6 +669,43 @@
                             lesson.fileSize = file.size;
                             lesson.uploadDate = new Date().toISOString();
 
+                            // Get asset details to retrieve playback ID
+                            if (assetId) {
+                                try {
+                                    const assetResponse = await fetch(`http://localhost:3001/api/mux/asset/${assetId}`);
+                                    if (assetResponse.ok) {
+                                        const assetData = await assetResponse.json();
+                                        const playbackId = assetData.playback_ids?.[0]?.id;
+                                        
+                                        if (playbackId) {
+                                            lesson.muxPlaybackId = playbackId;
+                                            
+                                            // Update lesson in database if it exists
+                                            if (lesson.supabaseLessonId) {
+                                                const updateResponse = await fetch(`http://localhost:3001/api/lessons/${lesson.supabaseLessonId}`, {
+                                                    method: 'PATCH',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                    },
+                                                    body: JSON.stringify({
+                                                        mux_asset_id: assetId,
+                                                        mux_playback_id: playbackId,
+                                                        upload_status: 'ready'
+                                                    })
+                                                });
+                                                
+                                                if (updateResponse.ok) {
+                                                    lesson.uploadStatus = 'ready';
+                                                    console.log('✅ Lesson updated in database with Mux details');
+                                                }
+                                            }
+                                        }
+                                    }
+                                } catch (assetError) {
+                                    console.warn('Could not get asset details:', assetError);
+                                }
+                            }
+
                             updateLessonVideoStatus(lessonId);
                             updateSummary();
 
@@ -678,8 +715,7 @@
                             // Store the course data locally
                             saveData();
 
-                            // The Mux webhook will automatically update Supabase when processing is complete
-                            console.log('Video uploaded to Mux, webhook will update Supabase when ready');
+                            console.log('Video uploaded to Mux, details saved to database');
 
                         } catch (parseError) {
                             console.error('Error parsing upload response:', parseError);

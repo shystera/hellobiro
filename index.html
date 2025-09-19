@@ -28,12 +28,71 @@
                     },
                     animation: {
                         'ember-pulse': 'ember-pulse 12s ease-in-out infinite alternate',
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out infinite 2s',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'shimmer': 'shimmer 2.5s ease-in-out infinite',
+                        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+                        'fade-in-left': 'fade-in-left 0.8s ease-out forwards',
+                        'fade-in-right': 'fade-in-right 0.8s ease-out forwards',
+                        'scale-in': 'scale-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                        'slide-in-bottom': 'slide-in-bottom 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+                        'blob-spin': 'blob-spin 20s linear infinite',
+                        'particle-float': 'particle-float 15s linear infinite',
+                        'text-shine': 'text-shine 3s ease-in-out infinite',
                     },
                     keyframes: {
                         'ember-pulse': {
                             '0%': { opacity: '0.4', transform: 'scale(1)' },
                             '100%': { opacity: '0.7', transform: 'scale(1.08)' },
                         },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-20px) rotate(5deg)' }
+                        },
+                        'glow': {
+                            '0%': { boxShadow: '0 0 20px rgba(147, 51, 234, 0.5)' },
+                            '100%': { boxShadow: '0 0 40px rgba(147, 51, 234, 0.8), 0 0 60px rgba(147, 51, 234, 0.4)' }
+                        },
+                        'shimmer': {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' }
+                        },
+                        'fade-in-up': {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        'fade-in-left': {
+                            '0%': { opacity: '0', transform: 'translateX(-30px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' }
+                        },
+                        'fade-in-right': {
+                            '0%': { opacity: '0', transform: 'translateX(30px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' }
+                        },
+                        'scale-in': {
+                            '0%': { opacity: '0', transform: 'scale(0.8)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' }
+                        },
+                        'slide-in-bottom': {
+                            '0%': { opacity: '0', transform: 'translateY(100px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        'blob-spin': {
+                            '0%': { transform: 'rotate(0deg) scale(1)' },
+                            '50%': { transform: 'rotate(180deg) scale(1.1)' },
+                            '100%': { transform: 'rotate(360deg) scale(1)' }
+                        },
+                        'particle-float': {
+                            '0%, 100%': { transform: 'translateY(0) translateX(0) rotate(0deg)' },
+                            '25%': { transform: 'translateY(-10px) translateX(5px) rotate(90deg)' },
+                            '50%': { transform: 'translateY(-20px) translateX(-5px) rotate(180deg)' },
+                            '75%': { transform: 'translateY(-10px) translateX(10px) rotate(270deg)' }
+                        },
+                        'text-shine': {
+                            '0%': { backgroundPosition: '-200% center' },
+                            '100%': { backgroundPosition: '200% center' }
+                        }
                     }
                 }
             }
@@ -60,90 +119,128 @@
 </head>
 <body class="antialiased">
 
+    <!-- Simplified Background without Particles -->
     <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-blobs">
-        <div class="absolute w-[80vmax] h-[80vmax] -left-[40vmax] -top-[40vmax] bg-purple-900/40 rounded-full blur-3xl animate-ember-pulse opacity-50"></div>
-        <div class="absolute w-[60vmax] h-[60vmax] -right-[30vmax] -bottom-[20vmax] bg-purple-800/30 rounded-full blur-3xl animate-ember-pulse animation-delay-[-6s] opacity-50"></div>
+        <!-- Main gradient blobs - static -->
+        <div class="absolute w-[80vmax] h-[80vmax] -left-[40vmax] -top-[40vmax] bg-purple-900/40 rounded-full blur-3xl opacity-50"></div>
+        <div class="absolute w-[60vmax] h-[60vmax] -right-[30vmax] -bottom-[20vmax] bg-purple-800/30 rounded-full blur-3xl opacity-50"></div>
+        
+        <!-- Additional floating blobs - simplified -->
+        <div class="absolute w-[40vmax] h-[40vmax] left-[20%] top-[60%] bg-blue-800/20 rounded-full blur-2xl opacity-40"></div>
+        <div class="absolute w-[35vmax] h-[35vmax] right-[15%] top-[20%] bg-indigo-900/25 rounded-full blur-2xl opacity-35"></div>
     </div>
     
     <div class="relative z-10 flex flex-col min-h-screen">
         <!-- Header -->
-        <header id="main-header" class="fixed top-0 left-0 right-0 z-50 bg-black/20 transition-all duration-300">
+        <header id="main-header" class="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md transition-all duration-500 hover:bg-black/30">
             <nav class="flex justify-between items-center w-full max-w-screen-xl mx-auto px-6 sm:px-8 py-6">
-                <a href="index.html" class="text-3xl font-serif font-bold brand-text">Kohza</a>
+                <a href="index.html" class="text-3xl font-serif font-bold brand-text relative overflow-hidden group">
+                    <span class="relative z-10 transition-all duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-pink-400">Kohza</span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-lg blur-xl"></div>
+                </a>
                 
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex items-center space-x-6">
-                     <a id="auth-link" href="role.html" class="nav-link text-white hover:text-purple-400 transition-colors duration-300">Get Started</a>
-                     <a href="mailto:contact@kohza.com" class="nav-contact bg-white/10 border border-white/20 px-5 py-2 rounded-md hover:bg-white/20 transition-colors duration-300">Contact</a>
-                     <button id="theme-toggle" type="button" class="theme-toggle-btn text-gray-400 hover:text-white focus:outline-none p-2 rounded-md">
-                        <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                        <svg id="theme-icon-light" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                     <a id="auth-link" href="role.html" class="nav-link text-white hover:text-purple-400 transition-all duration-300 relative group overflow-hidden px-4 py-2 rounded-lg">
+                        <span class="relative z-10">Get Started</span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-800 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                     </a>
+                     <a href="mailto:contact@kohza.com" class="nav-contact bg-white/10 border border-white/20 px-5 py-2 rounded-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25">
+                        Contact
+                     </a>
+                     <button id="theme-toggle" type="button" class="theme-toggle-btn text-gray-400 hover:text-white focus:outline-none p-2 rounded-lg hover:bg-white/10 transition-all duration-300 hover:scale-110">
+                        <svg id="theme-icon-dark" class="h-6 w-6 hidden transition-transform duration-300 hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        <svg id="theme-icon-light" class="h-6 w-6 hidden transition-transform duration-300 hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     </button>
                 </div>
 
                 <!-- Mobile Nav Button -->
                 <div class="md:hidden flex items-center gap-2">
-                    <button id="theme-toggle-mobile" type="button" class="theme-toggle-btn text-gray-400 hover:text-white focus:outline-none p-2 rounded-md z-50">
-                        <svg id="theme-icon-dark-mobile" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                        <svg id="theme-icon-light-mobile" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <button id="theme-toggle-mobile" type="button" class="theme-toggle-btn text-gray-400 hover:text-white focus:outline-none p-2 rounded-lg z-50 hover:bg-white/10 transition-all duration-300 hover:scale-110">
+                        <svg id="theme-icon-dark-mobile" class="h-6 w-6 hidden transition-transform duration-300 hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        <svg id="theme-icon-light-mobile" class="h-6 w-6 hidden transition-transform duration-300 hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     </button>
-                    <button id="menu-btn" type="button" class="z-50 p-2 text-white">
-                        <svg id="menu-icon-open" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                        <svg id="menu-icon-close" class="w-7 h-7 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <button id="menu-btn" type="button" class="z-50 p-2 text-white hover:bg-white/10 rounded-lg transition-all duration-300 hover:scale-110">
+                        <svg id="menu-icon-open" class="w-7 h-7 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                        <svg id="menu-icon-close" class="w-7 h-7 hidden transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
             </nav>
         </header>
 
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-black/95 backdrop-blur-sm z-40">
+        <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-black/95 backdrop-blur-lg z-40 transition-all duration-500">
             <div class="flex flex-col items-center justify-center h-full text-center space-y-8">
-                <a id="mobile-auth-link" href="role.html" class="text-3xl font-semibold nav-link-mobile transition-colors duration-300">Get Started</a>
-                <a href="mailto:contact@kohza.com" class="text-3xl font-semibold nav-link-mobile transition-colors duration-300">Contact</a>
+                <a id="mobile-auth-link" href="role.html" class="text-3xl font-semibold nav-link-mobile transition-all duration-300 hover:scale-105 hover:text-purple-400 relative group">
+                    <span class="relative z-10">Get Started</span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-800 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-lg blur-xl"></div>
+                </a>
+                <a href="mailto:contact@kohza.com" class="text-3xl font-semibold nav-link-mobile transition-all duration-300 hover:scale-105 hover:text-purple-400 relative group">
+                    <span class="relative z-10">Contact</span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-800 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-lg blur-xl"></div>
+                </a>
             </div>
         </div>
 
         <main class="flex-1">
-            <!-- Hero Section -->
-     <section id="hero" class="pt-32 pb-10 flex items-center justify-center text-center px-4">
-
-
-
-
-                <div class="max-w-4xl">
-                    <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold text-white leading-tight font-serif hero-heading">
-                        The <span class="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-teal-400">All-in-One</span> Solution for Modern Coaches
+            <!-- Hero Section with Enhanced Animations -->
+            <section id="hero" class="pt-32 pb-10 flex items-center justify-center text-center px-4 relative overflow-hidden">
+                <!-- Floating geometric shapes -->
+                <div class="absolute inset-0 pointer-events-none">
+                    <div class="absolute top-20 left-10 w-16 h-16 border border-purple-400/30 rounded-lg rotate-45 animate-float opacity-60"></div>
+                    <div class="absolute top-40 right-20 w-12 h-12 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full animate-float-delayed"></div>
+                    <div class="absolute bottom-32 left-20 w-8 h-8 border-2 border-blue-400/40 rounded-full animate-particle-float"></div>
+                    <div class="absolute top-60 right-10 w-6 h-20 bg-gradient-to-t from-purple-600/20 to-transparent rounded-full animate-float"></div>
+                </div>
+                
+                <div class="max-w-4xl relative z-10">
+                    <!-- Enhanced Hero Heading with Simplified Text -->
+                    <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold leading-tight font-serif hero-heading opacity-0 animate-fade-in-up" style="animation-delay: 0.2s;">
+                        The 
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400">All-in-One</span> 
+                        <br class="hidden sm:block">
+                        Solution for 
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-purple-600">Modern Coaches</span>
                     </h1>
-                    <p class="mt-6 text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">Unite your courses, community, and content under one secure, elegant platform.</p>
-                    <div class="mt-10">
-                        <a href="role.html" class="inline-block bg-purple-700 text-white font-bold text-lg px-10 py-4 rounded-md shadow-lg shadow-purple-900/50 hover:bg-purple-600 hover:shadow-2xl hover:shadow-purple-700/60 transition-all duration-300 transform hover:-translate-y-1">Enter Kohza</a>
+                    
+                    <p class="mt-6 text-lg md:text-xl text-gray-300 max-w-3xl mx-auto opacity-0 animate-fade-in-up" style="animation-delay: 0.6s;">
+                        Unite your courses, community, and content under one secure, elegant platform.
+                    </p>
+                    
+                    <div class="mt-10 opacity-0 animate-fade-in-up" style="animation-delay: 1s;">
+                        <a href="role.html" class="inline-block relative group bg-gradient-to-r from-purple-700 via-purple-600 to-purple-800 text-white font-bold text-lg px-12 py-5 rounded-xl shadow-2xl shadow-purple-900/50 hover:shadow-3xl hover:shadow-purple-700/60 transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 overflow-hidden">
+                            <span class="relative z-10">Enter Kohza</span>
+                            <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+                        </a>
                         
-                        <!-- Rating -->
-                        <div class="mt-6 flex justify-center items-center space-x-3">
-                            <div class="flex items-center text-purple-500">
-                                <!-- Full Star -->
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <!-- Full Star -->
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <!-- Full Star -->
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <!-- Full Star -->
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <!-- Half Star -->
-                                <div class="relative inline-block">
+                        <!-- Enhanced Rating Section -->
+                        <div class="mt-8 flex justify-center items-center space-x-3 opacity-0 animate-fade-in-up" style="animation-delay: 1.4s;">
+                            <div class="flex items-center text-purple-500 hover:text-purple-400 transition-colors duration-300">
+                                <!-- Enhanced Stars with Hover Effects -->
+                                <svg class="w-5 h-5 hover:scale-110 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                <svg class="w-5 h-5 hover:scale-110 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                <svg class="w-5 h-5 hover:scale-110 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                <svg class="w-5 h-5 hover:scale-110 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                <!-- Enhanced Half Star -->
+                                <div class="relative inline-block hover:scale-110 transition-transform duration-200">
                                     <svg class="w-5 h-5 star-empty" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                     <div class="absolute top-0 left-0 h-full w-1/2 overflow-hidden">
                                         <svg class="w-5 h-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                     </div>
                                 </div>
                             </div>
-                            <p class="text-sm font-medium text-gray-300">4.4 stars</p>
+                            <p class="text-sm font-medium text-gray-300 hover:text-white transition-colors duration-300">4.4 stars</p>
                         </div>
 
-                        <div class="mt-8 max-w-xl mx-auto text-center">
-                            <p class="text-base text-gray-300 leading-relaxed">
-                                For every <span class="font-bold text-white highlight-text">$1</span> spent on Kohza, customers see <span class="font-bold text-white highlight-text">$30</span> in revenue growth by preventing piracy &amp; adding paid users.
-                            </p>
+                        <!-- Enhanced Revenue Stats -->
+                        <div class="mt-8 max-w-xl mx-auto text-center opacity-0 animate-fade-in-up" style="animation-delay: 1.8s;">
+                            <div class="relative group p-6 rounded-2xl bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-purple-500/20 backdrop-blur-sm hover:border-purple-400/40 transition-all duration-500 hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <p class="text-base text-gray-300 leading-relaxed relative z-10">
+                                    For every <span class="font-bold text-white highlight-text bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">$1</span> spent on Kohza, customers see <span class="font-bold text-white highlight-text bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">$30</span> in revenue growth by preventing piracy &amp; adding paid users.
+                                </p>
+                            </div>
                         </div>
 
                     </div>
@@ -253,128 +350,142 @@
                 </div>
             </section>
             
-            <!-- Features Section -->
-            <section id="features" class="py-20 lg:py-28 bg-black/50 backdrop-blur-sm">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="text-center">
+            <!-- Enhanced Features Section -->
+            <section id="features" class="py-20 lg:py-28 bg-black/50 backdrop-blur-sm relative overflow-hidden">
+                <!-- Background decorative elements -->
+                <div class="absolute inset-0 pointer-events-none">
+                    <div class="absolute top-20 left-10 w-32 h-32 border border-purple-400/20 rounded-full animate-float opacity-30"></div>
+                    <div class="absolute bottom-20 right-10 w-24 h-24 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-lg rotate-45 animate-float-delayed"></div>
+                </div>
+                
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div class="text-center animate-on-scroll">
                         <h2 class="text-4xl lg:text-5xl font-bold font-serif section-heading">Your Integrated Arsenal</h2>
                         <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-400">An ecosystem of tools forged for focus, security, and impact. Everything you need, and nothing you don't.</p>
                     </div>
+                    
                     <div class="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-                        <!-- Feature 1: Course Hosting -->
-                        <div class="text-center">
-                            <div class="flex items-center justify-center h-16 w-16 rounded-xl bg-gray-900/80 border border-gray-700/80 text-purple-500 mx-auto mb-5 feature-icon-wrapper">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        <!-- Enhanced Feature 1: Course Hosting -->
+                        <div class="text-center group animate-on-scroll hover:scale-105 transition-all duration-500" style="animation-delay: 0.1s;">
+                            <div class="flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-gray-700/80 text-purple-500 mx-auto mb-6 feature-icon-wrapper group-hover:border-purple-500/50 group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all duration-500 group-hover:rotate-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                             </div>
-                            <h3 class="text-xl font-bold highlight-text">Course Hosting</h3>
-                            <p class="mt-2 text-gray-400">Build your curriculum in a dedicated, distraction-free sanctuary designed for deep learning.</p>
+                            <h3 class="text-xl font-bold highlight-text group-hover:text-purple-400 transition-colors duration-300">Course Hosting</h3>
+                            <p class="mt-3 text-gray-400 group-hover:text-gray-300 transition-colors duration-300">Build your curriculum in a dedicated, distraction-free sanctuary designed for deep learning.</p>
                         </div>
 
-                        <!-- Feature 2: Content Protection -->
-                        <div class="text-center">
-                            <div class="flex items-center justify-center h-16 w-16 rounded-xl bg-gray-900/80 border border-gray-700/80 text-purple-500 mx-auto mb-5 feature-icon-wrapper">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.944A12.02 12.02 0 0012 22a12.02 12.02 0 009-1.056c0-1.172-.078-2.313-.23-3.416z" /></svg>
+                        <!-- Enhanced Feature 2: Content Protection -->
+                        <div class="text-center group animate-on-scroll hover:scale-105 transition-all duration-500" style="animation-delay: 0.2s;">
+                            <div class="flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-gray-700/80 text-purple-500 mx-auto mb-6 feature-icon-wrapper group-hover:border-purple-500/50 group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all duration-500 group-hover:rotate-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.944A12.02 12.02 0 0012 22a12.02 12.02 0 009-1.056c0-1.172-.078-2.313-.23-3.416z" /></svg>
                             </div>
-                            <h3 class="text-xl font-bold highlight-text">Content Protection</h3>
-                            <p class="mt-2 text-gray-400">Proprietary security shields your video content from recording, protecting your intellectual property.</p>
+                            <h3 class="text-xl font-bold highlight-text group-hover:text-purple-400 transition-colors duration-300">Content Protection</h3>
+                            <p class="mt-3 text-gray-400 group-hover:text-gray-300 transition-colors duration-300">Proprietary security shields your video content from recording, protecting your intellectual property.</p>
                         </div>
 
-                        <!-- Feature 3: Community Engagement -->
-                        <div class="text-center">
-                            <div class="flex items-center justify-center h-16 w-16 rounded-xl bg-gray-900/80 border border-gray-700/80 text-purple-500 mx-auto mb-5 feature-icon-wrapper">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        <!-- Enhanced Feature 3: Community Engagement -->
+                        <div class="text-center group animate-on-scroll hover:scale-105 transition-all duration-500" style="animation-delay: 0.3s;">
+                            <div class="flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-gray-700/80 text-purple-500 mx-auto mb-6 feature-icon-wrapper group-hover:border-purple-500/50 group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all duration-500 group-hover:rotate-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                             </div>
-                            <h3 class="text-xl font-bold highlight-text">Community Engagement</h3>
-                            <p class="mt-2 text-gray-400">Foster meaningful interaction in focused discussion channels, free from external noise.</p>
+                            <h3 class="text-xl font-bold highlight-text group-hover:text-purple-400 transition-colors duration-300">Community Engagement</h3>
+                            <p class="mt-3 text-gray-400 group-hover:text-gray-300 transition-colors duration-300">Foster meaningful interaction in focused discussion channels, free from external noise.</p>
                         </div>
                         
-                        <!-- Feature 4: Video Calling -->
-                        <div class="text-center">
-                            <div class="flex items-center justify-center h-16 w-16 rounded-xl bg-gray-900/80 border border-gray-700/80 text-purple-500 mx-auto mb-5 feature-icon-wrapper">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        <!-- Enhanced Feature 4: Video Calling -->
+                        <div class="text-center group animate-on-scroll hover:scale-105 transition-all duration-500" style="animation-delay: 0.4s;">
+                            <div class="flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-gray-700/80 text-purple-500 mx-auto mb-6 feature-icon-wrapper group-hover:border-purple-500/50 group-hover:shadow-lg group-hover:shadow-purple-500/25 transition-all duration-500 group-hover:rotate-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                             </div>
-                            <h3 class="text-xl font-bold highlight-text">1-1 & Group Calling</h3>
-                            <p class="mt-2 text-gray-400">Seamless and secure video calls integrated directly into your course environment.</p>
+                            <h3 class="text-xl font-bold highlight-text group-hover:text-purple-400 transition-colors duration-300">1-1 & Group Calling</h3>
+                            <p class="mt-3 text-gray-400 group-hover:text-gray-300 transition-colors duration-300">Seamless and secure video calls integrated directly into your course environment.</p>
                         </div>
                     </div>
                 </div>
             </section>
             
-            <!-- Testimonials Section -->
-            <section id="testimonials" class="py-20 lg:py-28">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="text-center">
+            <!-- Enhanced Testimonials Section -->
+            <section id="testimonials" class="py-20 lg:py-28 relative overflow-hidden">
+                <!-- Background decorative elements -->
+                <div class="absolute inset-0 pointer-events-none">
+                    <div class="absolute top-40 left-20 w-20 h-20 border-2 border-purple-400/20 rounded-lg rotate-12 animate-float"></div>
+                    <div class="absolute bottom-40 right-20 w-16 h-16 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full animate-float-delayed"></div>
+                </div>
+                
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div class="text-center animate-on-scroll">
                         <h2 class="text-4xl lg:text-5xl font-bold font-serif section-heading">Words from the Wise</h2>
                         <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-400">Hear from fellow coaches who have found their focus on Kohza.</p>
                     </div>
+                    
                     <div class="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         
-                        <!-- Testimonial 1 -->
-                        <div class="relative group">
-                            <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" aria-hidden="true"></div>
-                            <div class="testimonial-card relative bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-lg p-8 flex flex-col h-full">
+                        <!-- Enhanced Testimonial 1 -->
+                        <div class="relative group animate-on-scroll" style="animation-delay: 0.1s;">
+                            <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-0 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" aria-hidden="true"></div>
+                            <div class="testimonial-card relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm border border-gray-800 rounded-xl p-8 flex flex-col h-full hover:border-purple-500/30 transition-all duration-500 hover:scale-105 hover:rotate-1">
                                 <div class="flex-grow">
-                                    <svg class="w-10 h-10 text-purple-800" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
+                                    <svg class="w-12 h-12 text-purple-800 group-hover:text-purple-600 transition-colors duration-300" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
                                         <path d="M9.33 12.333H2.667V24h6.666v-4.667H6v-2h3.333V12.333zM29.33 12.333H22.667V24h6.666v-4.667H26v-2h3.333V12.333z" />
                                     </svg>
-                                    <p class="relative mt-6 text-gray-300">"Kohza eliminated the noise. It provided a sanctuary where my content and my community could thrive without distraction. The focus on security gives me unparalleled peace of mind."</p>
+                                    <p class="relative mt-6 text-gray-300 group-hover:text-gray-200 transition-colors duration-300">"Kohza eliminated the noise. It provided a sanctuary where my content and my community could thrive without distraction. The focus on security gives me unparalleled peace of mind."</p>
                                 </div>
                                 <footer class="mt-8">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0">
-                                            <img class="h-12 w-12 rounded-full" src="https://i.pravatar.cc/48?u=coach1" alt="Avatar of Elena Vance">
+                                            <img class="h-14 w-14 rounded-full border-2 border-purple-500/50 group-hover:border-purple-400 transition-colors duration-300" src="https://i.pravatar.cc/48?u=coach1" alt="Avatar of Elena Vance">
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-base font-medium highlight-text">Elena Vance</div>
-                                            <div class="text-base text-gray-500">Leadership Coach</div>
+                                            <div class="text-base font-medium highlight-text group-hover:text-purple-400 transition-colors duration-300">Elena Vance</div>
+                                            <div class="text-base text-gray-500 group-hover:text-gray-400 transition-colors duration-300">Leadership Coach</div>
                                         </div>
                                     </div>
                                 </footer>
                             </div>
                         </div>
 
-                        <!-- Testimonial 2 -->
-                         <div class="relative group">
-                            <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" aria-hidden="true"></div>
-                            <div class="testimonial-card relative bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-lg p-8 flex flex-col h-full">
+                        <!-- Enhanced Testimonial 2 -->
+                         <div class="relative group animate-on-scroll" style="animation-delay: 0.2s;">
+                            <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-0 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" aria-hidden="true"></div>
+                            <div class="testimonial-card relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm border border-gray-800 rounded-xl p-8 flex flex-col h-full hover:border-purple-500/30 transition-all duration-500 hover:scale-105 hover:-rotate-1">
                                 <div class="flex-grow">
-                                    <svg class="w-10 h-10 text-purple-800" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
+                                    <svg class="w-12 h-12 text-purple-800 group-hover:text-purple-600 transition-colors duration-300" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
                                         <path d="M9.33 12.333H2.667V24h6.666v-4.667H6v-2h3.333V12.333zM29.33 12.333H22.667V24h6.666v-4.667H26v-2h3.333V12.333z" />
                                     </svg>
-                                    <p class="relative mt-6 text-gray-300">"The platform's stoic design isn't just an aesthetic; it's a philosophy that permeates the user experience. It encourages discipline and focus for both me and my students."</p>
+                                    <p class="relative mt-6 text-gray-300 group-hover:text-gray-200 transition-colors duration-300">"The platform's stoic design isn't just an aesthetic; it's a philosophy that permeates the user experience. It encourages discipline and focus for both me and my students."</p>
                                 </div>
                                 <footer class="mt-8">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0">
-                                            <img class="h-12 w-12 rounded-full" src="https://i.pravatar.cc/48?u=coach2" alt="Avatar of Jian Li">
+                                            <img class="h-14 w-14 rounded-full border-2 border-purple-500/50 group-hover:border-purple-400 transition-colors duration-300" src="https://i.pravatar.cc/48?u=coach2" alt="Avatar of Jian Li">
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-base font-medium highlight-text">Jian Li</div>
-                                            <div class="text-base text-gray-500">Mindfulness Expert</div>
+                                            <div class="text-base font-medium highlight-text group-hover:text-purple-400 transition-colors duration-300">Jian Li</div>
+                                            <div class="text-base text-gray-500 group-hover:text-gray-400 transition-colors duration-300">Mindfulness Expert</div>
                                         </div>
                                     </div>
                                 </footer>
                             </div>
                         </div>
 
-                        <!-- Testimonial 3 -->
-                        <div class="relative group">
-                            <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" aria-hidden="true"></div>
-                            <div class="testimonial-card relative bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-lg p-8 flex flex-col h-full">
+                        <!-- Enhanced Testimonial 3 -->
+                        <div class="relative group animate-on-scroll" style="animation-delay: 0.3s;">
+                            <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-0 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" aria-hidden="true"></div>
+                            <div class="testimonial-card relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm border border-gray-800 rounded-xl p-8 flex flex-col h-full hover:border-purple-500/30 transition-all duration-500 hover:scale-105 hover:rotate-1">
                                 <div class="flex-grow">
-                                    <svg class="w-10 h-10 text-purple-800" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
+                                    <svg class="w-12 h-12 text-purple-800 group-hover:text-purple-600 transition-colors duration-300" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
                                         <path d="M9.33 12.333H2.667V24h6.666v-4.667H6v-2h3.333V12.333zM29.33 12.333H22.667V24h6.666v-4.667H26v-2h3.333V12.333z" />
                                     </svg>
-                                    <p class="relative mt-6 text-gray-300">"Finally, an all-in-one solution that respects the craft of coaching. The integrated calling and course hosting have simplified my entire business overnight."</p>
+                                    <p class="relative mt-6 text-gray-300 group-hover:text-gray-200 transition-colors duration-300">"Finally, an all-in-one solution that respects the craft of coaching. The integrated calling and course hosting have simplified my entire business overnight."</p>
                                 </div>
                                 <footer class="mt-8">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0">
-                                            <img class="h-12 w-12 rounded-full" src="https://i.pravatar.cc/48?u=coach3" alt="Avatar of Samir Khan">
+                                            <img class="h-14 w-14 rounded-full border-2 border-purple-500/50 group-hover:border-purple-400 transition-colors duration-300" src="https://i.pravatar.cc/48?u=coach3" alt="Avatar of Samir Khan">
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-base font-medium highlight-text">Samir Khan</div>
-                                            <div class="text-base text-gray-500">Performance Strategist</div>
+                                            <div class="text-base font-medium highlight-text group-hover:text-purple-400 transition-colors duration-300">Samir Khan</div>
+                                            <div class="text-base text-gray-500 group-hover:text-gray-400 transition-colors duration-300">Performance Strategist</div>
                                         </div>
                                     </div>
                                 </footer>
@@ -458,16 +569,24 @@
 
         </main>
 
-        <footer class="bg-black border-t border-gray-900/50 footer">
-            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
-                <p>&copy; 2025 Kohza. All Rights Reserved. Forged in Discipline.</p>
+        <!-- Compact Premium Footer -->
+        <footer class="relative bg-black/80 border-t border-gray-800/50 footer">
+            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <p class="text-gray-400 text-sm">
+                        &copy; 2025 Kohza. All Rights Reserved. 
+                        <span class="text-purple-400/80">
+                            Forged in Discipline.
+                        </span>
+                    </p>
+                </div>
             </div>
         </footer>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Mobile Menu Toggle
+            // Enhanced Mobile Menu Toggle
             const menuBtn = document.getElementById('menu-btn');
             const mobileMenu = document.getElementById('mobile-menu');
             const menuIconOpen = document.getElementById('menu-icon-open');
@@ -480,10 +599,105 @@
                     menuIconOpen.classList.toggle('hidden', !isHidden);
                     menuIconClose.classList.toggle('hidden', isHidden);
                     document.body.classList.toggle('mobile-menu-open', !isHidden);
+                    
+                    // Add entrance animation
+                    if (!isHidden) {
+                        mobileMenu.style.transform = 'translateY(-100%)';
+                        mobileMenu.style.opacity = '0';
+                        setTimeout(() => {
+                            mobileMenu.style.transform = 'translateY(0)';
+                            mobileMenu.style.opacity = '1';
+                        }, 10);
+                    }
                 });
             }
 
-            // Case Study Carousel
+            // Enhanced Scroll Animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe elements for scroll animations
+            document.querySelectorAll('.animate-on-scroll').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                el.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                observer.observe(el);
+            });
+
+            // Enhanced Header Scroll Effect
+            let lastScrollY = window.scrollY;
+            const header = document.getElementById('main-header');
+            
+            window.addEventListener('scroll', () => {
+                const currentScrollY = window.scrollY;
+                
+                if (currentScrollY > 100) {
+                    header.style.background = 'rgba(0, 0, 0, 0.9)';
+                    header.style.backdropFilter = 'blur(20px)';
+                    header.style.borderBottom = '1px solid rgba(147, 51, 234, 0.2)';
+                } else {
+                    header.style.background = 'rgba(0, 0, 0, 0.2)';
+                    header.style.backdropFilter = 'blur(8px)';
+                    header.style.borderBottom = 'none';
+                }
+                
+                // Hide/show header based on scroll direction
+                if (currentScrollY > lastScrollY && currentScrollY > 200) {
+                    header.style.transform = 'translateY(-100%)';
+                } else {
+                    header.style.transform = 'translateY(0)';
+                }
+                
+                lastScrollY = currentScrollY;
+            });
+
+            // Parallax effect removed - keeping background static
+            
+            // Enhanced button interactions
+            document.querySelectorAll('.btn-enhanced').forEach(btn => {
+                btn.addEventListener('mouseenter', function(e) {
+                    const ripple = document.createElement('div');
+                    ripple.className = 'absolute inset-0 bg-white opacity-20 rounded-full scale-0 transition-transform duration-500';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.style.transform = 'scale(2)';
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 500);
+                });
+            });
+
+            // Dynamic particle generation removed for static background
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Case Study Carousel Enhancement
             const carousel = document.getElementById('case-study-carousel');
             if (carousel) {
                 const slidesContainer = document.getElementById('slides-container');
@@ -495,33 +709,53 @@
                 let currentIndex = 0;
                 const totalSlides = slides.length;
                 let autoPlayInterval;
+                let isTransitioning = false;
 
-                // Create dots
+                // Create enhanced dots
                 for (let i = 0; i < totalSlides; i++) {
                     const dot = document.createElement('button');
-                    dot.classList.add('w-2.5', 'h-2.5', 'rounded-full', 'carousel-dot', 'bg-gray-600', 'hover:bg-gray-400', 'transition-colors', 'duration-300');
+                    dot.classList.add('w-3', 'h-3', 'rounded-full', 'carousel-dot', 'bg-gray-600', 'hover:bg-gray-400', 'transition-all', 'duration-300', 'hover:scale-125');
                     dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
                     dot.addEventListener('click', () => {
-                        currentIndex = i;
-                        updateCarousel();
+                        if (!isTransitioning) {
+                            currentIndex = i;
+                            updateCarousel();
+                        }
                     });
                     dotsContainer.appendChild(dot);
                 }
                 const dots = dotsContainer.querySelectorAll('button');
 
                 function updateCarousel() {
+                    if (isTransitioning) return;
+                    isTransitioning = true;
+                    
                     slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
                     
                     dots.forEach((dot, index) => {
                         dot.classList.toggle('active', index === currentIndex);
+                        if (index === currentIndex) {
+                            dot.style.background = 'linear-gradient(45deg, #9333ea, #c084fc)';
+                            dot.style.transform = 'scale(1.2)';
+                        } else {
+                            dot.style.background = '';
+                            dot.style.transform = 'scale(1)';
+                        }
                     });
+                    
+                    setTimeout(() => {
+                        isTransitioning = false;
+                    }, 300);
                 }
 
                 function startAutoPlay() {
-                    stopAutoPlay(); // Prevent multiple intervals
+                    stopAutoPlay();
                     autoPlayInterval = setInterval(() => {
-                        nextBtn.click();
-                    }, 7000); // Change slide every 7 seconds
+                        if (!isTransitioning) {
+                            currentIndex = (currentIndex + 1) % totalSlides;
+                            updateCarousel();
+                        }
+                    }, 6000);
                 }
 
                 function stopAutoPlay() {
@@ -529,13 +763,17 @@
                 }
 
                 nextBtn.addEventListener('click', () => {
-                    currentIndex = (currentIndex + 1) % totalSlides;
-                    updateCarousel();
+                    if (!isTransitioning) {
+                        currentIndex = (currentIndex + 1) % totalSlides;
+                        updateCarousel();
+                    }
                 });
 
                 prevBtn.addEventListener('click', () => {
-                    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-                    updateCarousel();
+                    if (!isTransitioning) {
+                        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+                        updateCarousel();
+                    }
                 });
                 
                 carousel.addEventListener('mouseenter', stopAutoPlay);
@@ -546,11 +784,32 @@
                     el.addEventListener('blur', startAutoPlay);
                 });
 
-
                 // Initialize
                 updateCarousel();
                 startAutoPlay();
             }
+
+            // Enhanced testimonial cards interaction
+            document.querySelectorAll('.testimonial-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) rotateX(5deg) rotateY(5deg)';
+                    this.style.boxShadow = '0 25px 50px -12px rgba(147, 51, 234, 0.3)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+                    this.style.boxShadow = '';
+                });
+            });
+
+            // Add loading screen fade out
+            window.addEventListener('load', () => {
+                document.body.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.style.transition = 'opacity 0.8s ease-out';
+                    document.body.style.opacity = '1';
+                }, 100);
+            });
         });
 
         // Disable right-click context menu

@@ -331,7 +331,7 @@
     
     <audio id="timer-complete-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
     <script type="module">
-        import { auth, db, utils } from './supabase-client.js';
+        import { auth, db, supabase, utils } from './supabase-client.js';
 
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('🎓 Student panel loading...');
@@ -361,6 +361,16 @@
             async function loadEnrolledCourses() {
                 try {
                     console.log('📚 Loading enrolled courses for student:', user.id);
+                    console.log('🔐 Current auth user:', await auth.getCurrentUser());
+                    
+                    // First, let's check if there are any enrollments for this user
+                    const { data: directEnrollments, error: directError } = await supabase
+                        .from('enrollments')
+                        .select('*')
+                        .eq('student_id', user.id);
+                    
+                    console.log('🔍 Direct enrollment check:', { directEnrollments, directError });
+                    
                     const { data: enrollments, error } = await db.getEnrolledCourses(user.id);
 
                     if (error) {
@@ -376,8 +386,22 @@
                     }
 
                     console.log('✅ Enrollments loaded:', enrollments);
-                    enrolledCourses = enrollments?.map(enrollment => enrollment.courses) || [];
+                    console.log('📊 Raw enrollment data:', JSON.stringify(enrollments, null, 2));
+                    
+                    // Check for null courses (RLS policy issue)
+                    const nullCourses = enrollments?.filter(e => e.courses === null);
+                    if (nullCourses && nullCourses.length > 0) {
+                        console.warn('⚠️ Found enrollments with null courses:', nullCourses.length);
+                        console.log('💡 This indicates RLS policy restrictions. Consider running safe-student-course-access.sql');
+                    }
+                    
+                    // Only process enrollments that have valid course data
+                    const validEnrollments = enrollments?.filter(e => e.courses !== null) || [];
+                    enrolledCourses = validEnrollments.map(enrollment => enrollment.courses);
+                    
+                    console.log('📖 Valid courses found:', enrolledCourses.length);
                     console.log('📖 Processed courses:', enrolledCourses);
+                    
                     renderDashboard();
                 } catch (error) {
                     console.error('💥 Exception loading courses:', error);
@@ -407,12 +431,19 @@
                             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-300">No courses enrolled</h3>
-                            <p class="mt-1 text-sm text-gray-400">Contact your coach to get enrolled in courses.</p>
+                            <h3 class="mt-2 text-sm font-medium text-gray-300">No courses available</h3>
+                            <p class="mt-1 text-sm text-gray-400">Your enrolled courses aren't accessible. This may be a permissions issue.</p>
+                            <p class="mt-2 text-xs text-gray-500">Check the console for debugging info or contact your coach.</p>
                         </div>
                     `;
                     } else {
+                        // Safely render courses with null checks
                         coursesGrid.innerHTML = enrolledCourses.map(course => {
+                            // Additional safety check in case any nulls slipped through
+                            if (!course) {
+                                return '<div class="col-span-full text-center py-4 text-gray-400">Course data unavailable</div>';
+                            }
+                            
                             const coachName = course.profiles?.full_name || 'Unknown Coach';
                             const moduleCount = course.modules?.length || 0;
                             const lessonCount = course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 0;
@@ -822,6 +853,51 @@ Enrolled Courses: ${enrolledCourses.length}`);
                     setTimeout(() => document.body.removeChild(toast), 300);
                 }, 3000);
             }
+
+            // Debug function to check enrollment status
+            window.debugEnrollments = async function() {
+                console.log('🔍 DEBUG: Checking enrollment status...');
+                console.log('👤 Current user:', user);
+                
+                const { user: authUser } = await auth.getCurrentUser();
+                console.log('🔐 Auth user:', authUser);
+                
+                // Check profile
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+                console.log('👤 Profile:', { profile, profileError });
+                
+                // Check enrollments with different approaches
+                const { data: enrollments1, error: error1 } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('student_id', user.id);
+                console.log('📚 Enrollments by user.id:', { enrollments1, error1 });
+                
+                const { data: enrollments2, error: error2 } = await supabase
+                    .from('enrollments')
+                    .select('*')
+                    .eq('student_id', authUser?.id);
+                console.log('📚 Enrollments by auth.id:', { enrollments2, error2 });
+                
+                // Check all enrollments (if user has admin access)
+                const { data: allEnrollments, error: allError } = await supabase
+                    .from('enrollments')
+                    .select('*');
+                console.log('📚 All enrollments (if accessible):', { allEnrollments, allError });
+                
+                return {
+                    user,
+                    authUser,
+                    profile,
+                    enrollments1,
+                    enrollments2,
+                    allEnrollments
+                };
+            };
 
             // --- INITIALIZATION ---
             await loadEnrolledCourses();

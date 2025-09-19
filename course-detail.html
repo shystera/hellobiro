@@ -130,7 +130,7 @@
     </div>
 
     <script type="module">
-        import { auth, db, utils } from './supabase-client.js';
+        import { auth, db, supabase, utils } from './supabase-client.js';
 
         document.addEventListener('DOMContentLoaded', async () => {
             // Check authentication
@@ -151,19 +151,39 @@
 
             // Load course data
             try {
+                console.log('📚 Loading course details for ID:', courseId);
+                
                 // Check if student is enrolled
+                console.log('🔍 Checking enrollment...');
                 const { data: enrollment, error: enrollmentError } = await db.checkEnrollment(user.id, courseId);
-                if (enrollmentError || !enrollment) {
+                console.log('📝 Enrollment check result:', { enrollment, enrollmentError });
+                
+                if (enrollmentError) {
+                    console.error('❌ Enrollment check failed:', enrollmentError);
+                    throw new Error(`Enrollment check failed: ${enrollmentError.message}`);
+                }
+                
+                if (!enrollment) {
+                    console.warn('⚠️ User not enrolled in course');
                     alert('You are not enrolled in this course.');
                     window.location.href = '/student-panel.html';
                     return;
                 }
+                
+                console.log('✅ User is enrolled, loading course data...');
 
                 // Get course with modules and lessons
+                console.log('📚 Loading modules...');
                 const { data: modules, error: modulesError } = await db.getModulesByCourse(courseId);
-                if (modulesError) throw modulesError;
+                console.log('📋 Modules result:', { modules, modulesError });
+                
+                if (modulesError) {
+                    console.error('❌ Modules loading failed:', modulesError);
+                    throw new Error(`Modules loading failed: ${modulesError.message}`);
+                }
 
                 // Get course details
+                console.log('🎥 Loading course details...');
                 const { data: courses, error: courseError } = await supabase
                     .from('courses')
                     .select(`
@@ -174,8 +194,13 @@
                     `)
                     .eq('id', courseId)
                     .single();
+                
+                console.log('🎥 Course details result:', { courses, courseError });
 
-                if (courseError) throw courseError;
+                if (courseError) {
+                    console.error('❌ Course loading failed:', courseError);
+                    throw new Error(`Course loading failed: ${courseError.message}`);
+                }
 
                 const course = courses;
                 
@@ -301,8 +326,24 @@
                 });
 
             } catch (error) {
-                console.error('Error loading course:', error);
-                alert('Error loading course. Please try again.');
+                console.error('💥 Error loading course:', error);
+                console.error('🔧 Error details:', {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint
+                });
+                
+                // Provide specific error messages based on the error
+                let errorMessage = 'Error loading course. ';
+                if (error.message?.includes('permission denied') || error.code === 'PGRST116') {
+                    errorMessage += 'You may not have permission to view this course. This could be an RLS policy issue.';
+                    console.log('💡 Suggestion: Run the safe-student-course-access.sql script in your Supabase database.');
+                } else {
+                    errorMessage += 'Please try again or contact support.';
+                }
+                
+                alert(errorMessage);
                 window.location.href = '/student-panel.html';
             }
 

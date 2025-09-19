@@ -254,32 +254,86 @@
             }
         }
         
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const editorPanel = document.getElementById('editor-panel');
             const outlineList = document.getElementById('course-outline-list');
             const saveChangesBtn = document.getElementById('save-changes-btn');
 
-            state = {
-                id: 'stoic-resilience-101',
-                title: 'The Art of Stoic Resilience',
-                thumbnailUrl: 'https://images.unsplash.com/photo-1518976024611-28bf4b48262e?q=80&w=800&auto=format&fit=crop',
-                modules: [
-                    {
-                        id: 'mod-1',
-                        title: 'Module 1: The Foundation',
-                        lessons: [
-                            { id: 'les-101', title: 'Introduction to Stoicism', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', videoFile: null, videoName: 'mov_bbb.mp4' },
-                            { id: 'les-102', title: 'The Dichotomy of Control', videoUrl: null, videoFile: null, videoName: null }
-                        ]
-                    },
-                    {
-                        id: 'mod-2',
-                        title: 'Module 2: Practical Application',
-                        lessons: []
-                    }
-                ]
-            };
-            activeEditor = { type: null, id: null };
+            // Get course ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('id');
+
+            if (!courseId) {
+                alert('No course ID provided');
+                window.location.href = 'coach-admin-panel.html';
+                return;
+            }
+
+            try {
+                // Load course data from database
+                console.log('Loading course data for ID:', courseId);
+                
+                // Get course details
+                const { data: course, error: courseError } = await supabaseClient
+                    .from('courses')
+                    .select('*')
+                    .eq('id', courseId)
+                    .single();
+
+                if (courseError) {
+                    console.error('Error loading course:', courseError);
+                    alert('Error loading course data');
+                    return;
+                }
+
+                // Get modules and lessons
+                const { data: modules, error: modulesError } = await supabaseClient
+                    .from('modules')
+                    .select(`
+                        *,
+                        lessons (*)
+                    `)
+                    .eq('course_id', courseId)
+                    .order('order_index');
+
+                if (modulesError) {
+                    console.error('Error loading modules:', modulesError);
+                    alert('Error loading course modules');
+                    return;
+                }
+
+                // Set up state with actual course data
+                state = {
+                    id: course.id,
+                    title: course.title,
+                    thumbnailUrl: course.thumbnail_url || 'https://images.unsplash.com/photo-1518976024611-28bf4b48262e?q=80&w=800&auto=format&fit=crop',
+                    modules: modules.map(module => ({
+                        id: module.id,
+                        title: module.title,
+                        lessons: (module.lessons || []).map(lesson => ({
+                            id: lesson.id,
+                            title: lesson.title,
+                            videoUrl: lesson.mux_playback_id ? `https://stream.mux.com/${lesson.mux_playback_id}.m3u8` : null,
+                            videoFile: null,
+                            videoName: lesson.mux_asset_id ? 'Uploaded video' : null,
+                            uploadStatus: lesson.upload_status || 'ready'
+                        }))
+                    }))
+                };
+                
+                console.log('Loaded course state:', state);
+                
+                activeEditor = { type: null, id: null };
+                
+                // Initial Render after data is loaded
+                renderOutline();
+                renderEditor('course', state.id);
+                
+            } catch (error) {
+                console.error('Error loading course data:', error);
+                alert('Failed to load course data');
+                return;
+            }
             
             const addVideosAsLessons = (files, moduleId) => {
                 const videoFiles = Array.from(files).filter(file => file.type.startsWith('video/'));
@@ -638,9 +692,6 @@
                 });
             });
 
-            // Initial Render
-            renderOutline();
-            renderEditor('course', state.id);
             document.addEventListener('contextmenu', event => event.preventDefault());
         });
     </script>
