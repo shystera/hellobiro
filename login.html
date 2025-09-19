@@ -49,14 +49,14 @@
 <body class="antialiased">
   <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-blobs">
     <div
-      class="absolute w-[80vmax] h-[80vmax] -left-[40vmax] -top-[40vmax] bg-purple-900/40 rounded-full blur-3xl opacity-50">
+      class="absolute w-[60vmax] h-[60vmax] -left-[30vmax] -top-[30vmax] bg-purple-900/20 rounded-full blur-3xl opacity-30">
     </div>
     <div
-      class="absolute w-[60vmax] h-[60vmax] -right-[30vmax] -bottom-[20vmax] bg-purple-800/30 rounded-full blur-3xl opacity-50">
+      class="absolute w-[40vmax] h-[40vmax] -right-[20vmax] -bottom-[10vmax] bg-purple-800/15 rounded-full blur-3xl opacity-30">
     </div>
   </div>
 
-  <div class="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
+  <div class="relative z-10 flex flex-col items-center justify-center min-h-screen p-4 sm:p-8">
     <header class="absolute top-0 left-0 right-0 p-6 sm:p-8 flex justify-between items-center">
       <a href="index.html"
         class="text-3xl font-serif font-bold brand-text hover:text-purple-300 transition-colors">Kohza</a>
@@ -76,47 +76,83 @@
       </button>
     </header>
 
-    <main class="w-full max-w-md">
-      <div
-        class="login-card bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg shadow-purple-950/40 p-8">
-        <div class="text-center mb-8">
-          <h1 class="text-4xl font-serif heading-text">Welcome Back</h1>
-          <p class="text-gray-400 mt-2">Continue your path of discipline.</p>
+    <main class="w-full max-w-sm">
+      <div class="login-card backdrop-blur-lg rounded-2xl shadow-xl p-8 sm:p-10">
+        <div class="text-center mb-10">
+          <h1 class="text-3xl font-serif heading-text mb-3">Welcome Back</h1>
+          <p class="subtitle-text text-sm leading-relaxed">Sign in to continue your journey</p>
         </div>
 
         <form id="login-form">
-          <div class="space-y-6">
+          <div class="space-y-5">
             <div>
-              <label for="email" class="block text-sm font-medium label-text">Email Address</label>
-              <div class="mt-1">
-                <input id="email" name="email" type="email" required
-                  class="w-full px-4 py-3 input-field bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
-                  placeholder="you@example.com" />
-              </div>
+              <label for="email" class="block text-sm font-medium label-text mb-2">Email</label>
+              <input id="email" name="email" type="email" required
+                class="w-full px-4 py-3.5 input-field rounded-xl text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500"
+                placeholder="Enter your email" />
             </div>
 
             <div>
-              <div class="flex items-center justify-between">
+              <div class="flex items-center justify-between mb-2">
                 <label for="password" class="block text-sm font-medium label-text">Password</label>
-                <a href="#" class="text-sm font-medium text-purple-500 hover:text-purple-400">Forgot password?</a>
+                <a href="#" id="forgot-password-link" class="text-sm font-medium forgot-link hover:underline transition-colors">Forgot?</a>
               </div>
-              <div class="mt-1">
-                <input id="password" name="password" type="password" required
-                  class="w-full px-4 py-3 input-field bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
-                  placeholder="••••••••" />
-              </div>
+              <input id="password" name="password" type="password" required
+                class="w-full px-4 py-3.5 input-field rounded-xl text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500"
+                placeholder="Enter your password" />
             </div>
 
-            <div>
-              <button type="submit"
-                class="w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-white bg-purple-700 hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-purple-500 transition-all duration-300 transform hover:-translate-y-0.5">
-                Continue to Kohza
-              </button>
-            </div>
+            <button type="submit"
+              class="w-full py-4 px-4 mt-8 primary-button rounded-xl text-base font-semibold transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:ring-offset-2">
+              Sign In
+            </button>
           </div>
         </form>
       </div>
     </main>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgot-password-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-purple-500/30">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-serif text-white mb-2">Reset Password</h2>
+        <p class="text-gray-400 text-sm">Enter your email to receive a password reset link</p>
+      </div>
+      
+      <form id="forgot-password-form">
+        <div class="mb-6">
+          <label for="reset-email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+          <input 
+            id="reset-email" 
+            name="email" 
+            type="email" 
+            required
+            class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-colors"
+            placeholder="Enter your email address" 
+          />
+        </div>
+        
+        <div class="flex gap-3">
+          <button 
+            type="button" 
+            id="cancel-reset" 
+            class="flex-1 py-3 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-colors"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            id="send-reset" 
+            class="flex-1 py-3 px-4 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-medium transition-colors"
+          >
+            Send Reset Link
+          </button>
+        </div>
+      </form>
+      
+      <div id="reset-message" class="mt-4 p-3 rounded-xl text-sm font-medium hidden"></div>
+    </div>
   </div>
 
   <script type="module">
@@ -184,10 +220,10 @@
 
       // Add role indicator
       const roleIndicator = document.createElement('div');
-      roleIndicator.className = 'text-center mb-4 p-2 bg-purple-900/30 border border-purple-700 rounded-md';
+      roleIndicator.className = 'text-center mb-6 p-3 role-indicator rounded-xl';
       roleIndicator.innerHTML = `
-        <span class="text-purple-300 text-sm">Selected Role: <strong>${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}</strong></span>
-        <button onclick="changeRole()" class="ml-2 text-xs text-purple-400 hover:text-purple-300 underline">Change</button>
+        <span class="text-sm font-medium">Selected Role: <strong>${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}</strong></span>
+        <button onclick="changeRole()" class="ml-2 text-xs hover:underline transition-colors">Change</button>
       `;
       loginForm.insertBefore(roleIndicator, loginForm.firstChild);
 
@@ -284,7 +320,7 @@
                 console.error('Error creating profile:', error);
                 alert('Failed to create user profile. Please try again.');
                 // Reset button
-                submitButton.textContent = 'Continue to Kohza';
+                submitButton.textContent = 'Sign In';
                 submitButton.disabled = false;
                 return;
               }
@@ -306,27 +342,129 @@
           if (!errorDiv) {
             errorDiv = document.createElement('div');
             errorDiv.id = 'login-error';
-            errorDiv.className = 'mt-4 p-3 bg-red-900/50 border border-red-700 rounded-md text-red-300 text-sm';
+            errorDiv.className = 'mt-4 p-4 error-message rounded-xl text-sm font-medium';
             loginForm.appendChild(errorDiv);
           }
           errorDiv.textContent = errorMessage;
 
           // Reset button
-          submitButton.textContent = 'Continue to Kohza';
+          submitButton.textContent = 'Sign In';
           submitButton.disabled = false;
         }
       });
 
       // Add link to signup page
       const signupLink = document.createElement('div');
-      signupLink.className = 'text-center mt-6';
+      signupLink.className = 'text-center mt-8 pt-6 border-t border-gray-600';
       signupLink.innerHTML = `
-        <p class="text-gray-400">
+        <p class="signup-text text-sm">
           Don't have an account? 
-          <a href="signup.html?role=${selectedRole}" class="text-purple-500 hover:text-purple-400 font-medium">Sign up as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}</a>
+          <a href="signup.html?role=${selectedRole}" class="signup-link font-medium hover:underline transition-colors">Create one</a>
         </p>
       `;
       loginForm.parentElement.appendChild(signupLink);
+
+      // Handle forgot password functionality
+      const forgotPasswordLink = document.getElementById('forgot-password-link');
+      const forgotPasswordModal = document.getElementById('forgot-password-modal');
+      const forgotPasswordForm = document.getElementById('forgot-password-form');
+      const cancelResetBtn = document.getElementById('cancel-reset');
+      const resetEmailInput = document.getElementById('reset-email');
+      const resetMessage = document.getElementById('reset-message');
+      const sendResetBtn = document.getElementById('send-reset');
+
+      // Show forgot password modal
+      forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        forgotPasswordModal.classList.remove('hidden');
+        resetEmailInput.focus();
+      });
+
+      // Hide forgot password modal
+      cancelResetBtn.addEventListener('click', () => {
+        forgotPasswordModal.classList.add('hidden');
+        forgotPasswordForm.reset();
+        resetMessage.classList.add('hidden');
+      });
+
+      // Close modal when clicking outside
+      forgotPasswordModal.addEventListener('click', (e) => {
+        if (e.target === forgotPasswordModal) {
+          forgotPasswordModal.classList.add('hidden');
+          forgotPasswordForm.reset();
+          resetMessage.classList.add('hidden');
+        }
+      });
+
+      // Handle forgot password form submission
+      forgotPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = resetEmailInput.value.trim();
+        if (!email) {
+          showResetMessage('Please enter your email address.', 'error');
+          return;
+        }
+
+        // Show loading state
+        sendResetBtn.textContent = 'Sending...';
+        sendResetBtn.disabled = true;
+
+        try {
+          console.log('🔐 Sending password reset email to:', email);
+          
+          // Send password reset email
+          const { error } = await auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/reset-password.html`
+          });
+
+          if (error) {
+            console.error('Password reset error:', error);
+            throw error;
+          }
+
+          console.log('✅ Password reset email sent successfully');
+          showResetMessage(
+            'Password reset link sent! Please check your email and follow the instructions to reset your password.',
+            'success'
+          );
+          
+          // Clear form and close modal after delay
+          setTimeout(() => {
+            forgotPasswordModal.classList.add('hidden');
+            forgotPasswordForm.reset();
+            resetMessage.classList.add('hidden');
+          }, 3000);
+
+        } catch (error) {
+          console.error('Password reset failed:', error);
+          
+          let errorMessage = 'Failed to send reset email. Please try again.';
+          if (error.message.includes('User not found')) {
+            errorMessage = 'No account found with this email address.';
+          } else if (error.message.includes('For security purposes')) {
+            const match = error.message.match(/(\d+) seconds/);
+            const waitTime = match ? `${match[1]} seconds` : 'a moment';
+            errorMessage = `Too many requests. Please wait ${waitTime} and try again.`;
+          }
+          
+          showResetMessage(errorMessage, 'error');
+        } finally {
+          // Reset button state
+          sendResetBtn.textContent = 'Send Reset Link';
+          sendResetBtn.disabled = false;
+        }
+      });
+
+      // Function to show reset messages
+      function showResetMessage(message, type) {
+        resetMessage.textContent = message;
+        resetMessage.className = `mt-4 p-3 rounded-xl text-sm font-medium ${type === 'success' 
+          ? 'bg-green-900/30 border border-green-500/30 text-green-400' 
+          : 'bg-red-900/30 border border-red-500/30 text-red-400'
+        }`;
+        resetMessage.classList.remove('hidden');
+      }
 
       document.addEventListener("contextmenu", event => event.preventDefault());
     });

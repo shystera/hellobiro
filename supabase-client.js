@@ -159,6 +159,30 @@ export const auth = {
     return { data, error }
   },
 
+  // Reset password for email
+  async resetPasswordForEmail(email, options = {}) {
+    try {
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, options);
+      return { data, error };
+    } catch (error) {
+      console.error('Password reset error:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Update password (used after reset)
+  async updatePassword(newPassword) {
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      return { data, error };
+    } catch (error) {
+      console.error('Password update error:', error);
+      return { data: null, error };
+    }
+  },
+
   // Listen to auth changes
   onAuthStateChange(callback) {
     return supabase.auth.onAuthStateChange(callback)
