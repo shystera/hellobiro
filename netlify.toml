@@ -1,0 +1,42 @@
+[build]
+  # No build command needed for static site
+  command = ""
+  # Publish the root directory since all files are static
+  publish = "."
+
+[build.environment]
+  # Environment variables for Supabase (if needed)
+  VITE_SUPABASE_URL = "https://zmqayrsopghnzrfuqybw.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InptcWF5cnNvcGdobnpyZnVxeWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyMjM3ODksImV4cCI6MjA3MTc5OTc4OX0.sPrgn7n3MmkfouzKtH6q3XC3J4GfIbGl3j4AeIna24w"
+
+# Redirect rules for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["admin"]}
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Headers for static assets
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
