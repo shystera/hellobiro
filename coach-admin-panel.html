@@ -923,7 +923,9 @@ Technical details: ${createProfileError.message}`);
                             console.log(`📧 Sending password setup email to ${email}`);
                             const resetUrl = window.location.hostname === 'localhost' 
                                 ? 'http://localhost:5173/reset-password.html'
-                                : `${window.location.origin}/reset-password.html`;
+                                : 'https://checkkrna.netlify.app/reset-password.html';
+                            
+                            console.log('🔗 Using reset URL:', resetUrl);
                             
                             const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
                                 redirectTo: resetUrl
