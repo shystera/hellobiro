@@ -921,8 +921,12 @@ Technical details: ${createProfileError.message}`);
 
                             // Send password reset email for account setup
                             console.log(`📧 Sending password setup email to ${email}`);
+                            const resetUrl = window.location.hostname === 'localhost' 
+                                ? 'http://localhost:5173/reset-password.html'
+                                : `${window.location.origin}/reset-password.html`;
+                            
                             const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-                                redirectTo: `${window.location.origin}/student-panel.html`
+                                redirectTo: resetUrl
                             });
 
                             if (resetError) {
