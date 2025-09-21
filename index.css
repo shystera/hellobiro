@@ -242,57 +242,79 @@ body.mobile-menu-open header {
   }
   
   #main-header nav {
-    padding: 0.75rem 1rem !important; /* Reduced from default 1.5rem */
+    padding: 0.5rem 1rem !important; /* Further reduced padding */
     max-width: 100% !important;
+    align-items: center !important;
+    min-height: 3.5rem !important; /* Set a specific compact height */
+    flex-wrap: nowrap !important; /* Prevent wrapping */
   }
   
   /* Reduce brand text size on mobile */
   .brand-text {
-    font-size: 1.5rem !important; /* Reduced from 3xl (1.875rem) */
+    font-size: 1.25rem !important; /* Smaller brand text */
+    flex-shrink: 0 !important; /* Prevent shrinking */
+    white-space: nowrap !important; /* Prevent text wrapping */
   }
   
-  /* Optimize mobile nav button container */
+  /* Fix mobile nav button container alignment */
   .md\:hidden.flex.items-center {
-    gap: 0.25rem !important; /* Reduced gap between buttons */
+    gap: 0.5rem !important;
+    flex-shrink: 0 !important; /* Prevent shrinking */
+    align-items: center !important;
+    white-space: nowrap !important;
   }
   
-  /* Reduce mobile button sizes while maintaining accessibility */
+  /* Reduce mobile button sizes while maintaining touch targets */
   #theme-toggle-mobile,
   #menu-btn {
-    padding: 0.375rem !important; /* Reduced padding */
-    min-height: 40px !important; /* Slightly smaller but still touch-friendly */
-    min-width: 40px !important;
+    padding: 0.5rem !important;
+    min-height: 44px !important;
+    min-width: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
   }
   
   /* Adjust SVG sizes in mobile buttons */
   #theme-toggle-mobile svg,
   #menu-btn svg {
-    width: 1.25rem !important; /* Reduced from 1.75rem */
+    width: 1.25rem !important;
     height: 1.25rem !important;
+  }
+  
+  /* Ensure proper desktop nav hiding on mobile */
+  .hidden.md\:flex {
+    display: none !important;
   }
 }
 
 /* Extra small mobile devices - further header reduction */
 @media (max-width: 480px) {
   #main-header nav {
-    padding: 0.5rem 0.75rem !important; /* Even more compact */
+    padding: 0.375rem 0.75rem !important; /* Even more compact */
+    min-height: 3rem !important; /* Smaller height for very small screens */
   }
   
   .brand-text {
-    font-size: 1.25rem !important; /* Further reduced for very small screens */
+    font-size: 1.125rem !important; /* Further reduced for tiny screens */
   }
   
   #theme-toggle-mobile,
   #menu-btn {
-    padding: 0.25rem !important;
-    min-height: 36px !important; /* Minimum for accessibility */
-    min-width: 36px !important;
+    padding: 0.375rem !important;
+    min-height: 40px !important;
+    min-width: 40px !important;
   }
   
   #theme-toggle-mobile svg,
   #menu-btn svg {
-    width: 1rem !important;
-    height: 1rem !important;
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+  }
+  
+  .md\:hidden.flex.items-center {
+    gap: 0.25rem !important;
   }
 }
 

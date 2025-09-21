@@ -136,8 +136,8 @@
     <div class="relative z-10 flex flex-col min-h-screen">
         <!-- Header -->
         <header id="main-header" class="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md transition-all duration-500 hover:bg-black/30">
-            <nav class="flex justify-between items-center w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-                <a href="index.html" class="text-2xl sm:text-3xl font-serif font-bold brand-text relative overflow-hidden group touch-manipulation min-h-[44px] flex items-center justify-center">
+            <nav class="flex justify-between items-center w-full max-w-screen-xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6">
+                <a href="index.html" class="text-xl sm:text-2xl lg:text-3xl font-serif font-bold brand-text relative overflow-hidden group touch-manipulation min-h-[44px] flex items-center justify-center flex-shrink-0">
                     <span class="relative z-10 transition-all duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-pink-400">Kohza</span>
                     <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-lg blur-xl"></div>
                 </a>
@@ -158,14 +158,14 @@
                 </div>
 
                 <!-- Mobile Nav Button -->
-                <div class="md:hidden flex items-center gap-2">
-                    <button id="theme-toggle-mobile" type="button" class="theme-toggle-btn text-gray-400 hover:text-white focus:outline-none p-2 rounded-lg z-50 hover:bg-white/10 transition-all duration-300 hover:scale-110">
-                        <svg id="theme-icon-dark-mobile" class="h-6 w-6 hidden transition-transform duration-300 hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                        <svg id="theme-icon-light-mobile" class="h-6 w-6 hidden transition-transform duration-300 hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <div class="md:hidden flex items-center gap-2 flex-shrink-0">
+                    <button id="theme-toggle-mobile" type="button" class="theme-toggle-btn text-gray-400 hover:text-white focus:outline-none p-2 rounded-lg z-50 hover:bg-white/10 transition-all duration-300 hover:scale-110 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center">
+                        <svg id="theme-icon-dark-mobile" class="h-5 w-5 hidden transition-transform duration-300 hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        <svg id="theme-icon-light-mobile" class="h-5 w-5 hidden transition-transform duration-300 hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     </button>
-                    <button id="menu-btn" type="button" class="z-50 p-2 text-white hover:bg-white/10 rounded-lg transition-all duration-300 hover:scale-110 touch-manipulation min-h-[44px] min-w-[44px]" aria-label="Toggle mobile menu" aria-expanded="false">
-                        <svg id="menu-icon-open" class="w-7 h-7 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                        <svg id="menu-icon-close" class="w-7 h-7 hidden transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <button id="menu-btn" type="button" class="z-50 p-2 text-white hover:bg-white/10 rounded-lg transition-all duration-300 hover:scale-110 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Toggle mobile menu" aria-expanded="false">
+                        <svg id="menu-icon-open" class="w-6 h-6 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                        <svg id="menu-icon-close" class="w-6 h-6 hidden transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
             </nav>
