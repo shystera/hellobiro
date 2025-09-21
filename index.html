@@ -3,7 +3,7 @@
 <html lang="en" class="scroll-smooth" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
@@ -163,7 +163,7 @@
                         <svg id="theme-icon-dark-mobile" class="h-6 w-6 hidden transition-transform duration-300 hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                         <svg id="theme-icon-light-mobile" class="h-6 w-6 hidden transition-transform duration-300 hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     </button>
-                    <button id="menu-btn" type="button" class="z-50 p-2 text-white hover:bg-white/10 rounded-lg transition-all duration-300 hover:scale-110">
+                    <button id="menu-btn" type="button" class="z-50 p-2 text-white hover:bg-white/10 rounded-lg transition-all duration-300 hover:scale-110 touch-manipulation min-h-[44px] min-w-[44px]" aria-label="Toggle mobile menu" aria-expanded="false">
                         <svg id="menu-icon-open" class="w-7 h-7 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                         <svg id="menu-icon-close" class="w-7 h-7 hidden transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
@@ -172,13 +172,13 @@
         </header>
 
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-black/95 backdrop-blur-lg z-40 transition-all duration-500">
-            <div class="flex flex-col items-center justify-center h-full text-center space-y-8">
-                <a id="mobile-auth-link" href="role.html" class="text-3xl font-semibold nav-link-mobile transition-all duration-300 hover:scale-105 hover:text-purple-400 relative group">
+        <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-black/95 backdrop-blur-lg z-40 transition-all duration-500" role="navigation" aria-label="Mobile navigation">
+            <div class="flex flex-col items-center justify-center h-full text-center space-y-8 px-4">
+                <a id="mobile-auth-link" href="role.html" class="text-3xl font-semibold nav-link-mobile transition-all duration-300 hover:scale-105 hover:text-purple-400 relative group py-4 px-6 touch-manipulation min-h-[44px] flex items-center justify-center">
                     <span class="relative z-10">Get Started</span>
                     <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-800 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-lg blur-xl"></div>
                 </a>
-                <a href="mailto:contact@kohza.com" class="text-3xl font-semibold nav-link-mobile transition-all duration-300 hover:scale-105 hover:text-purple-400 relative group">
+                <a href="mailto:contact@kohza.com" class="text-3xl font-semibold nav-link-mobile transition-all duration-300 hover:scale-105 hover:text-purple-400 relative group py-4 px-6 touch-manipulation min-h-[44px] flex items-center justify-center">
                     <span class="relative z-10">Contact</span>
                     <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-800 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-lg blur-xl"></div>
                 </a>
@@ -187,9 +187,9 @@
 
         <main class="flex-1">
             <!-- Hero Section with Enhanced Animations -->
-            <section id="hero" class="pt-32 pb-10 flex items-center justify-center text-center px-4 relative overflow-hidden">
+            <section id="hero" class="pt-32 pb-10 flex items-center justify-center text-center px-4 relative overflow-hidden landscape:pt-16 landscape:py-6 landscape:min-h-[80vh]">
                 <!-- Floating geometric shapes -->
-                <div class="absolute inset-0 pointer-events-none">
+                <div class="absolute inset-0 pointer-events-none hidden sm:block">
                     <div class="absolute top-20 left-10 w-16 h-16 border border-purple-400/30 rounded-lg rotate-45 animate-float opacity-60"></div>
                     <div class="absolute top-40 right-20 w-12 h-12 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full animate-float-delayed"></div>
                     <div class="absolute bottom-32 left-20 w-8 h-8 border-2 border-purple-400/40 rounded-full animate-particle-float"></div>
@@ -211,7 +211,7 @@
                     </p>
                     
                     <div class="mt-8 sm:mt-10 opacity-0 animate-fade-in-up text-center px-4" style="animation-delay: 1s;">
-                        <a href="role.html" class="inline-block w-full sm:w-auto relative group bg-gradient-to-r from-purple-700 via-purple-600 to-purple-800 text-white font-bold text-base sm:text-lg px-8 sm:px-12 py-4 sm:py-5 rounded-xl shadow-2xl shadow-purple-900/50 hover:shadow-3xl hover:shadow-purple-700/60 transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 overflow-hidden">
+                        <a href="role.html" class="inline-block w-full sm:w-auto relative group bg-gradient-to-r from-purple-700 via-purple-600 to-purple-800 text-white font-bold text-base sm:text-lg px-8 sm:px-12 py-4 sm:py-5 rounded-xl shadow-2xl shadow-purple-900/50 hover:shadow-3xl hover:shadow-purple-700/60 transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 overflow-hidden touch-manipulation min-h-[44px]">
                             <span class="relative z-10">Get Early Access</span>
                             <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
@@ -305,10 +305,10 @@
                         </div>
 
                         <!-- Navigation Buttons -->
-                        <button id="prev-slide" aria-label="Previous case study" class="carousel-nav-btn absolute top-1/2 -translate-y-1/2 left-2 sm:left-0 md:-left-6 text-white bg-black/40 border border-gray-700 rounded-full p-2 sm:p-2.5 hover:bg-purple-700/80 hover:border-purple-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 z-20">
+                        <button id="prev-slide" aria-label="Previous case study" class="carousel-nav-btn absolute top-1/2 -translate-y-1/2 left-2 sm:left-0 md:-left-6 text-white bg-black/40 border border-gray-700 rounded-full p-2 sm:p-2.5 hover:bg-purple-700/80 hover:border-purple-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 z-20 touch-manipulation min-h-[44px] min-w-[44px]">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                         </button>
-                        <button id="next-slide" aria-label="Next case study" class="carousel-nav-btn absolute top-1/2 -translate-y-1/2 right-2 sm:right-0 md:-right-6 text-white bg-black/40 border border-gray-700 rounded-full p-2 sm:p-2.5 hover:bg-purple-700/80 hover:border-purple-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 z-20">
+                        <button id="next-slide" aria-label="Next case study" class="carousel-nav-btn absolute top-1/2 -translate-y-1/2 right-2 sm:right-0 md:-right-6 text-white bg-black/40 border border-gray-700 rounded-full p-2 sm:p-2.5 hover:bg-purple-700/80 hover:border-purple-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 z-20 touch-manipulation min-h-[44px] min-w-[44px]">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                         </button>
 
@@ -1458,6 +1458,145 @@
             } catch (error) {
                 console.log('Not authenticated or error checking auth:', error);
             }
+        });
+    </script>
+
+    <!-- Mobile Menu and Enhanced Mobile Functionality -->
+    <script>
+        // Mobile menu toggle functionality (Requirement 1)
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuButton = document.getElementById('menu-btn');
+            const openIcon = document.getElementById('menu-icon-open');
+            const closeIcon = document.getElementById('menu-icon-close');
+            const body = document.body;
+            
+            if (mobileMenu.classList.contains('hidden')) {
+                // Open menu
+                mobileMenu.classList.remove('hidden');
+                openIcon.classList.add('hidden');
+                closeIcon.classList.remove('hidden');
+                body.classList.add('mobile-menu-open');
+                menuButton.setAttribute('aria-expanded', 'true');
+                
+                // Focus trap for accessibility
+                const focusableElements = mobileMenu.querySelectorAll('a[href], button');
+                if (focusableElements.length > 0) {
+                    focusableElements[0].focus();
+                }
+            } else {
+                // Close menu
+                mobileMenu.classList.add('hidden');
+                openIcon.classList.remove('hidden');
+                closeIcon.classList.add('hidden');
+                body.classList.remove('mobile-menu-open');
+                menuButton.setAttribute('aria-expanded', 'false');
+                
+                // Return focus to menu button
+                menuButton.focus();
+            }
+        }
+        
+        // Close mobile menu when clicking on links
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuLinks = document.querySelectorAll('#mobile-menu a');
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    toggleMobileMenu();
+                });
+            });
+            
+            // Close menu when clicking outside (touch devices)
+            document.addEventListener('touchstart', function(e) {
+                const mobileMenu = document.getElementById('mobile-menu');
+                const menuButton = document.getElementById('menu-btn');
+                
+                if (!mobileMenu.classList.contains('hidden') && 
+                    !mobileMenu.contains(e.target) && 
+                    !menuButton.contains(e.target)) {
+                    toggleMobileMenu();
+                }
+            });
+            
+            // Handle escape key to close menu
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        toggleMobileMenu();
+                    }
+                }
+            });
+            
+            // Handle orientation change (Requirement 7)
+            window.addEventListener('orientationchange', function() {
+                setTimeout(function() {
+                    // Close mobile menu on orientation change
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        toggleMobileMenu();
+                    }
+                    
+                    // Trigger viewport resize handling
+                    window.dispatchEvent(new Event('resize'));
+                }, 100);
+            });
+            
+            // Enhanced touch interaction for better mobile UX (Requirement 4)
+            const touchElements = document.querySelectorAll('.touch-manipulation');
+            touchElements.forEach(element => {
+                element.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                }, {passive: true});
+                
+                element.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                }, {passive: true});
+                
+                element.addEventListener('touchcancel', function() {
+                    this.style.transform = '';
+                }, {passive: true});
+            });
+            
+            // Performance optimization for mobile (Requirement 5)
+            if (window.matchMedia('(max-width: 768px)').matches) {
+                // Disable complex animations on mobile for performance
+                const animatedElements = document.querySelectorAll('.animate-float, .animate-float-delayed, .animate-particle-float');
+                animatedElements.forEach(element => {
+                    element.style.animation = 'none';
+                });
+                
+                // Use passive event listeners for better performance
+                document.addEventListener('scroll', function() {
+                    // Scroll handling logic here if needed
+                }, {passive: true});
+            }
+            
+            // Respect reduced motion preferences (Requirement 5)
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                const animatedElements = document.querySelectorAll('[class*="animate-"]');
+                animatedElements.forEach(element => {
+                    element.style.animation = 'none';
+                    element.style.transition = 'none';
+                });
+            }
+        });
+        
+        // Enhanced accessibility for touch devices
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add touch feedback for all interactive elements
+            const interactiveElements = document.querySelectorAll('button, a[href], [onclick]');
+            interactiveElements.forEach(element => {
+                // Ensure minimum touch target size
+                const rect = element.getBoundingClientRect();
+                if (rect.width < 44 || rect.height < 44) {
+                    element.style.minWidth = '44px';
+                    element.style.minHeight = '44px';
+                    element.style.display = 'inline-flex';
+                    element.style.alignItems = 'center';
+                    element.style.justifyContent = 'center';
+                }
+            });
         });
     </script>
 

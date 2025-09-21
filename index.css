@@ -8,6 +8,65 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
+/* Touch-friendly mobile enhancements */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch device optimizations */
+  button, 
+  a[href], 
+  input[type="button"], 
+  input[type="submit"], 
+  .touch-manipulation {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    touch-action: manipulation;
+  }
+  
+  /* Remove problematic hover states on touch devices */
+  .hover\:scale-105:hover,
+  .hover\:scale-110:hover,
+  .hover\:-translate-y-2:hover {
+    transform: none !important;
+  }
+  
+  /* Simplify animations on mobile for performance */
+  .animate-float,
+  .animate-float-delayed,
+  .animate-particle-float {
+    animation: none !important;
+  }
+}
+
+/* Reduced motion preferences (Requirement 5) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Landscape mobile optimizations (Requirement 7) */
+@media screen and (max-height: 600px) and (orientation: landscape) {
+  .landscape\:pt-16 { padding-top: 4rem !important; }
+  .landscape\:py-6 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+  .landscape\:min-h-\[80vh\] { min-height: 80vh !important; }
+  
+  /* Reduce hero section height in landscape */
+  #hero {
+    padding-top: 2rem !important;
+    padding-bottom: 1rem !important;
+  }
+  
+  /* Adjust header in landscape */
+  #main-header nav {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+}
+
 h1, h2, h3, h4, h5, h6, .font-serif {
   font-family: 'Playfair Display', serif;
 }
@@ -177,37 +236,111 @@ body.mobile-menu-open header {
 }
 
 /* =========================== */
-/* COMPREHENSIVE RESPONSIVE DESIGN */
+/* COMPREHENSIVE DEVICE-SPECIFIC RESPONSIVE DESIGN (Requirement 8) */
 /* =========================== */
 
-/* Base responsive settings */
-html {
-  font-size: 16px;
-}
-
-/* Mobile-first responsive breakpoints */
-@media (max-width: 374px) {
-  /* Extra small mobile devices */
+/* Extra Small Mobile (320px-480px) - Requirement 8.1 */
+@media (max-width: 480px) {
   html { font-size: 14px; }
   
-  .container { padding-left: 1rem; padding-right: 1rem; }
-  
-  /* Hero adjustments */
   .hero-heading {
     font-size: 2.5rem !important;
-    line-height: 1.1;
+    line-height: 1.1 !important;
   }
+  
+  .text-3xl { font-size: 1.5rem !important; }
+  .text-2xl { font-size: 1.25rem !important; }
+  .text-xl { font-size: 1.125rem !important; }
+  .text-lg { font-size: 1rem !important; }
+  
+  /* Container and padding adjustments */
+  .px-4 { padding-left: 1rem; padding-right: 1rem; }
+  .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+  .px-8 { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .py-8 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
   
   /* Button adjustments */
   .btn-primary {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.9rem !important;
+    width: 100% !important;
   }
   
-  /* Card padding adjustments */
-  .testimonial-card,
-  .case-study-slide {
+  /* Card adjustments */
+  .case-study-slide,
+  .testimonial-card {
     padding: 1rem !important;
+  }
+  
+  /* Grid gap adjustments */
+  .gap-8 { gap: 1rem !important; }
+  .gap-6 { gap: 0.75rem !important; }
+}
+
+/* Small Mobile to Tablet (481px-768px) - Requirement 8.2 */
+@media (min-width: 481px) and (max-width: 768px) {
+  html { font-size: 15px; }
+  
+  .hero-heading {
+    font-size: 3.5rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* Tablet-optimized spacing */
+  .px-4 { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .py-4 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+  
+  /* Grid adjustments for tablet */
+  .lg\:grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  
+  .case-study-slide {
+    padding: 2rem !important;
+  }
+  
+  .case-study-slide p:first-child {
+    font-size: 4rem !important;
+  }
+}
+
+/* Desktop and larger (768px+) - Requirement 8.3 */
+@media (min-width: 769px) {
+  html { font-size: 16px; }
+  
+  .hero-heading {
+    font-size: 5rem !important;
+  }
+  
+  /* Full desktop layout */
+  .lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  
+  .lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* High DPI and retina display optimizations (Requirement 8.4) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .hero-heading,
+  .section-heading {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.01);
+  }
+  
+  /* Sharper borders and shadows */
+  .border {
+    border-width: 0.5px;
+  }
+  
+  img,
+  .trusted-by-logo {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
   }
 }
 
@@ -426,6 +559,57 @@ html {
   
   .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-3 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  /* Ensure single column layout for content sections (Requirement 3) */
+  .lg\:grid-cols-4,
+  .md\:grid-cols-2,
+  .sm\:grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  
+  /* Stack content vertically with proper spacing */
+  .grid {
+    gap: 1.5rem !important;
+  }
+  
+  /* Ensure content cards stack properly */
+  .flex.flex-col.md\:flex-row {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+}
+
+/* Enhanced touch targets for all interactive elements (Requirement 4) */
+@media (max-width: 768px) {
+  button,
+  .btn-primary,
+  .carousel-nav-btn,
+  .nav-link,
+  .nav-link-mobile,
+  a[href] {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 0.75rem 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Spacing between touch targets to prevent accidental taps */
+  .nav-link + .nav-link,
+  .nav-link-mobile + .nav-link-mobile {
+    margin-top: 0.5rem;
+  }
+  
+  /* Enhanced focus states for better accessibility */
+  button:focus,
+  .nav-link:focus,
+  .carousel-nav-btn:focus {
+    outline: 2px solid #a855f7 !important;
+    outline-offset: 2px !important;
+    border-radius: 0.375rem;
   }
 }
 
