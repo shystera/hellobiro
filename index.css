@@ -274,6 +274,20 @@ html[data-theme='light'] .trusted-by-logo {
     color: #9ca3af;
 }
 
+/* Whop Logo Theme Switching */
+html[data-theme='light'] #whop-logo-light {
+    display: block;
+}
+html[data-theme='light'] #whop-logo-dark {
+    display: none;
+}
+html[data-theme='dark'] #whop-logo-light {
+    display: none;
+}
+html[data-theme='dark'] #whop-logo-dark {
+    display: block;
+}
+
 /* Features */
 html[data-theme='light'] #features {
     background-color: #ffffff;

@@ -223,15 +223,6 @@
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-serif font-bold heading-text">Courses</h2>
                     <div class="flex items-center gap-3">
-                        <button id="enroll-student-btn"
-                            class="bg-blue-600 text-white font-medium px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path
-                                    d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 11a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1v-1z" />
-                            </svg>
-                            Enroll
-                        </button>
                         <a id="new-course-btn" href="create-course-step1.html"
                             class="bg-purple-600 text-white font-medium px-4 py-2 rounded-md hover:bg-purple-700 transition-colors flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -339,11 +330,23 @@
                 </button>
             </div>
             <form id="enroll-student-form" class="space-y-4">
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <h4 class="font-medium text-blue-900 dark:text-blue-100 mb-1">Student Must Have Account</h4>
+                            <p class="text-sm text-blue-700 dark:text-blue-300">The student must already have a registered account. If they don't have one, ask them to sign up first at the login page.</p>
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <label for="student-email" class="block text-sm font-medium label-text">Student's Email</label>
                     <input type="email" id="student-email" name="student-email" required
                         class="mt-1 w-full px-3 py-2 input-field bg-gray-900/70 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600"
                         placeholder="student@example.com">
+                    <p class="text-xs text-gray-500 mt-1">This student must already have a registered account</p>
                 </div>
                 <div>
                     <label for="course-select" class="block text-sm font-medium label-text">Select Course to Enroll
@@ -719,9 +722,6 @@
             });
 
             // Enroll student functionality
-            document.getElementById('enroll-student-btn').addEventListener('click', () => {
-                openModal(document.getElementById('enroll-student-modal'));
-            });
 
             document.getElementById('enroll-student-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -761,213 +761,75 @@
                 submitButton.disabled = true;
 
                 try {
-                    // Step 1: Check if a user profile already exists with this email
-                    // Note: We need to handle RLS restrictions for profile lookups
-                    console.log(`🔍 Checking for existing profile with email: ${email}`);
-                    
-                    let existingProfile = null;
-                    try {
-                        const { data, error: profileError } = await supabase
-                            .from('profiles')
-                            .select('id, role, full_name')
-                            .eq('email', email)
-                            .maybeSingle(); // Use maybeSingle instead of single to avoid errors when no rows
-                        
-                        if (profileError) {
-                            // Handle different types of profile lookup errors
-                            if (profileError.code === 'PGRST116') {
-                                // No rows found - this is expected for new users
-                                console.log('No existing profile found - new user');
-                            } else if (profileError.message && profileError.message.includes('406')) {
-                                // 406 Not Acceptable - likely RLS policy issue
-                                console.warn('Profile lookup blocked by RLS policies, proceeding as new user');
-                            } else {
-                                console.warn('Profile lookup error:', profileError);
-                            }
-                        } else {
-                            existingProfile = data;
+                    console.log(`🔍 Checking if student with email ${email} exists...`);
+
+                    // Use direct Supabase query with detailed error handling
+                    const { data: existingProfile, error: profileError } = await supabase
+                        .from('profiles')
+                        .select('id, email, full_name, role')
+                        .eq('email', email)
+                        .maybeSingle();
+
+                    console.log('Profile query result:', { existingProfile, profileError });
+
+                    if (profileError) {
+                        console.error('Error checking for existing profile:', profileError);
+                        // Check if it's an RLS policy issue
+                        if (profileError.code === '42501' || profileError.message.includes('RLS')) {
+                            throw new Error('Unable to verify student account due to permission restrictions. Please contact support.');
                         }
-                    } catch (relsError) {
-                        console.warn('Profile lookup failed, proceeding as new user:', relsError);
+                        throw new Error('Failed to check student account. Please try again.');
                     }
 
-                    let studentId;
-                    let studentName;
-
-                    if (existingProfile) {
-                        // User exists with profile
-                        console.log('👤 Existing profile found:', existingProfile);
-                        if (existingProfile.role !== 'student') {
-                            throw new Error(`This email is registered to a '${existingProfile.role}'. You can only enroll students.`);
-                        }
-                        studentId = existingProfile.id;
-                        studentName = existingProfile.full_name || 'Existing Student';
-
-                        console.log(`➕ Enrolling existing student ${studentId} in course ${courseId}`);
-                        const { data: enrollmentData, error: enrollError } = await db.enrollStudent(studentId, courseId);
-                        if (enrollError) {
-                            if (enrollError.code === '23505') { // unique_violation code for PostgreSQL
-                                throw new Error('This student is already enrolled in this course.');
-                            }
-                            throw enrollError;
-                        }
-                        console.log('✅ Enrollment created:', enrollmentData);
-                        alert(`Existing student ${studentName} (${email}) has been enrolled successfully!`);
-
-                    } else {
-                        // No profile exists - try to create new account with atomic transaction
-                        console.log('✨ No profile found. Creating new student account with atomic transaction...');
-                        const randomPassword = Math.random().toString(36).slice(-10) + 'aB1!';
-
-                        let authData = null;
-                        let transactionFailed = false;
-
-                        try {
-                            console.log('🔐 Step 1: Creating auth user...');
-                            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-                                email: email,
-                                password: randomPassword
-                            });
-
-                            if (signUpError) {
-                                console.log('Signup error details:', signUpError);
-                                
-                                // Handle different types of signup errors with specific guidance
-                                if (signUpError.message.includes('already registered') || 
-                                    signUpError.message.includes('User already registered') ||
-                                    signUpError.status === 422) {
-                                    
-                                    // This is an orphaned auth account - provide specific instructions
-                                    console.log('🔄 Detected orphaned auth user for:', email);
-                                    
-                                    throw new Error(`An account for "${email}" already exists but is not fully set up. Please ask the student to:
-
-✅ OPTION 1: Try logging in with their existing password at the login page
-✅ OPTION 2: Use "Forgot Password" on the login page to reset their password
-✅ OPTION 3: Complete their profile setup after logging in
-
-Once they complete their account setup, you can try enrolling them again.`);
-                                }
-                                
-                                // Handle email validation errors
-                                if (signUpError.message.includes('Invalid email') || 
-                                    signUpError.message.includes('invalid') ||
-                                    signUpError.status === 400) {
-                                    throw new Error(`The email address "${email}" appears to be invalid. Please check the email address and try again.`);
-                                }
-                                
-                                // Handle other signup errors
-                                throw new Error(`Failed to create account: ${signUpError.message}`);
-                            }
-
-                            if (!signUpData.user) {
-                                throw new Error('Failed to create a new user account.');
-                            }
-
-                            authData = signUpData;
-                            studentId = signUpData.user.id;
-                            studentName = email.split('@')[0];
-
-                            console.log('✅ Auth user created successfully:', studentId);
-                            console.log('🔐 Step 2: Creating profile immediately (atomic approach)...');
-
-                            // Immediately create profile after auth success (atomic approach)
-                            const { error: createProfileError } = await supabase
-                                .from('profiles')
-                                .insert([{
-                                    id: studentId,
-                                    email: email,
-                                    full_name: studentName,
-                                    role: 'student'
-                                }]);
-
-                            if (createProfileError) {
-                                console.error('❌ Profile creation failed:', createProfileError);
-                                transactionFailed = true;
-                                
-                                // If profile creation fails, we need to clean up the auth user to prevent orphaned accounts
-                                console.log('🧹 Cleaning up orphaned auth user due to profile creation failure...');
-                                try {
-                                    // Note: Supabase doesn't allow deleting auth users from client side
-                                    // The auth user will remain but we'll provide clear guidance
-                                    throw new Error(`Profile creation failed after auth account was created. This created an orphaned account for "${email}". 
+                    if (!existingProfile) {
+                        throw new Error(`No student account found for "${email}".
 
 Please ask the student to:
-1. Try logging in with the password that was sent to them
-2. Or use "Forgot Password" to reset their credentials
-3. Complete their profile setup after logging in
-
-Technical details: ${createProfileError.message}`);
-                                } catch (cleanupError) {
-                                    console.warn('Could not clean up auth user:', cleanupError);
-                                    throw new Error(`Profile creation failed and cleanup unsuccessful. Account for "${email}" is now orphaned. Student should use "Forgot Password" to recover their account. Technical details: ${createProfileError.message}`);
-                                }
-                            }
-
-                            console.log('✅ Profile created successfully for new user');
-                            console.log('🔐 Step 3: Enrolling student in course...');
-                            console.log('📝 Enrollment details:', { studentId, courseId });
-
-                            const { data: enrollmentData, error: enrollError } = await db.enrollStudent(studentId, courseId);
-                            if (enrollError) {
-                                if (enrollError.code === '23505') { // unique_violation code for PostgreSQL
-                                    throw new Error('This student is already enrolled in this course.');
-                                }
-                                throw enrollError;
-                            }
-
-                            console.log('✅ Student enrollment completed successfully');
-                            console.log('📊 Enrollment record:', enrollmentData);
-
-                            // Send password reset email for account setup
-                            console.log(`📧 Sending password setup email to ${email}`);
-                            const resetUrl = window.location.hostname === 'localhost' 
-                                ? 'http://localhost:5173/reset-password.html'
-                                : 'https://checkkrna.netlify.app/reset-password.html';
-                            
-                            console.log('🔗 Using reset URL:', resetUrl);
-                            
-                            const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-                                redirectTo: resetUrl
-                            });
-
-                            if (resetError) {
-                                console.warn("Could not send password reset email automatically:", resetError);
-                                alert(`Student ${email} has been created and enrolled successfully! They will need to use the "Forgot Password" link on the login page to set their password.`);
-                            } else {
-                                alert(`Student ${email} has been created and enrolled successfully! An invitation email has been sent to help them set up their password.`);
-                            }
-
-                        } catch (error) {
-                            console.error('Transaction failed:', error);
-                            throw error; // Re-throw to be handled by outer catch
-                        }
+✓ Sign up first at the login page
+✓ Choose "Student" as their role
+✓ Then try enrolling them again`);
                     }
+
+                    // Verify the profile is a student
+                    if (existingProfile.role !== 'student') {
+                        throw new Error(`This email is registered as a '${existingProfile.role}'. You can only enroll students.`);
+                    }
+
+                    const studentId = existingProfile.id;
+                    const studentName = existingProfile.full_name || 'Student';
+
+                    console.log(`➕ Enrolling existing student ${studentId} in course ${courseId}`);
+                    
+                    // Enroll the student
+                    const { data: enrollmentData, error: enrollError } = await db.enrollStudent(studentId, courseId);
+                    if (enrollError) {
+                        if (enrollError.code === '23505') { // unique_violation code for PostgreSQL
+                            throw new Error('This student is already enrolled in this course.');
+                        }
+                        throw enrollError;
+                    }
+
+                    console.log('✅ Enrollment created:', enrollmentData);
+                    alert(`${studentName} (${email}) has been successfully enrolled in the course!`);
 
                     closeModal(document.getElementById('enroll-student-modal'));
                     form.reset();
-                    await loadCourses(); // To update student counts and other stats
+                    await loadCourses(); // Refresh course data
 
                 } catch (error) {
                     console.error('Error enrolling student:', error);
                     
-                    // Store error for use in finally block
-                    window.lastEnrollmentError = error;
-                    
                     // Provide specific error messages based on the error type
                     let errorMessage;
                     
-                    if (error.message.includes('already exists but is not fully set up') || 
-                        error.message.includes('OPTION 1') ||
-                        error.message.includes('OPTION 2')) {
-                        // This is our custom message for orphaned accounts - show as-is
-                        errorMessage = error.message;
+                    if (error.message.includes('No student account found')) {
+                        errorMessage = error.message; // Show the full guidance message
                     } else if (error.message.includes('already enrolled')) {
                         errorMessage = 'This student is already enrolled in the selected course.';
+                    } else if (error.message.includes('registered as a')) {
+                        errorMessage = error.message; // Role mismatch error
                     } else if (error.message.includes('invalid') && error.message.includes('email')) {
                         errorMessage = `The email address appears to be invalid. Please check the spelling and format.`;
-                    } else if (error.message.includes('registered to a')) {
-                        errorMessage = error.message; // Role mismatch error
                     } else {
                         errorMessage = 'Failed to enroll student: ' + error.message;
                     }
@@ -976,16 +838,6 @@ Technical details: ${createProfileError.message}`);
                 } finally {
                     submitButton.textContent = 'Enroll Student';
                     submitButton.disabled = false;
-                    
-                    // Clear the email field if there was an email validation error
-                    const lastError = window.lastEnrollmentError;
-                    if (lastError && lastError.message && lastError.message.includes('invalid') && lastError.message.includes('email')) {
-                        form['student-email'].value = '';
-                        form['student-email'].focus();
-                    }
-                    
-                    // Clean up the temporary error reference
-                    window.lastEnrollmentError = null;
                 }
             });
 
