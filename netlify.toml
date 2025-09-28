@@ -11,18 +11,18 @@
   VITE_SUPABASE_URL = "https://zmqayrsopghnzrfuqybw.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InptcWF5cnNvcGdobnpyZnVxeWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyMjM3ODksImV4cCI6MjA3MTc5OTc4OX0.sPrgn7n3MmkfouzKtH6q3XC3J4GfIbGl3j4AeIna24w"
 
-# Handle client-side routing for SPA behavior
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# Proxy API requests to the backend server
+# Proxy API requests to the backend server (must be before the catch-all redirect)
 [[redirects]]
   from = "/api/*"
   to = "https://hellobiro.onrender.com/api/:splat"
   status = 200
   force = true
+
+# Handle client-side routing for SPA behavior (catch-all redirect)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 # Serve static files with proper headers
 [[headers]]
