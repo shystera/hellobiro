@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: hellobiro-backend
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm run server
+    envVars:
+      - key: NODE_VERSION
+        value: 22.16.0

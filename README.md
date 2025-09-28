@@ -26,8 +26,8 @@ npm run fullstack
 ```
 
 This starts:
-- Frontend (Vite): http://localhost:3000
-- Backend (Express): http://localhost:5000
+- Frontend (Vite): http://localhost:5173
+- Backend (Express): http://localhost:3001
 
 ## Features
 
@@ -51,23 +51,25 @@ This starts:
 
 ## API Endpoints
 
-### Backend Server (Port 5000)
+### Backend Server (Port 3001)
 - `GET /api/health` - Server health check
 - `POST /api/mux/upload-url` - Create Mux upload URL
 - `GET /api/mux/upload/:uploadId` - Get upload status
 - `GET /api/mux/asset/:assetId` - Get video asset details
+- `POST /api/lessons` - Create lesson
+- `PATCH /api/lessons/:id` - Update lesson
 - `POST /api/videos` - Save video metadata
 - `PATCH /api/videos/:id` - Update video status
 
 ## Troubleshooting
 
 ### Video Upload Error
-If you see "make sure you run mux +supabase npm run fullstack", ensure:
+If you see an error about backend server not running, ensure:
 
-1. Environment variables are set in `.env`
-2. Backend server is running on port 5000
+1. Environment variables are set correctly
+2. Backend server is running and accessible
 3. Mux credentials are valid
 4. Supabase connection is working
 
 ### Check Server Status
-Visit: http://localhost:5000/api/health
+Visit your backend server's health endpoint to verify it's running properly.
