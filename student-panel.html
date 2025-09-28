@@ -127,13 +127,13 @@
                         </div>
                     </div>
                     <div class="flex gap-3">
-                        <button id="quick-notes-btn" class="premium-action-btn bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 hover:border-purple-400 text-purple-300 hover:text-purple-200 px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2">
+                        <button id="quick-notes-btn" class="premium-action-btn bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/30 hover:border-purple-400 text-purple-300 hover:text-purple-200 px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2" title="Ctrl+N">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                             Quick Notes
                         </button>
-                        <button id="study-goals-btn" class="premium-action-btn bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/30 hover:border-blue-400 text-blue-300 hover:text-blue-200 px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2">
+                        <button id="study-goals-btn" class="premium-action-btn bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/30 hover:border-blue-400 text-blue-300 hover:text-blue-200 px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2" title="Ctrl+G">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -334,6 +334,7 @@
         import { auth, db, supabase, utils } from './supabase-client.js';
 
         document.addEventListener('DOMContentLoaded', async () => {
+            const loadStartTime = performance.now();
             console.log('🎓 Student panel loading...');
             
             // Check authentication immediately on page load
@@ -409,152 +410,500 @@
                 }
             }
 
+            // Dynamic data storage
+            let userStats = {
+                studyStreak: 0,
+                totalStudyTime: 0,
+                overallProgress: 0,
+                lastStudyDate: null
+            };
+            let courseProgress = new Map();
+            let recentActivities = [];
+
             // --- UI RENDERING ---
-            function renderDashboard() {
+            async function renderDashboard() {
                 // Update user info
                 const displayName = profile.full_name || user.email.split('@')[0];
                 document.getElementById('user-display').textContent = displayName;
                 document.getElementById('student-welcome').textContent = `Welcome, ${displayName}`;
-                document.getElementById('user-avatar').src = profile.avatar_url || `https://i.pravatar.cc/40?u=${encodeURIComponent(user.email)}`;
+                document.getElementById('user-avatar').src = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=7c3aed&color=fff`;
                 document.getElementById('user-avatar').alt = `Avatar for ${displayName}`;
 
-                    // Update stats
-                    updateDashboardStats();
+                // Load user stats and progress
+                await loadUserStats();
+                await loadCourseProgress();
+                await loadRecentActivities();
 
-                    // Render recent activity
-                    renderRecentActivity();
+                // Update dashboard
+                updateDashboardStats();
+                renderRecentActivity();
+                renderCourses();
+            }
 
-                    // Render courses
-                    if (enrolledCourses.length === 0) {
-                        coursesGrid.innerHTML = `
-                        <div class="col-span-full text-center py-12">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-300">No courses available</h3>
-                            <p class="mt-1 text-sm text-gray-400">Your enrolled courses aren't accessible. This may be a permissions issue.</p>
-                            <p class="mt-2 text-xs text-gray-500">Check the console for debugging info or contact your coach.</p>
-                        </div>
-                    `;
-                    } else {
-                        // Safely render courses with null checks
-                        coursesGrid.innerHTML = enrolledCourses.map(course => {
-                            // Additional safety check in case any nulls slipped through
-                            if (!course) {
-                                return '<div class="col-span-full text-center py-4 text-gray-400">Course data unavailable</div>';
-                            }
-                            
-                            const coachName = course.profiles?.full_name || 'Unknown Coach';
-                            const moduleCount = course.modules?.length || 0;
-                            const lessonCount = course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 0;
+            async function renderCourses() {
+                if (enrolledCourses.length === 0) {
+                    coursesGrid.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-300">No courses available</h3>
+                        <p class="mt-1 text-sm text-gray-400">Your enrolled courses aren't accessible. This may be a permissions issue.</p>
+                        <p class="mt-2 text-xs text-gray-500">Check the console for debugging info or contact your coach.</p>
+                    </div>
+                `;
+                    return;
+                }
 
-                            return `
-                            <div class="bg-gray-900/50 border border-gray-800 rounded-lg overflow-hidden shadow-lg flex flex-col transition-all duration-300 hover:border-purple-700/80 hover:shadow-purple-900/40 transform hover:-translate-y-1">
+                // Apply current filter and sort
+                const filteredCourses = await applyFiltersAndSort(enrolledCourses);
+                
+                coursesGrid.innerHTML = filteredCourses.map(course => {
+                    if (!course) {
+                        return '<div class="col-span-full text-center py-4 text-gray-400">Course data unavailable</div>';
+                    }
+                    
+                    const coachName = course.profiles?.full_name || 'Unknown Coach';
+                    const moduleCount = course.modules?.length || 0;
+                    const lessonCount = course.modules?.reduce((total, module) => total + (module.lessons?.length || 0), 0) || 0;
+                    const progress = courseProgress.get(course.id) || { completedLessons: 0, totalLessons: lessonCount, percentage: 0 };
+                    const progressPercentage = progress.percentage || 0;
+                    const lastAccessed = getLastAccessedDate(course.id);
+
+                    return `
+                    <div class="course-card bg-gray-900/50 border border-gray-800 rounded-lg overflow-hidden shadow-lg flex flex-col transition-all duration-300 hover:border-purple-700/80 hover:shadow-purple-900/40 transform hover:-translate-y-1" data-course-id="${course.id}" data-progress="${progressPercentage}" data-last-accessed="${lastAccessed}">
+                        <a href="course-detail.html?id=${course.id}" class="block">
+                           <img src="${course.thumbnail_url || utils.generateThumbnail(course.title)}" alt="Course thumbnail for ${course.title}" class="w-full h-40 object-cover">
+                        </a>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <div class="flex-grow">
                                 <a href="course-detail.html?id=${course.id}" class="block">
-                                   <img src="${course.thumbnail_url || utils.generateThumbnail(course.title)}" alt="Course thumbnail for ${course.title}" class="w-full h-40 object-cover">
-                                </a>
-                                <div class="p-5 flex flex-col flex-grow">
-                                    <div class="flex-grow">
-                                        <a href="course-detail.html?id=${course.id}" class="block">
-                                            <h3 class="text-xl font-bold font-serif text-white hover:text-purple-400 transition-colors">${course.title}</h3>
-                                            <p class="text-gray-400 text-sm mt-1">by ${coachName}</p>
-                                            <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                                <span>${moduleCount} modules</span>
-                                                <span>${lessonCount} lessons</span>
-                                            </div>
-                                        </a>
+                                    <h3 class="text-xl font-bold font-serif text-white hover:text-purple-400 transition-colors">${course.title}</h3>
+                                    <p class="text-gray-400 text-sm mt-1">by ${coachName}</p>
+                                    <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                        <span>${moduleCount} modules</span>
+                                        <span>${lessonCount} lessons</span>
+                                        ${lastAccessed ? `<span>Last accessed ${lastAccessed}</span>` : ''}
                                     </div>
-                                    <div class="mt-auto pt-4 space-y-2">
-                                        <!-- Progress Bar -->
-                                        <div class="mb-3">
-                                            <div class="flex justify-between text-xs text-gray-400 mb-1">
-                                                <span>Progress</span>
-                                                <span>${Math.floor(Math.random() * 80) + 10}%</span>
-                                            </div>
-                                            <div class="w-full bg-gray-700 rounded-full h-2">
-                                                <div class="bg-purple-600 h-2 rounded-full" style="width: ${Math.floor(Math.random() * 80) + 10}%"></div>
-                                            </div>
-                                        </div>
-                                        
-                                        <a href="course-detail.html?id=${course.id}" class="block text-center w-full bg-purple-700 text-white font-bold px-4 py-2.5 text-sm rounded-md hover:bg-purple-600 transition-colors duration-300 mb-2">
-                                            Continue Learning
-                                        </a>
-                                        <a href="community.html?courseId=${course.id}&role=student" class="block text-center w-full bg-gray-700 text-white font-bold px-4 py-2 text-sm rounded-md hover:bg-gray-600 transition-colors duration-300">
-                                            View Community
-                                        </a>
+                                </a>
+                            </div>
+                            <div class="mt-auto pt-4 space-y-2">
+                                <!-- Real Progress Bar -->
+                                <div class="mb-3">
+                                    <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                        <span>Progress</span>
+                                        <span>${progressPercentage}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-700 rounded-full h-2">
+                                        <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: ${progressPercentage}%"></div>
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1">
+                                        ${progress.completedLessons} of ${progress.totalLessons} lessons completed
                                     </div>
                                 </div>
+                                
+                                <button onclick="continueLesson('${course.id}')" class="block text-center w-full bg-purple-700 text-white font-bold px-4 py-2.5 text-sm rounded-md hover:bg-purple-600 transition-colors duration-300 mb-2">
+                                    ${progressPercentage > 0 ? 'Continue Learning' : 'Start Course'}
+                                </button>
+                                <a href="community.html?courseId=${course.id}&role=student" class="block text-center w-full bg-gray-700 text-white font-bold px-4 py-2 text-sm rounded-md hover:bg-gray-600 transition-colors duration-300">
+                                    View Community
+                                </a>
                             </div>
-                        `;
-                        }).join('');
-                    }
-                }
+                        </div>
+                    </div>
+                `;
+                }).join('');
+            }
 
                 function updateDashboardStats() {
                     // Update enrolled courses count
                     document.getElementById('enrolled-count').textContent = enrolledCourses.length;
 
-                    // Calculate study streak (mock data for now)
-                    const studyStreak = Math.floor(Math.random() * 15) + 1;
-                    document.getElementById('study-streak').textContent = `${studyStreak} days`;
+                    // Update study streak
+                    document.getElementById('study-streak').textContent = `${userStats.studyStreak} days`;
 
-                    // Calculate total study time (mock data for now)
-                    const totalHours = Math.floor(Math.random() * 50) + 5;
-                    document.getElementById('total-study-time').textContent = `${totalHours}h`;
+                    // Update total study time
+                    const hours = Math.floor(userStats.totalStudyTime / 60);
+                    const minutes = userStats.totalStudyTime % 60;
+                    const timeDisplay = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+                    document.getElementById('total-study-time').textContent = timeDisplay;
 
-                    // Calculate overall progress
-                    const overallProgress = enrolledCourses.length > 0 
-                        ? Math.floor(enrolledCourses.reduce((acc, course) => acc + (Math.random() * 80 + 10), 0) / enrolledCourses.length)
-                        : 0;
-                    document.getElementById('overall-progress').textContent = `${overallProgress}%`;
+                    // Update overall progress
+                    document.getElementById('overall-progress').textContent = `${Math.round(userStats.overallProgress)}%`;
+                }
+
+                // Load user statistics from localStorage and database
+                async function loadUserStats() {
+                    try {
+                        // Try to load from localStorage first
+                        const storedStats = localStorage.getItem(`user-stats-${user.id}`);
+                        if (storedStats) {
+                            const parsed = JSON.parse(storedStats);
+                            userStats = { ...userStats, ...parsed };
+                        }
+
+                        // Calculate study streak based on last study date
+                        const today = new Date();
+                        const lastStudy = userStats.lastStudyDate ? new Date(userStats.lastStudyDate) : null;
+                        
+                        if (lastStudy) {
+                            const daysDiff = Math.floor((today - lastStudy) / (1000 * 60 * 60 * 24));
+                            if (daysDiff > 1) {
+                                userStats.studyStreak = 0; // Reset streak if more than 1 day gap
+                            }
+                        }
+
+                        // Calculate overall progress from enrolled courses
+                        if (enrolledCourses.length > 0) {
+                            let totalProgress = 0;
+                            for (const course of enrolledCourses) {
+                                const progress = courseProgress.get(course.id);
+                                if (progress) {
+                                    totalProgress += progress.percentage;
+                                }
+                            }
+                            userStats.overallProgress = totalProgress / enrolledCourses.length;
+                        }
+
+                        // Save updated stats
+                        localStorage.setItem(`user-stats-${user.id}`, JSON.stringify(userStats));
+                    } catch (error) {
+                        console.error('Error loading user stats:', error);
+                    }
+                }
+
+                // Load course progress from localStorage and calculate real progress
+                async function loadCourseProgress() {
+                    try {
+                        const storedProgress = localStorage.getItem(`course-progress-${user.id}`);
+                        if (storedProgress) {
+                            const parsed = JSON.parse(storedProgress);
+                            for (const [courseId, progress] of Object.entries(parsed)) {
+                                courseProgress.set(courseId, progress);
+                            }
+                        }
+
+                        // Calculate progress for each course
+                        for (const course of enrolledCourses) {
+                            if (!courseProgress.has(course.id)) {
+                                const totalLessons = course.modules?.reduce((total, module) => 
+                                    total + (module.lessons?.length || 0), 0) || 0;
+                                
+                                courseProgress.set(course.id, {
+                                    completedLessons: 0,
+                                    totalLessons,
+                                    percentage: 0,
+                                    lastAccessed: null
+                                });
+                            }
+                        }
+
+                        // Save progress
+                        saveCourseProgress();
+                    } catch (error) {
+                        console.error('Error loading course progress:', error);
+                    }
+                }
+
+                // Save course progress to localStorage
+                function saveCourseProgress() {
+                    try {
+                        const progressObj = Object.fromEntries(courseProgress);
+                        localStorage.setItem(`course-progress-${user.id}`, JSON.stringify(progressObj));
+                    } catch (error) {
+                        console.error('Error saving course progress:', error);
+                    }
+                }
+
+                // Update lesson completion and track study time
+                function markLessonComplete(courseId, lessonId, studyTimeMinutes = 0) {
+                    const progress = courseProgress.get(courseId);
+                    if (progress) {
+                        progress.completedLessons = Math.min(progress.completedLessons + 1, progress.totalLessons);
+                        progress.percentage = Math.round((progress.completedLessons / progress.totalLessons) * 100);
+                        progress.lastAccessed = new Date().toISOString();
+                        
+                        courseProgress.set(courseId, progress);
+                        saveCourseProgress();
+                        
+                        // Update user stats
+                        userStats.totalStudyTime += studyTimeMinutes;
+                        userStats.lastStudyDate = new Date().toISOString();
+                        
+                        // Update streak
+                        const today = new Date();
+                        const lastStudy = new Date(userStats.lastStudyDate);
+                        const daysDiff = Math.floor((today - lastStudy) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysDiff === 0) {
+                            // Same day, increment streak if this is first lesson today
+                            const todayKey = today.toDateString();
+                            const lastStudyKey = lastStudy.toDateString();
+                            if (todayKey !== lastStudyKey) {
+                                userStats.studyStreak += 1;
+                            }
+                        }
+                        
+                        localStorage.setItem(`user-stats-${user.id}`, JSON.stringify(userStats));
+                        
+                        // Refresh dashboard
+                        updateDashboardStats();
+                        showToast(`Lesson completed! +${studyTimeMinutes} minutes study time`, 'success');
+                    }
+                }
+
+                // Get last accessed date for a course
+                function getLastAccessedDate(courseId) {
+                    const progress = courseProgress.get(courseId);
+                    if (!progress?.lastAccessed) return null;
+                    
+                    const date = new Date(progress.lastAccessed);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - date);
+                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+                    
+                    if (diffDays > 0) {
+                        return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+                    } else if (diffHours > 0) {
+                        return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+                    } else {
+                        return 'Just now';
+                    }
+                }
+
+                // Continue to next lesson in course
+                function continueLesson(courseId) {
+                    const course = enrolledCourses.find(c => c.id === courseId);
+                    if (!course) return;
+                    
+                    const progress = courseProgress.get(courseId);
+                    let nextLessonId = null;
+                    
+                    // Find the first incomplete lesson
+                    for (const module of course.modules || []) {
+                        for (const lesson of module.lessons || []) {
+                            // Simple check: if we haven't completed all lessons, this could be next
+                            if (progress && progress.completedLessons < progress.totalLessons) {
+                                nextLessonId = lesson.id;
+                                break;
+                            }
+                        }
+                        if (nextLessonId) break;
+                    }
+                    
+                    if (nextLessonId) {
+                        window.location.href = `lesson-player.html?lesson=${nextLessonId}&course=${courseId}`;
+                    } else {
+                        window.location.href = `course-detail.html?id=${courseId}`;
+                    }
+                }
+
+                // Make function global for onclick handlers
+                window.continueLesson = continueLesson;
+                window.markLessonComplete = markLessonComplete;
+
+                // Load recent activities based on actual user interactions
+                async function loadRecentActivities() {
+                    try {
+                        const storedActivities = localStorage.getItem(`recent-activities-${user.id}`);
+                        if (storedActivities) {
+                            recentActivities = JSON.parse(storedActivities);
+                        }
+
+                        // Generate activities from course progress if none exist
+                        if (recentActivities.length === 0 && enrolledCourses.length > 0) {
+                            recentActivities = enrolledCourses.slice(0, 3).map(course => {
+                                const progress = courseProgress.get(course.id);
+                                return {
+                                    id: course.id,
+                                    title: course.title,
+                                    type: 'course_access',
+                                    timestamp: progress?.lastAccessed || new Date().toISOString(),
+                                    thumbnail: course.thumbnail_url,
+                                    progress: progress?.percentage || 0
+                                };
+                            });
+                            saveRecentActivities();
+                        }
+
+                        // Sort by timestamp (most recent first)
+                        recentActivities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    } catch (error) {
+                        console.error('Error loading recent activities:', error);
+                    }
+                }
+
+                function saveRecentActivities() {
+                    try {
+                        localStorage.setItem(`recent-activities-${user.id}`, JSON.stringify(recentActivities));
+                    } catch (error) {
+                        console.error('Error saving recent activities:', error);
+                    }
+                }
+
+                function addRecentActivity(courseId, type, lessonTitle = null) {
+                    const course = enrolledCourses.find(c => c.id === courseId);
+                    if (!course) return;
+
+                    const activity = {
+                        id: `${courseId}-${Date.now()}`,
+                        courseId,
+                        title: lessonTitle || course.title,
+                        type, // 'lesson_complete', 'course_access', 'lesson_start'
+                        timestamp: new Date().toISOString(),
+                        thumbnail: course.thumbnail_url,
+                        progress: courseProgress.get(courseId)?.percentage || 0
+                    };
+
+                    recentActivities.unshift(activity);
+                    recentActivities = recentActivities.slice(0, 10); // Keep only last 10 activities
+                    saveRecentActivities();
+                }
+
+                // Apply smart filtering and sorting
+                async function applyFiltersAndSort(courses) {
+                    let filtered = [...courses];
+                    
+                    // Get current filter
+                    const activeFilter = document.querySelector('.filter-btn.active')?.id || 'filter-all';
+                    
+                    // Apply filters
+                    switch (activeFilter) {
+                        case 'filter-recent':
+                            filtered = filtered.filter(course => {
+                                const progress = courseProgress.get(course.id);
+                                if (!progress?.lastAccessed) return false;
+                                const daysSinceAccess = (Date.now() - new Date(progress.lastAccessed)) / (1000 * 60 * 60 * 24);
+                                return daysSinceAccess <= 7; // Accessed within last week
+                            });
+                            break;
+                        case 'filter-incomplete':
+                            filtered = filtered.filter(course => {
+                                const progress = courseProgress.get(course.id);
+                                return progress && progress.percentage > 0 && progress.percentage < 100;
+                            });
+                            break;
+                        // 'filter-all' shows all courses
+                    }
+                    
+                    // Apply sorting
+                    const sortBy = document.getElementById('course-sort')?.value || 'recent';
+                    
+                    switch (sortBy) {
+                        case 'progress':
+                            filtered.sort((a, b) => {
+                                const progressA = courseProgress.get(a.id)?.percentage || 0;
+                                const progressB = courseProgress.get(b.id)?.percentage || 0;
+                                return progressB - progressA; // Highest progress first
+                            });
+                            break;
+                        case 'name':
+                            filtered.sort((a, b) => a.title.localeCompare(b.title));
+                            break;
+                        case 'recent':
+                        default:
+                            filtered.sort((a, b) => {
+                                const lastAccessedA = courseProgress.get(a.id)?.lastAccessed || a.created_at;
+                                const lastAccessedB = courseProgress.get(b.id)?.lastAccessed || b.created_at;
+                                return new Date(lastAccessedB) - new Date(lastAccessedA); // Most recent first
+                            });
+                            break;
+                    }
+                    
+                    return filtered;
                 }
 
                 function renderRecentActivity() {
                     const recentLessons = document.getElementById('recent-lessons');
 
-                    if (enrolledCourses.length === 0) {
+                    if (recentActivities.length === 0) {
                         recentLessons.innerHTML = `
                         <div class="text-center py-8">
                             <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
                             <p class="text-gray-400">No recent activity. Start learning to see your progress here!</p>
+                            <button onclick="startLearning()" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors">
+                                Start Learning
+                            </button>
                         </div>
                     `;
                         return;
                     }
 
-                    // Generate mock recent lessons from enrolled courses
-                    const recentItems = enrolledCourses.slice(0, 3).map((course, index) => {
-                        const progress = Math.floor(Math.random() * 80) + 10;
-                        const lastAccessed = ['2 hours ago', '1 day ago', '3 days ago'][index];
+                    const recentItems = recentActivities.slice(0, 5).map(activity => {
+                        const course = enrolledCourses.find(c => c.id === activity.courseId || c.id === activity.id);
+                        if (!course) return '';
+                        
+                        const progress = courseProgress.get(course.id) || { percentage: 0 };
+                        const timeAgo = getTimeAgo(activity.timestamp);
+                        const typeText = getActivityTypeText(activity.type);
 
                         return `
                         <div class="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors">
                             <div class="flex items-center space-x-4">
-                                <img src="${course.thumbnail_url || utils.generateThumbnail(course.title)}" alt="${course.title}" class="w-12 h-12 rounded-lg object-cover">
+                                <img src="${activity.thumbnail || course.thumbnail_url || utils.generateThumbnail(course.title)}" alt="${course.title}" class="w-12 h-12 rounded-lg object-cover">
                                 <div>
                                     <h4 class="font-semibold text-white">${course.title}</h4>
-                                    <p class="text-sm text-gray-400">Last accessed ${lastAccessed}</p>
+                                    <p class="text-sm text-gray-400">${typeText} • ${timeAgo}</p>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-4">
                                 <div class="text-right">
-                                    <p class="text-sm font-medium text-white">${progress}% complete</p>
+                                    <p class="text-sm font-medium text-white">${progress.percentage}% complete</p>
                                     <div class="w-24 bg-gray-700 rounded-full h-2 mt-1">
-                                        <div class="bg-purple-600 h-2 rounded-full" style="width: ${progress}%"></div>
+                                        <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: ${progress.percentage}%"></div>
                                     </div>
                                 </div>
-                                <a href="course-detail.html?id=${course.id}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                <button onclick="continueLesson('${course.id}')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
                                     Continue
-                                </a>
+                                </button>
                             </div>
                         </div>
                     `;
-                    }).join('');
+                    }).filter(item => item).join('');
 
                     recentLessons.innerHTML = recentItems;
                 }
+
+                function getTimeAgo(timestamp) {
+                    const now = new Date();
+                    const date = new Date(timestamp);
+                    const diffTime = Math.abs(now - date);
+                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+                    const diffMinutes = Math.floor(diffTime / (1000 * 60));
+                    
+                    if (diffDays > 0) {
+                        return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+                    } else if (diffHours > 0) {
+                        return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+                    } else if (diffMinutes > 0) {
+                        return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`;
+                    } else {
+                        return 'Just now';
+                    }
+                }
+
+                function getActivityTypeText(type) {
+                    switch (type) {
+                        case 'lesson_complete': return 'Completed lesson';
+                        case 'lesson_start': return 'Started lesson';
+                        case 'course_access': return 'Accessed course';
+                        default: return 'Activity';
+                    }
+                }
+
+                function startLearning() {
+                    if (enrolledCourses.length > 0) {
+                        continueLesson(enrolledCourses[0].id);
+                    } else {
+                        showToast('No courses available. Contact your coach to get enrolled!', 'info');
+                    }
+                }
+
+                window.startLearning = startLearning;
 
 
 
@@ -719,14 +1068,46 @@ Enrolled Courses: ${enrolledCourses.length}`);
             setupEnhancedUI();
 
             function setupEnhancedUI() {
-                // Quick Notes functionality
+                // Enhanced filter functionality
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        // Update active state
+                        document.querySelectorAll('.filter-btn').forEach(b => {
+                            b.classList.remove('active', 'bg-purple-600/20', 'text-purple-300', 'border-purple-500/30');
+                            b.classList.add('bg-gray-600/20', 'text-gray-400', 'border-gray-500/30');
+                        });
+                        btn.classList.add('active', 'bg-purple-600/20', 'text-purple-300', 'border-purple-500/30');
+                        btn.classList.remove('bg-gray-600/20', 'text-gray-400', 'border-gray-500/30');
+                        
+                        // Re-render courses with new filter
+                        await renderCourses();
+                    });
+                });
+
+                // Enhanced sorting functionality
+                document.getElementById('course-sort').addEventListener('change', async () => {
+                    await renderCourses();
+                });
+
+                // Quick Notes functionality with auto-save
                 const notesModal = document.getElementById('notes-modal');
                 const notesContent = document.getElementById('notes-content');
+                let notesAutoSaveTimeout;
                 
                 document.getElementById('quick-notes-btn').addEventListener('click', () => {
-                    const savedNotes = localStorage.getItem('student-notes') || '';
+                    const savedNotes = localStorage.getItem(`student-notes-${user.id}`) || '';
                     notesContent.value = savedNotes;
                     notesModal.classList.remove('hidden');
+                    notesContent.focus();
+                });
+
+                // Auto-save notes while typing
+                notesContent.addEventListener('input', () => {
+                    clearTimeout(notesAutoSaveTimeout);
+                    notesAutoSaveTimeout = setTimeout(() => {
+                        localStorage.setItem(`student-notes-${user.id}`, notesContent.value);
+                        showToast('Notes auto-saved', 'success');
+                    }, 2000);
                 });
 
                 document.getElementById('close-notes-modal').addEventListener('click', () => {
@@ -734,7 +1115,7 @@ Enrolled Courses: ${enrolledCourses.length}`);
                 });
 
                 document.getElementById('save-notes').addEventListener('click', () => {
-                    localStorage.setItem('student-notes', notesContent.value);
+                    localStorage.setItem(`student-notes-${user.id}`, notesContent.value);
                     notesModal.classList.add('hidden');
                     showToast('Notes saved successfully!', 'success');
                 });
@@ -742,10 +1123,12 @@ Enrolled Courses: ${enrolledCourses.length}`);
                 document.getElementById('clear-notes').addEventListener('click', () => {
                     if (confirm('Are you sure you want to clear all notes?')) {
                         notesContent.value = '';
+                        localStorage.removeItem(`student-notes-${user.id}`);
+                        showToast('Notes cleared', 'info');
                     }
                 });
 
-                // Study Goals functionality
+                // Enhanced Study Goals functionality
                 const goalsModal = document.getElementById('goals-modal');
                 
                 document.getElementById('study-goals-btn').addEventListener('click', () => {
@@ -766,36 +1149,72 @@ Enrolled Courses: ${enrolledCourses.length}`);
                     const weeklyGoal = document.getElementById('weekly-goal').value;
                     
                     if (dailyGoal && weeklyGoal) {
-                        const goals = { daily: parseInt(dailyGoal), weekly: parseInt(weeklyGoal) };
-                        localStorage.setItem('student-goals', JSON.stringify(goals));
+                        const goals = { 
+                            daily: parseInt(dailyGoal), 
+                            weekly: parseInt(weeklyGoal),
+                            created: new Date().toISOString()
+                        };
+                        localStorage.setItem(`student-goals-${user.id}`, JSON.stringify(goals));
                         goalsModal.classList.add('hidden');
                         showToast('Goals saved successfully!', 'success');
+                        updateGoalsProgress();
                     } else {
                         showToast('Please fill in all goals', 'error');
                     }
                 });
 
-                // Filter functionality
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.filter-btn').forEach(b => {
-                            b.classList.remove('active', 'bg-purple-600/20', 'text-purple-300', 'border-purple-500/30');
-                            b.classList.add('bg-gray-600/20', 'text-gray-400', 'border-gray-500/30');
-                        });
-                        btn.classList.add('active', 'bg-purple-600/20', 'text-purple-300', 'border-purple-500/30');
-                        btn.classList.remove('bg-gray-600/20', 'text-gray-400', 'border-gray-500/30');
-                    });
-                });
-
-                // View toggle functionality
+                // View toggle functionality with improved UX
                 document.getElementById('grid-view').addEventListener('click', () => {
                     document.getElementById('courses-grid').className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300';
                     toggleViewButtons('grid');
+                    localStorage.setItem(`view-preference-${user.id}`, 'grid');
                 });
 
                 document.getElementById('list-view').addEventListener('click', () => {
                     document.getElementById('courses-grid').className = 'grid grid-cols-1 gap-4 transition-all duration-300';
                     toggleViewButtons('list');
+                    localStorage.setItem(`view-preference-${user.id}`, 'list');
+                });
+
+                // Load saved view preference
+                const savedView = localStorage.getItem(`view-preference-${user.id}`) || 'grid';
+                if (savedView === 'list') {
+                    document.getElementById('list-view').click();
+                }
+
+                // Mark all as complete functionality
+                document.getElementById('mark-all-complete').addEventListener('click', () => {
+                    if (confirm('Mark all recent activities as complete? This will update your progress.')) {
+                        recentActivities.forEach(activity => {
+                            if (activity.courseId) {
+                                markLessonComplete(activity.courseId, 'batch-complete', 5);
+                            }
+                        });
+                        showToast('All activities marked as complete!', 'success');
+                        renderRecentActivity();
+                        renderCourses();
+                    }
+                });
+
+                // Enhanced keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    // Escape to close modals
+                    if (e.key === 'Escape') {
+                        notesModal.classList.add('hidden');
+                        goalsModal.classList.add('hidden');
+                    }
+                    
+                    // Ctrl+N for quick notes
+                    if (e.ctrlKey && e.key === 'n') {
+                        e.preventDefault();
+                        document.getElementById('quick-notes-btn').click();
+                    }
+                    
+                    // Ctrl+G for goals
+                    if (e.ctrlKey && e.key === 'g') {
+                        e.preventDefault();
+                        document.getElementById('study-goals-btn').click();
+                    }
                 });
 
                 // Close modals on outside click
@@ -809,11 +1228,24 @@ Enrolled Courses: ${enrolledCourses.length}`);
             }
 
             function loadSavedGoals() {
-                const savedGoals = localStorage.getItem('student-goals');
+                const savedGoals = localStorage.getItem(`student-goals-${user.id}`);
                 if (savedGoals) {
                     const goals = JSON.parse(savedGoals);
                     document.getElementById('daily-goal').value = goals.daily;
                     document.getElementById('weekly-goal').value = goals.weekly;
+                }
+            }
+
+            function updateGoalsProgress() {
+                const savedGoals = localStorage.getItem(`student-goals-${user.id}`);
+                if (savedGoals) {
+                    const goals = JSON.parse(savedGoals);
+                    // Calculate daily progress
+                    const todayStudyTime = userStats.totalStudyTime; // This would be today's time in real implementation
+                    const dailyProgress = Math.min((todayStudyTime / goals.daily) * 100, 100);
+                    
+                    // Update goals display in the UI if needed
+                    console.log(`Daily goal progress: ${dailyProgress}%`);
                 }
             }
 
@@ -850,11 +1282,169 @@ Enrolled Courses: ${enrolledCourses.length}`);
                 
                 setTimeout(() => {
                     toast.classList.add('translate-x-full');
-                    setTimeout(() => document.body.removeChild(toast), 300);
+                    setTimeout(() => {
+                        if (document.body.contains(toast)) {
+                            document.body.removeChild(toast);
+                        }
+                    }, 300);
                 }, 3000);
             }
 
-            // Debug function to check enrollment status
+            // Data persistence utilities
+            const DataManager = {
+                // Save user data to both localStorage and potentially sync to server later
+                saveUserData(key, data) {
+                    try {
+                        const prefixedKey = `${key}-${user.id}`;
+                        localStorage.setItem(prefixedKey, JSON.stringify({
+                            data,
+                            timestamp: new Date().toISOString(),
+                            version: '1.0'
+                        }));
+                        return true;
+                    } catch (error) {
+                        console.error('Error saving user data:', error);
+                        return false;
+                    }
+                },
+
+                loadUserData(key, defaultValue = null) {
+                    try {
+                        const prefixedKey = `${key}-${user.id}`;
+                        const stored = localStorage.getItem(prefixedKey);
+                        if (!stored) return defaultValue;
+                        
+                        const parsed = JSON.parse(stored);
+                        return parsed.data || defaultValue;
+                    } catch (error) {
+                        console.error('Error loading user data:', error);
+                        return defaultValue;
+                    }
+                },
+
+                // Sync preferences across sessions
+                syncPreferences() {
+                    const preferences = {
+                        theme: document.documentElement.getAttribute('data-theme'),
+                        viewMode: localStorage.getItem(`view-preference-${user.id}`) || 'grid',
+                        filterPreference: document.querySelector('.filter-btn.active')?.id || 'filter-all',
+                        sortPreference: document.getElementById('course-sort')?.value || 'recent'
+                    };
+                    
+                    this.saveUserData('user-preferences', preferences);
+                },
+
+                loadPreferences() {
+                    const preferences = this.loadUserData('user-preferences', {
+                        theme: 'dark',
+                        viewMode: 'grid',
+                        filterPreference: 'filter-all',
+                        sortPreference: 'recent'
+                    });
+                    
+                    // Apply loaded preferences
+                    if (preferences.theme !== document.documentElement.getAttribute('data-theme')) {
+                        document.getElementById('theme-toggle')?.click();
+                    }
+                    
+                    // Set view mode
+                    if (preferences.viewMode === 'list') {
+                        setTimeout(() => document.getElementById('list-view')?.click(), 100);
+                    }
+                    
+                    // Set filter
+                    setTimeout(() => {
+                        const filterBtn = document.getElementById(preferences.filterPreference);
+                        if (filterBtn && !filterBtn.classList.contains('active')) {
+                            filterBtn.click();
+                        }
+                    }, 100);
+                    
+                    // Set sort
+                    setTimeout(() => {
+                        const sortSelect = document.getElementById('course-sort');
+                        if (sortSelect) {
+                            sortSelect.value = preferences.sortPreference;
+                        }
+                    }, 100);
+                },
+
+                // Export user data for backup
+                exportUserData() {
+                    const exportData = {
+                        userStats,
+                        courseProgress: Object.fromEntries(courseProgress),
+                        recentActivities,
+                        preferences: this.loadUserData('user-preferences'),
+                        notes: this.loadUserData('student-notes'),
+                        goals: this.loadUserData('student-goals'),
+                        exportDate: new Date().toISOString()
+                    };
+                    
+                    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+                        type: 'application/json'
+                    });
+                    
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `kohza-student-data-${user.email}-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                },
+
+                // Import user data from backup
+                importUserData(file) {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            try {
+                                const importData = JSON.parse(e.target.result);
+                                
+                                // Validate and import data
+                                if (importData.userStats) {
+                                    userStats = { ...userStats, ...importData.userStats };
+                                    this.saveUserData('user-stats', userStats);
+                                }
+                                
+                                if (importData.courseProgress) {
+                                    for (const [courseId, progress] of Object.entries(importData.courseProgress)) {
+                                        courseProgress.set(courseId, progress);
+                                    }
+                                    saveCourseProgress();
+                                }
+                                
+                                if (importData.recentActivities) {
+                                    recentActivities = importData.recentActivities;
+                                    saveRecentActivities();
+                                }
+                                
+                                if (importData.preferences) {
+                                    this.saveUserData('user-preferences', importData.preferences);
+                                }
+                                
+                                if (importData.notes) {
+                                    this.saveUserData('student-notes', importData.notes);
+                                }
+                                
+                                if (importData.goals) {
+                                    this.saveUserData('student-goals', importData.goals);
+                                }
+                                
+                                resolve(importData);
+                            } catch (error) {
+                                reject(error);
+                            }
+                        };
+                        reader.readAsText(file);
+                    });
+                }
+            };
+
+            // Make DataManager globally available for debugging
+            window.DataManager = DataManager;
             window.debugEnrollments = async function() {
                 console.log('🔍 DEBUG: Checking enrollment status...');
                 console.log('👤 Current user:', user);
@@ -899,9 +1489,91 @@ Enrolled Courses: ${enrolledCourses.length}`);
                 };
             };
 
-            // --- INITIALIZATION ---
+            // Enhanced initialization with error handling and performance optimization
             await loadEnrolledCourses();
+            
+            // Initialize all components
+            await Promise.all([
+                loadUserStats(),
+                loadCourseProgress(),
+                loadRecentActivities()
+            ]);
+            
+            // Load user preferences
+            DataManager.loadPreferences();
+            
+            // Setup enhanced UI
             setupFocusTimer();
+            setupEnhancedUI();
+            
+            // Auto-save preferences when changed
+            window.addEventListener('beforeunload', () => {
+                DataManager.syncPreferences();
+            });
+            
+            // Performance monitoring
+            const loadEndTime = performance.now();
+            console.log(`📊 Student panel loaded in ${(loadEndTime - loadStartTime).toFixed(2)}ms`);
+            
+            // Add loading state management
+            document.body.classList.remove('loading');
+            
+            // Setup periodic data sync (every 5 minutes)
+            setInterval(() => {
+                DataManager.syncPreferences();
+                console.log('📱 Auto-synced user preferences');
+            }, 5 * 60 * 1000);
+            
+            // Add export/import functionality to debug menu
+            const debugBtn = document.getElementById('debug-user-btn');
+            if (debugBtn) {
+                debugBtn.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    const menu = document.createElement('div');
+                    menu.className = 'fixed bg-gray-800 border border-gray-600 rounded-lg shadow-lg p-2 z-50';
+                    menu.style.left = e.pageX + 'px';
+                    menu.style.top = e.pageY + 'px';
+                    menu.innerHTML = `
+                        <button onclick="DataManager.exportUserData()" class="block w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700 rounded">
+                            Export Data
+                        </button>
+                        <button onclick="document.getElementById('import-file').click()" class="block w-full text-left px-3 py-2 text-sm text-white hover:bg-gray-700 rounded">
+                            Import Data
+                        </button>
+                    `;
+                    document.body.appendChild(menu);
+                    
+                    const removeMenu = () => {
+                        if (document.body.contains(menu)) {
+                            document.body.removeChild(menu);
+                        }
+                        document.removeEventListener('click', removeMenu);
+                    };
+                    
+                    setTimeout(() => document.addEventListener('click', removeMenu), 100);
+                });
+            }
+            
+            // Hidden file input for data import
+            const importInput = document.createElement('input');
+            importInput.type = 'file';
+            importInput.id = 'import-file';
+            importInput.accept = '.json';
+            importInput.style.display = 'none';
+            importInput.addEventListener('change', async (e) => {
+                if (e.target.files[0]) {
+                    try {
+                        await DataManager.importUserData(e.target.files[0]);
+                        showToast('Data imported successfully! Refreshing...', 'success');
+                        setTimeout(() => window.location.reload(), 2000);
+                    } catch (error) {
+                        console.error('Import error:', error);
+                        showToast('Failed to import data. Please check the file format.', 'error');
+                    }
+                }
+            });
+            document.body.appendChild(importInput);
+            
             document.addEventListener('contextmenu', event => event.preventDefault());
         });
     </script>

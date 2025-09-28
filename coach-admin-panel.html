@@ -763,12 +763,13 @@
                 try {
                     console.log(`🔍 Checking if student with email ${email} exists...`);
 
-                    // Use direct Supabase query with detailed error handling
+                    // Query student profile directly using Supabase
                     const { data: existingProfile, error: profileError } = await supabase
                         .from('profiles')
-                        .select('id, email, full_name, role')
+                        .select('*')
                         .eq('email', email)
-                        .maybeSingle();
+                        .eq('role', 'student')
+                        .single();
 
                     console.log('Profile query result:', { existingProfile, profileError });
 
@@ -782,12 +783,37 @@
                     }
 
                     if (!existingProfile) {
-                        throw new Error(`No student account found for "${email}".
+                        // Check if user exists in auth.users but missing profile
+                        const { data: authUser, error: authError } = await supabase.auth.admin.getUserByEmail(email);
+                        
+                        if (authUser && authUser.user) {
+                            // User exists in auth but no profile - create one
+                            console.log('Creating missing profile for existing auth user...');
+                            const { data: newProfile, error: createError } = await supabase
+                                .from('profiles')
+                                .insert({
+                                    id: authUser.user.id,
+                                    email: email,
+                                    full_name: authUser.user.user_metadata?.full_name || '',
+                                    role: 'student'
+                                })
+                                .select()
+                                .single();
+                            
+                            if (createError) {
+                                console.error('Error creating profile:', createError);
+                                throw new Error('Failed to create student profile. Please try again.');
+                            }
+                            
+                            existingProfile = newProfile;
+                        } else {
+                            throw new Error(`No student account found for "${email}".
 
 Please ask the student to:
 ✓ Sign up first at the login page
 ✓ Choose "Student" as their role
 ✓ Then try enrolling them again`);
+                        }
                     }
 
                     // Verify the profile is a student
@@ -799,6 +825,21 @@ Please ask the student to:
                     const studentName = existingProfile.full_name || 'Student';
 
                     console.log(`➕ Enrolling existing student ${studentId} in course ${courseId}`);
+                    
+                    // Validate that the coach owns this course before enrolling
+                    const { data: courseData, error: courseError } = await supabase
+                        .from('courses')
+                        .select('coach_id')
+                        .eq('id', courseId)
+                        .single();
+                    
+                    if (courseError) {
+                        throw new Error('Failed to validate course ownership. Please try again.');
+                    }
+                    
+                    if (courseData.coach_id !== currentUser.id) {
+                        throw new Error('You can only enroll students in courses you own.');
+                    }
                     
                     // Enroll the student
                     const { data: enrollmentData, error: enrollError } = await db.enrollStudent(studentId, courseId);

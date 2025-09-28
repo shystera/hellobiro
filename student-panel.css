@@ -306,6 +306,115 @@ html[data-theme='light'] .border-white\/10 {
     border-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-html[data-theme='light'] .border-gray-700 {
-    border-color: rgba(0, 0, 0, 0.15) !important;
+/* Enhanced Responsive Design */
+@media (max-width: 768px) {
+    .stats-card {
+        padding: 1rem;
+    }
+    
+    .premium-action-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .course-card {
+        margin-bottom: 1rem;
+    }
+    
+    #courses-grid.grid-cols-1 {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .header-bg nav {
+        padding: 0.75rem 1rem;
+    }
+    
+    .brand-text {
+        font-size: 1.5rem;
+    }
+    
+    #student-welcome {
+        font-size: 1.875rem !important;
+    }
+    
+    .premium-action-btn {
+        flex: 1;
+    }
+}
+
+/* Accessibility Improvements */
+.focus\:ring-2:focus {
+    outline: none;
+    ring-width: 2px;
+}
+
+.focus\:ring-purple-500:focus {
+    ring-color: #7c3aed;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .stats-card {
+        border-width: 2px;
+    }
+    
+    .course-card {
+        border-width: 2px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .transition-all,
+    .transition-colors,
+    .transition-transform {
+        transition: none;
+    }
+    
+    .animate-pulse,
+    .animate-slide-in,
+    .animate-fade-in-up {
+        animation: none;
+    }
+}
+
+/* Dark mode improvements */
+@media (prefers-color-scheme: dark) {
+    .stats-card {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #7c3aed;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Enhanced toast notifications */
+.toast {
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.3);
 }
