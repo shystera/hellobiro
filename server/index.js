@@ -8,8 +8,11 @@ import { createClient } from '@supabase/supabase-js';
 // Load environment variables
 dotenv.config();
 
-const app = express();
+// Use PORT from environment or default to 3001
 const PORT = process.env.PORT || 3001;
+console.log(`🔧 Server starting on port ${PORT}`);
+
+const app = express();
 
 // Middleware
 app.use(cors());
@@ -359,6 +362,55 @@ app.use((error, req, res, next) => {
     error: 'Internal server error',
     details: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
   });
+});
+
+// Catch-all route for debugging
+app.use('*', (req, res) => {
+  console.log(`🔍 404 - Route not found: ${req.method} ${req.originalUrl}`);
+  console.log(`📝 Available routes:`);
+  console.log(`   GET  /api/health`);
+  console.log(`   POST /api/mux/upload-url`);
+  console.log(`   GET  /api/mux/upload/:uploadId`);
+  console.log(`   GET  /api/mux/asset/:assetId`);
+  console.log(`   POST /api/lessons`);
+  console.log(`   PATCH /api/lessons/:id`);
+  console.log(`   POST /api/videos`);
+  console.log(`   PATCH /api/videos/:id`);
+  console.log(`   POST /api/mux/webhook`);
+  
+  // Return a simple HTML page for debugging
+  res.status(404).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>404 - Route Not Found</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 40px; }
+            .error { color: #d32f2f; }
+            .info { background: #f5f5f5; padding: 15px; border-radius: 5px; }
+        </style>
+    </head>
+    <body>
+        <h1 class="error">404 - Route Not Found</h1>
+        <p>Requested: ${req.method} ${req.originalUrl}</p>
+        <div class="info">
+            <p>This is the Kohza backend server.</p>
+            <p>Available API endpoints:</p>
+            <ul>
+                <li>GET /api/health - Server health check</li>
+                <li>POST /api/mux/upload-url - Create Mux upload URL</li>
+                <li>GET /api/mux/upload/:uploadId - Get upload status</li>
+                <li>GET /api/mux/asset/:assetId - Get video asset details</li>
+                <li>POST /api/lessons - Create lesson</li>
+                <li>PATCH /api/lessons/:id - Update lesson</li>
+                <li>POST /api/videos - Save video metadata</li>
+                <li>PATCH /api/videos/:id - Update video status</li>
+                <li>POST /api/mux/webhook - Mux webhook handler</li>
+            </ul>
+        </div>
+    </body>
+    </html>
+  `);
 });
 
 // Start server
