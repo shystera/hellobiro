@@ -601,7 +601,8 @@
                     // Use the proper Supabase module ID
                     const moduleId = module.supabaseModuleId;
 
-                    const lessonResponse = await fetch('http://localhost:3001/api/lessons', {
+                    // Use relative path for API calls to work with deployed version
+                    const lessonResponse = await fetch('/api/lessons', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -624,7 +625,8 @@
                 }
 
                 // Step 2: Get direct upload URL from server (includes Supabase integration)
-                const uploadUrlResponse = await fetch('http://localhost:3001/api/mux/upload-url', {
+                // Use relative path for API calls to work with deployed version
+                const uploadUrlResponse = await fetch('/api/mux/upload-url', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -672,7 +674,8 @@
                             // Get asset details to retrieve playback ID
                             if (assetId) {
                                 try {
-                                    const assetResponse = await fetch(`http://localhost:3001/api/mux/asset/${assetId}`);
+                                    // Use relative path for API calls to work with deployed version
+                                    const assetResponse = await fetch(`/api/mux/asset/${assetId}`);
                                     if (assetResponse.ok) {
                                         const assetData = await assetResponse.json();
                                         const playbackId = assetData.playback_ids?.[0]?.id;
@@ -682,7 +685,8 @@
                                             
                                             // Update lesson in database if it exists
                                             if (lesson.supabaseLessonId) {
-                                                const updateResponse = await fetch(`http://localhost:3001/api/lessons/${lesson.supabaseLessonId}`, {
+                                                // Use relative path for API calls to work with deployed version
+                                                const updateResponse = await fetch(`/api/lessons/${lesson.supabaseLessonId}`, {
                                                     method: 'PATCH',
                                                     headers: {
                                                         'Content-Type': 'application/json',
@@ -747,7 +751,8 @@
 
             } catch (error) {
                 console.error('Upload error:', error);
-                alert('Failed to upload video: ' + error.message + '\n\nMake sure the Mux + Supabase server is running: npm run fullstack');
+                // Updated error message to be more appropriate for deployed version
+                alert('Failed to upload video: ' + error.message + '\n\nPlease ensure the backend server is properly configured for video uploads.');
                 closeVideoModal();
             }
         }
