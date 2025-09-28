@@ -258,7 +258,8 @@
                     description: formData.get('description'),
                     price: parseFloat(formData.get('price')) || 0,
                     duration: parseFloat(formData.get('duration')) || 0,
-                    thumbnailFile: thumbnailInput.files[0] || null,
+                    // Don't store the File object in localStorage as it can't be serialized
+                    // Instead, we'll handle thumbnail upload when creating the course
                     thumbnailUrl: thumbnailPreview.src
                 };
 

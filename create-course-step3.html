@@ -293,24 +293,39 @@
 
                 const { step1, step2 } = courseData;
 
-                // Upload thumbnail if provided
+                // Upload thumbnail if provided as a data URL (from step 1)
                 let thumbnailUrl = null;
-                if (step1.thumbnailFile) {
-                    const fileExt = step1.thumbnailFile.name.split('.').pop();
-                    const fileName = `${currentUser.id}/${Date.now()}.${fileExt}`;
-                    
-                    const { data: uploadData, error: uploadError } = await supabase.storage
-                        .from('course-thumbnails')
-                        .upload(fileName, step1.thumbnailFile);
-
-                    if (uploadError) {
-                        console.warn('Thumbnail upload failed:', uploadError);
-                    } else {
-                        const { data: { publicUrl } } = supabase.storage
+                if (step1.thumbnailUrl && step1.thumbnailUrl.startsWith('data:')) {
+                    // Convert data URL to Blob and upload
+                    try {
+                        const response = await fetch(step1.thumbnailUrl);
+                        const blob = await response.blob();
+                        
+                        // Generate file extension from MIME type
+                        let fileExt = 'jpg';
+                        if (blob.type === 'image/png') fileExt = 'png';
+                        else if (blob.type === 'image/webp') fileExt = 'webp';
+                        
+                        const fileName = `${currentUser.id}/${Date.now()}.${fileExt}`;
+                        
+                        const { data: uploadData, error: uploadError } = await supabase.storage
                             .from('course-thumbnails')
-                            .getPublicUrl(fileName);
-                        thumbnailUrl = publicUrl;
+                            .upload(fileName, blob);
+
+                        if (uploadError) {
+                            console.warn('Thumbnail upload failed:', uploadError);
+                        } else {
+                            const { data: { publicUrl } } = supabase.storage
+                                .from('course-thumbnails')
+                                .getPublicUrl(fileName);
+                            thumbnailUrl = publicUrl;
+                        }
+                    } catch (convertError) {
+                        console.warn('Error converting thumbnail:', convertError);
                     }
+                } else if (step1.thumbnailUrl && step1.thumbnailUrl.startsWith('http')) {
+                    // Already a public URL, use as is
+                    thumbnailUrl = step1.thumbnailUrl;
                 }
 
                 // Create course in Supabase
