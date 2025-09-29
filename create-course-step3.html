@@ -334,7 +334,7 @@
                     description: step1.description,
                     price: step1.price,
                     coach_id: currentUser.id,
-                    published: isPublished,
+                    status: isPublished ? 'published' : 'draft',
                     thumbnail_url: thumbnailUrl
                 });
 
