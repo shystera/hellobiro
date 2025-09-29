@@ -642,7 +642,7 @@
                     throw new Error(`Failed to get upload URL: ${errorData.error || 'Unknown error'}`);
                 }
 
-                const { url: upload_url, id: upload_id } = await uploadUrlResponse.json();
+                const { url: upload_url, uploadId: upload_id } = await uploadUrlResponse.json();
 
                 // Step 3: Upload directly to Mux
                 const xhr = new XMLHttpRequest();
