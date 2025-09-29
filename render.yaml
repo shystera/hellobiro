@@ -8,3 +8,11 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 22.16.0
+      - key: MUX_TOKEN_ID
+        value: 1112a7c5-47f4-44b7-970d-852f83074332
+      - key: MUX_TOKEN_SECRET
+        value: NEeZrH1gZ+xXHqsiF+0h+28Rnzu5Q99RTCNoNs462lphE0ymVRlmJT2m+39+YR9Mq66zPvTDsnC
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InptcWF5cnNvcGdobnpyZnVxeWJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjIyMzc4OSwiZXhwIjoyMDcxNzk5Nzg5fQ.Af3ZFE6B8yIawDsHK7SL_IHyOuXXMTdGdHAbgnVPU1k
+      - key: VITE_SUPABASE_URL
+        value: https://zmqayrsopghnzrfuqybw.supabase.co
