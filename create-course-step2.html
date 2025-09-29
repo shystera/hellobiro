@@ -657,10 +657,18 @@
 
                 xhr.addEventListener('load', async () => {
                     if (xhr.status === 200 || xhr.status === 201) {
-                        // Upload successful
+                        // Upload successful - Mux direct upload doesn't return JSON, so don't try to parse it
                         try {
-                            const uploadResult = JSON.parse(xhr.responseText);
-                            const assetId = uploadResult.data?.asset_id;
+                            // Instead of parsing xhr.responseText, we need to get the asset ID from our backend
+                            // Call the backend to get upload status and asset ID
+                            const uploadStatusResponse = await fetch(`/api/mux/upload/${upload_id}`);
+                            
+                            if (!uploadStatusResponse.ok) {
+                                throw new Error('Failed to get upload status');
+                            }
+                            
+                            const uploadStatus = await uploadStatusResponse.json();
+                            const assetId = uploadStatus.assetId;
 
                             // Update local lesson data
                             lesson.hasVideo = true;
@@ -722,7 +730,7 @@
                             console.log('Video uploaded to Mux, details saved to database');
 
                         } catch (parseError) {
-                            console.error('Error parsing upload response:', parseError);
+                            console.error('Error processing upload response:', parseError);
                             // Still mark as uploaded
                             lesson.hasVideo = true;
                             lesson.uploadStatus = 'processing';

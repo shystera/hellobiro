@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Upload Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Video Upload Test</h1>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Step 1: Select a small test file</h2>
+            <input type="file" id="videoFile" accept="video/*" class="mb-4">
+            <button id="startTest" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Start Upload Test
+            </button>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Test Progress</h2>
+            <div id="progress" class="space-y-4"></div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Results</h2>
+            <div id="results" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = '/api';
+        let testResults = {};
+        
+        document.getElementById('startTest').addEventListener('click', async () => {
+            const fileInput = document.getElementById('videoFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit for testing
+                alert('Please select a smaller file for testing (under 10MB)');
+                return;
+            }
+            
+            clearResults();
+            await runUploadTest(file);
+        });
+        
+        async function runUploadTest(file) {
+            logProgress('Starting upload test...', 'info');
+            
+            try {
+                // Step 1: Create upload URL
+                logProgress('Step 1: Creating Mux upload URL...', 'info');
+                const uploadUrlResponse = await fetch(`${BASE_URL}/mux/upload-url`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        cors_origin: window.location.origin
+                    })
+                });
+                
+                if (!uploadUrlResponse.ok) {
+                    throw new Error(`Failed to create upload URL: ${uploadUrlResponse.status}`);
+                }
+                
+                const uploadData = await uploadUrlResponse.json();
+                testResults.uploadData = uploadData;
+                logProgress(`Step 1: Success - Upload ID: ${uploadData.uploadId}`, 'success');
+                logResult('Upload URL Data', uploadData);
+                
+                // Step 2: Upload file to Mux
+                logProgress('Step 2: Uploading file to Mux...', 'info');
+                const uploadResult = await uploadToMux(file, uploadData.url, uploadData.uploadId);
+                logProgress('Step 2: Upload completed', 'success');
+                
+                // Step 3: Get upload status
+                logProgress('Step 3: Getting upload status...', 'info');
+                const statusResponse = await fetch(`${BASE_URL}/mux/upload/${uploadData.uploadId}`);
+                
+                if (!statusResponse.ok) {
+                    throw new Error(`Failed to get upload status: ${statusResponse.status}`);
+                }
+                
+                const statusData = await statusResponse.json();
+                testResults.statusData = statusData;
+                logProgress(`Step 3: Success - Asset ID: ${statusData.assetId}`, 'success');
+                logResult('Upload Status Data', statusData);
+                
+                // Step 4: Get asset details
+                logProgress('Step 4: Getting asset details...', 'info');
+                const assetResponse = await fetch(`${BASE_URL}/mux/asset/${statusData.assetId}`);
+                
+                if (!assetResponse.ok) {
+                    throw new Error(`Failed to get asset details: ${assetResponse.status}`);
+                }
+                
+                const assetData = await assetResponse.json();
+                testResults.assetData = assetData;
+                logProgress('Step 4: Success - Asset details retrieved', 'success');
+                logResult('Asset Details Data', assetData);
+                
+                logProgress('All steps completed successfully!', 'success');
+                
+            } catch (error) {
+                logProgress(`Error: ${error.message}`, 'error');
+                console.error('Test failed:', error);
+            }
+        }
+        
+        function uploadToMux(file, uploadUrl, uploadId) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        logProgress(`Upload progress: ${percentComplete}%`, 'info');
+                    }
+                });
+                
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        logProgress('Upload to Mux successful', 'success');
+                        // Note: Mux direct upload doesn't return JSON, so we don't parse it
+                        resolve({ status: 'success' });
+                    } else {
+                        reject(new Error(`Upload failed with status: ${xhr.status}`));
+                    }
+                });
+                
+                xhr.addEventListener('error', () => {
+                    reject(new Error('Upload failed due to network error'));
+                });
+                
+                xhr.open('PUT', uploadUrl);
+                xhr.send(file);
+            });
+        }
+        
+        function logProgress(message, type) {
+            const progressDiv = document.getElementById('progress');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'text-red-600' : 
+                              type === 'success' ? 'text-green-600' : 
+                              'text-blue-600';
+            
+            progressDiv.innerHTML += `
+                <div class="p-2 border-b border-gray-200">
+                    <span class="text-gray-500 text-sm">[${timestamp}]</span>
+                    <span class="${colorClass}">${message}</span>
+                </div>
+            `;
+        }
+        
+        function logResult(title, data) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `
+                <div class="p-4 bg-gray-50 rounded">
+                    <h3 class="font-semibold text-gray-700">${title}</h3>
+                    <pre class="mt-2 text-sm bg-white p-2 rounded overflow-auto max-h-40">${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+        }
+        
+        function clearResults() {
+            document.getElementById('progress').innerHTML = '';
+            document.getElementById('results').innerHTML = '';
+            testResults = {};
+        }
+    </script>
+</body>
+</html>

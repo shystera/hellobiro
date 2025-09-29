@@ -1,50 +1,158 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>API Test</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>API Test</h1>
-    <button id="test-health">Test Health Endpoint</button>
-    <button id="test-lessons">Test Lessons Endpoint</button>
-    <div id="result"></div>
+<body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Backend API Test Tool</h1>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Health Check</h2>
+            <button id="healthCheck" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Test Health Endpoint
+            </button>
+            <div id="healthResult" class="mt-4 p-4 bg-gray-50 rounded"></div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Create Mux Upload URL</h2>
+            <button id="createUploadUrl" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Create Upload URL
+            </button>
+            <div id="uploadUrlResult" class="mt-4 p-4 bg-gray-50 rounded"></div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Test with Simulated Upload ID</h2>
+            <button id="testUploadStatus" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+                Test Upload Status
+            </button>
+            <div id="uploadStatusResult" class="mt-4 p-4 bg-gray-50 rounded"></div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Test with Simulated Asset ID</h2>
+            <button id="testAssetDetails" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                Test Asset Details
+            </button>
+            <div id="assetDetailsResult" class="mt-4 p-4 bg-gray-50 rounded"></div>
+        </div>
+    </div>
 
-    <script type="module">
-        document.getElementById('test-health').addEventListener('click', async () => {
+    <script>
+        // Base URL for API calls (using the proxy configured in netlify.toml)
+        const BASE_URL = '/api';
+        
+        // Test health endpoint
+        document.getElementById('healthCheck').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('healthResult');
+            resultDiv.innerHTML = '<p class="text-gray-600">Testing...</p>';
+            
             try {
-                const response = await fetch('/api/health');
+                const response = await fetch(`${BASE_URL}/health`);
                 const data = await response.json();
-                document.getElementById('result').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                resultDiv.innerHTML = `
+                    <p class="text-green-600 font-semibold">Success!</p>
+                    <pre class="mt-2 text-sm bg-gray-200 p-2 rounded">${JSON.stringify(data, null, 2)}</pre>
+                `;
             } catch (error) {
-                document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+                resultDiv.innerHTML = `
+                    <p class="text-red-600 font-semibold">Error:</p>
+                    <p class="text-red-500">${error.message}</p>
+                `;
             }
         });
-
-        document.getElementById('test-lessons').addEventListener('click', async () => {
+        
+        // Test creating upload URL
+        document.getElementById('createUploadUrl').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('uploadUrlResult');
+            resultDiv.innerHTML = '<p class="text-gray-600">Testing...</p>';
+            
             try {
-                const response = await fetch('/api/lessons', {
+                const response = await fetch(`${BASE_URL}/mux/upload-url`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        module_id: 'test-module-id',
-                        title: 'Test Lesson',
-                        description: 'Test Description',
-                        order_index: 0
+                        cors_origin: window.location.origin
                     })
                 });
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('result').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-                } else {
-                    const errorText = await response.text();
-                    document.getElementById('result').innerHTML = `<p>Error ${response.status}: ${errorText}</p>`;
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <p class="text-green-600 font-semibold">Success!</p>
+                    <p class="mt-2">Upload ID: <code class="bg-gray-200 px-1 rounded">${data.uploadId}</code></p>
+                    <p class="mt-2">Upload URL: <code class="bg-gray-200 px-1 rounded">${data.url}</code></p>
+                    <pre class="mt-2 text-sm bg-gray-200 p-2 rounded">${JSON.stringify(data, null, 2)}</pre>
+                `;
             } catch (error) {
-                document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+                resultDiv.innerHTML = `
+                    <p class="text-red-600 font-semibold">Error:</p>
+                    <p class="text-red-500">${error.message}</p>
+                `;
+            }
+        });
+        
+        // Test upload status with simulated ID
+        document.getElementById('testUploadStatus').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('uploadStatusResult');
+            resultDiv.innerHTML = '<p class="text-gray-600">Testing...</p>';
+            
+            try {
+                // Using a simulated upload ID to test the endpoint
+                const simulatedUploadId = 'simulated_' + Date.now();
+                const response = await fetch(`${BASE_URL}/mux/upload/${simulatedUploadId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <p class="text-green-600 font-semibold">Success!</p>
+                    <pre class="mt-2 text-sm bg-gray-200 p-2 rounded">${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="text-red-600 font-semibold">Error:</p>
+                    <p class="text-red-500">${error.message}</p>
+                `;
+            }
+        });
+        
+        // Test asset details with simulated ID
+        document.getElementById('testAssetDetails').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('assetDetailsResult');
+            resultDiv.innerHTML = '<p class="text-gray-600">Testing...</p>';
+            
+            try {
+                // Using a simulated asset ID to test the endpoint
+                const simulatedAssetId = 'simulated_asset_' + Date.now();
+                const response = await fetch(`${BASE_URL}/mux/asset/${simulatedAssetId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <p class="text-green-600 font-semibold">Success!</p>
+                    <pre class="mt-2 text-sm bg-gray-200 p-2 rounded">${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="text-red-600 font-semibold">Error:</p>
+                    <p class="text-red-500">${error.message}</p>
+                `;
             }
         });
     </script>
