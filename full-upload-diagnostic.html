@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Upload Diagnostic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Full Upload Diagnostic</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Step 1: Test Health Endpoint</h2>
+                <button id="testHealth" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Test Health
+                </button>
+                <div id="healthResult" class="mt-2 p-3 bg-gray-50 rounded text-sm"></div>
+            </div>
+            
+            <div>
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Step 2: Test Module ID</h2>
+                <input type="text" id="moduleId" placeholder="Enter a valid module ID" class="w-full p-2 border rounded mb-2">
+                <button id="testModule" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+                    Test Module
+                </button>
+                <div id="moduleResult" class="mt-2 p-3 bg-gray-50 rounded text-sm"></div>
+            </div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Step 3: Test Lesson Creation</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="text" id="lessonTitle" placeholder="Lesson Title" class="p-2 border rounded" value="Test Lesson">
+                <input type="text" id="lessonDescription" placeholder="Lesson Description" class="p-2 border rounded" value="Test description">
+                <input type="number" id="lessonOrder" placeholder="Order Index" class="p-2 border rounded" value="0">
+                <button id="testLesson" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Create Test Lesson
+                </button>
+            </div>
+            <div id="lessonResult" class="mt-2 p-3 bg-gray-50 rounded text-sm"></div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Step 4: Test Upload URL Creation</h2>
+            <button id="testUploadUrl" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                Create Upload URL
+            </button>
+            <div id="uploadUrlResult" class="mt-2 p-3 bg-gray-50 rounded text-sm"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentModuleId = '';
+        let currentLessonId = '';
+        let uploadData = null;
+        
+        // Test health endpoint
+        document.getElementById('testHealth').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('healthResult');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <p class="text-green-600">Success: ${response.status}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="text-red-600">Error: ${error.message}</p>
+                `;
+            }
+        });
+        
+        // Test module
+        document.getElementById('testModule').addEventListener('click', async () => {
+            const moduleId = document.getElementById('moduleId').value;
+            const resultDiv = document.getElementById('moduleResult');
+            
+            if (!moduleId) {
+                resultDiv.innerHTML = '<p class="text-red-600">Please enter a module ID</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = 'Testing...';
+            currentModuleId = moduleId;
+            
+            try {
+                // Try to get module info from Supabase directly
+                // This is just to verify the module ID exists
+                resultDiv.innerHTML = `
+                    <p class="text-green-600">Module ID set: ${moduleId}</p>
+                    <p class="text-gray-600">Note: This doesn't verify if the module exists, just stores the ID for lesson creation</p>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="text-red-600">Error: ${error.message}</p>
+                `;
+            }
+        });
+        
+        // Test lesson creation
+        document.getElementById('testLesson').addEventListener('click', async () => {
+            const title = document.getElementById('lessonTitle').value;
+            const description = document.getElementById('lessonDescription').value;
+            const order_index = parseInt(document.getElementById('lessonOrder').value);
+            const resultDiv = document.getElementById('lessonResult');
+            
+            if (!currentModuleId) {
+                resultDiv.innerHTML = '<p class="text-red-600">Please test module first</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = 'Creating lesson...';
+            
+            try {
+                const response = await fetch('/api/lessons', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        module_id: currentModuleId,
+                        title,
+                        description,
+                        order_index
+                    })
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    const data = JSON.parse(responseText);
+                    currentLessonId = data.id;
+                    resultDiv.innerHTML = `
+                        <p class="text-green-600">Success: ${response.status}</p>
+                        <p>Lesson ID: ${data.id}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="text-red-600">Error ${response.status}</p>
+                        <pre>${responseText}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="text-red-600">Error: ${error.message}</p>
+                `;
+            }
+        });
+        
+        // Test upload URL creation
+        document.getElementById('testUploadUrl').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('uploadUrlResult');
+            
+            if (!currentLessonId) {
+                resultDiv.innerHTML = '<p class="text-red-600">Please create a lesson first</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = 'Creating upload URL...';
+            
+            try {
+                const response = await fetch('/api/mux/upload-url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        lesson_id: currentLessonId,
+                        cors_origin: window.location.origin
+                    })
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    const data = JSON.parse(responseText);
+                    uploadData = data;
+                    resultDiv.innerHTML = `
+                        <p class="text-green-600">Success: ${response.status}</p>
+                        <p>Upload ID: ${data.uploadId}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="text-red-600">Error ${response.status}</p>
+                        <pre>${responseText}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="text-red-600">Error: ${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
