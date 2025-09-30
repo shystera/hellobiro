@@ -678,6 +678,7 @@
                     if (!course) return;
                     
                     const progress = courseProgress.get(courseId);
+                    let nextLesson = null;
                     let nextLessonId = null;
                     
                     // Find the first incomplete lesson
@@ -685,6 +686,7 @@
                         for (const lesson of module.lessons || []) {
                             // Simple check: if we haven't completed all lessons, this could be next
                             if (progress && progress.completedLessons < progress.totalLessons) {
+                                nextLesson = lesson;
                                 nextLessonId = lesson.id;
                                 break;
                             }
@@ -692,8 +694,15 @@
                         if (nextLessonId) break;
                     }
                     
-                    if (nextLessonId) {
-                        window.location.href = `lesson-player.html?lesson=${nextLessonId}&course=${courseId}`;
+                    if (nextLessonId && nextLesson) {
+                        // Check if the lesson has a Mux playback ID
+                        if (nextLesson.mux_playback_id) {
+                            // Redirect to the Mux player with the correct lesson ID and playback ID
+                            window.location.href = `lesson-player-mux.html?lessonId=${nextLessonId}&playbackId=${nextLesson.mux_playback_id}`;
+                        } else {
+                            // Fallback to course detail if no video is available
+                            window.location.href = `course-detail.html?id=${courseId}`;
+                        }
                     } else {
                         window.location.href = `course-detail.html?id=${courseId}`;
                     }
