@@ -6,6 +6,7 @@
     <title>Lesson Player - Kohza</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mux/mux-player"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
@@ -52,7 +53,7 @@
                 </button>
                 <div class="flex items-center gap-2">
                     <img src="https://i.pravatar.cc/32?u=student" alt="Student" class="w-8 h-8 rounded-full border-2 border-purple-600">
-                    <span class="hidden sm:block text-sm font-medium">Sarah Chen</span>
+                    <span class="hidden sm:block text-sm font-medium">Loading...</span>
                 </div>
             </div>
         </nav>
@@ -69,9 +70,9 @@
                     <div class="relative aspect-video bg-black">
                         <mux-player
                             id="mux-player"
-                            playback-id="demo-playback-id"
-                            metadata-video-title="Introduction to Mindful Leadership"
-                            metadata-viewer-user-id="student-123"
+                            playback-id=""
+                            metadata-video-title=""
+                            metadata-viewer-user-id=""
                             accent-color="#9333ea"
                             controls
                             autoplay="muted"
@@ -94,14 +95,14 @@
                 <div class="bg-gray-900/50 border border-gray-800 rounded-lg p-6 mb-6">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <h1 id="lesson-title" class="text-2xl font-serif font-bold text-white mb-2">Introduction to Mindful Leadership</h1>
-                            <p id="lesson-description" class="text-gray-400 mb-4">Learn the foundational principles of mindful leadership and how they can transform your approach to managing teams and making decisions.</p>
+                            <h1 id="lesson-title" class="text-2xl font-serif font-bold text-white mb-2">Loading...</h1>
+                            <p id="lesson-description" class="text-gray-400 mb-4">Loading lesson description...</p>
                             <div class="flex items-center gap-6 text-sm text-gray-500">
-                                <span id="lesson-duration">18 minutes</span>
+                                <span id="lesson-duration">Loading...</span>
                                 <span>•</span>
-                                <span id="lesson-module">Module 1: Foundations</span>
+                                <span id="lesson-module">Loading...</span>
                                 <span>•</span>
-                                <span id="completion-status" class="text-green-400">✓ Completed</span>
+                                <span id="completion-status">Loading...</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
@@ -118,10 +119,10 @@
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-sm text-gray-400">Progress</span>
-                            <span id="progress-percentage" class="text-sm text-gray-400">100%</span>
+                            <span id="progress-percentage" class="text-sm text-gray-400">0%</span>
                         </div>
                         <div class="w-full bg-gray-700 rounded-full h-2">
-                            <div id="progress-bar" class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: 100%"></div>
+                            <div id="progress-bar" class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                         </div>
                     </div>
 
@@ -264,13 +265,7 @@
 
         // Initialize with authentication and data loading
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check authentication
-            const authData = await utils.requireAuth('student');
-            if (!authData) return;
-
-            currentUser = authData.user;
-            
-            // Get lesson data from URL
+            // Set playback ID from URL parameters immediately to avoid demo ID error
             const urlParams = new URLSearchParams(window.location.search);
             const lessonId = urlParams.get('lessonId');
             const playbackId = urlParams.get('playbackId');
@@ -281,6 +276,16 @@
                 return;
             }
 
+            // Set the playback ID immediately to prevent demo ID error
+            const player = document.getElementById('mux-player');
+            player.setAttribute('playback-id', playbackId);
+
+            // Check authentication
+            const authData = await utils.requireAuth('student');
+            if (!authData) return;
+
+            currentUser = authData.user;
+            
             await loadLessonData(lessonId, playbackId);
             initializePlayer();
             enableContentProtection();
@@ -331,14 +336,18 @@
                 };
 
                 // Update UI
+                document.getElementById('lesson-title').textContent = lessonData.title;
+                document.getElementById('lesson-description').textContent = lessonData.description || 'No description available';
+                document.getElementById('lesson-duration').textContent = lessonData.duration ? `${Math.floor(lessonData.duration / 60)} minutes` : 'Duration not available';
+                document.getElementById('lesson-module').textContent = lessonData.module;
                 document.getElementById('current-lesson-title').textContent = lessonData.title;
                 document.querySelector('title').textContent = `${lessonData.title} - Kohza`;
                 
                 // Update breadcrumb
-                const breadcrumb = document.querySelector('.hidden.md\\:flex a');
-                if (breadcrumb) {
-                    breadcrumb.href = `course-detail.html?id=${lessonData.course.id}`;
-                    breadcrumb.textContent = lessonData.course.title;
+                const courseLink = document.querySelector('.hidden.md\\:flex a');
+                if (courseLink) {
+                    courseLink.href = `course-detail.html?id=${lessonData.course.id}`;
+                    courseLink.textContent = lessonData.course.title;
                 }
 
                 // Update completion status
@@ -355,15 +364,21 @@
 
         // Initialize player with real Mux data
         function initializePlayer() {
-            if (!lessonData) return;
-
-            // Set up Mux player with signed playback ID
-            player.setAttribute('playback-id', lessonData.muxPlaybackId);
+            const player = document.getElementById('mux-player');
+            
+            // Set up Mux player with signed playback ID (already set from URL params)
+            if (lessonData && lessonData.muxPlaybackId) {
+                player.setAttribute('playback-id', lessonData.muxPlaybackId);
+            }
             
             // Set up analytics metadata
-            player.setAttribute('metadata-video-title', lessonData.title);
-            player.setAttribute('metadata-viewer-user-id', currentUser.id);
-            player.setAttribute('metadata-video-id', lessonData.id);
+            if (lessonData) {
+                player.setAttribute('metadata-video-title', lessonData.title);
+                player.setAttribute('metadata-video-id', lessonData.id);
+            }
+            if (currentUser) {
+                player.setAttribute('metadata-viewer-user-id', currentUser.id);
+            }
             
             // Start tracking watch time
             watchStartTime = Date.now();
