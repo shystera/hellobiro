@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Configuration Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Backend Configuration Test</h1>
+        
+        <div class="mb-6">
+            <button id="testHealth" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Test Backend Health & Configuration
+            </button>
+        </div>
+        
+        <div id="result" class="mt-4 p-4 bg-gray-50 rounded"></div>
+    </div>
+
+    <script>
+        document.getElementById('testHealth').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p class="text-gray-600">Testing...</p>';
+            
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                const isMuxConfigured = data.services.mux;
+                const isSupabaseConfigured = data.services.supabase;
+                
+                resultDiv.innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-lg font-semibold ${data.status === 'ok' ? 'text-green-600' : 'text-red-600'}">
+                                Status: ${data.status}
+                            </p>
+                            <p class="text-gray-600">${data.message}</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-3 rounded ${isMuxConfigured ? 'bg-green-100 border border-green-300' : 'bg-yellow-100 border border-yellow-300'}">
+                                <p class="font-semibold ${isMuxConfigured ? 'text-green-700' : 'text-yellow-700'}">
+                                    Mux Configuration
+                                </p>
+                                <p class="${isMuxConfigured ? 'text-green-600' : 'text-yellow-600'}">
+                                    ${isMuxConfigured ? '✅ Configured' : '⚠️ Not configured (using simulation)'}
+                                </p>
+                            </div>
+                            
+                            <div class="p-3 rounded ${isSupabaseConfigured ? 'bg-green-100 border border-green-300' : 'bg-red-100 border border-red-300'}">
+                                <p class="font-semibold ${isSupabaseConfigured ? 'text-green-700' : 'text-red-700'}">
+                                    Supabase Configuration
+                                </p>
+                                <p class="${isSupabaseConfigured ? 'text-green-600' : 'text-red-600'}">
+                                    ${isSupabaseConfigured ? '✅ Configured' : '❌ Not configured'}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-gray-100 rounded">
+                            <p class="font-semibold text-gray-700">Next Steps:</p>
+                            <ol class="list-decimal list-inside mt-2 space-y-1 text-gray-600">
+                                ${!isMuxConfigured ? 
+                                    '<li>Verify MUX_TOKEN_ID and MUX_TOKEN_SECRET are set in Render environment variables</li>' : 
+                                    '<li class="text-green-600">Mux is properly configured ✅</li>'}
+                                ${!isSupabaseConfigured ? 
+                                    '<li>Verify SUPABASE_SERVICE_ROLE_KEY is set in Render environment variables</li>' : 
+                                    '<li class="text-green-600">Supabase is properly configured ✅</li>'}
+                                <li>If credentials are set but still showing as not configured, redeploy your backend</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="p-3 bg-blue-50 rounded">
+                            <p class="font-semibold text-blue-700">Technical Details:</p>
+                            <pre class="mt-2 text-sm bg-white p-2 rounded max-h-40 overflow-auto">${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="space-y-2">
+                        <p class="text-red-600 font-semibold">Network Error:</p>
+                        <p class="text-red-500">${error.message}</p>
+                        <p class="text-gray-600">Make sure your backend is running at https://hellobiro.onrender.com</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

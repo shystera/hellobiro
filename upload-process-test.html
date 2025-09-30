@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Process Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Upload Process Test</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Step 1: Create Test Lesson</h2>
+                <div class="space-y-3">
+                    <input type="text" id="moduleId" placeholder="Module ID" class="w-full p-2 border rounded" value="ef2ad347-d911-498c-adab-7f2384cd629a">
+                    <input type="text" id="lessonTitle" placeholder="Lesson Title" class="w-full p-2 border rounded" value="Upload Test Lesson">
+                    <input type="text" id="lessonDescription" placeholder="Description" class="w-full p-2 border rounded" value="Testing upload process">
+                    <input type="number" id="orderIndex" placeholder="Order Index" class="w-full p-2 border rounded" value="0">
+                    <button id="createLesson" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Create Lesson
+                    </button>
+                </div>
+                <div id="lessonResult" class="mt-3 p-3 bg-gray-50 rounded text-sm"></div>
+            </div>
+            
+            <div>
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Step 2: Create Upload URL</h2>
+                <button id="createUploadUrl" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" disabled>
+                    Create Upload URL
+                </button>
+                <div id="uploadUrlResult" class="mt-3 p-3 bg-gray-50 rounded text-sm"></div>
+            </div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Step 3: Simulate Upload & Get Asset Info</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <button id="simulateUpload" class="w-full bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded" disabled>
+                        Simulate Upload Completion
+                    </button>
+                    <div id="simulateResult" class="mt-3 p-3 bg-gray-50 rounded text-sm"></div>
+                </div>
+                
+                <div>
+                    <button id="getAssetInfo" class="w-full bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded" disabled>
+                        Get Asset Information
+                    </button>
+                    <div id="assetInfoResult" class="mt-3 p-3 bg-gray-50 rounded text-sm"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Step 4: Update Lesson with Mux Info</h2>
+            <button id="updateLesson" class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" disabled>
+                Update Lesson with Mux Information
+            </button>
+            <div id="updateLessonResult" class="mt-3 p-3 bg-gray-50 rounded text-sm"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentLessonId = '';
+        let uploadData = null;
+        let assetId = '';
+        
+        // Step 1: Create lesson
+        document.getElementById('createLesson').addEventListener('click', async () => {
+            const moduleId = document.getElementById('moduleId').value;
+            const title = document.getElementById('lessonTitle').value;
+            const description = document.getElementById('lessonDescription').value;
+            const orderIndex = parseInt(document.getElementById('orderIndex').value);
+            const resultDiv = document.getElementById('lessonResult');
+            
+            if (!moduleId) {
+                resultDiv.innerHTML = '<p class="text-red-600">Please enter a module ID</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p class="text-gray-600">Creating lesson...</p>';
+            
+            try {
+                const response = await fetch('/api/lessons', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        module_id: moduleId,
+                        title,
+                        description,
+                        order_index: orderIndex
+                    })
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    const data = JSON.parse(responseText);
+                    currentLessonId = data.id;
+                    document.getElementById('createUploadUrl').disabled = false;
+                    resultDiv.innerHTML = `
+                        <p class="text-green-600">Lesson created successfully!</p>
+                        <p>Lesson ID: ${data.id}</p>
+                        <pre class="mt-2 text-xs">${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="text-red-600">Error ${response.status}</p>
+                        <pre class="mt-2 text-xs">${responseText}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="text-red-600">Network Error: ${error.message}</p>
+                `;
+            }
+        });
+        
+        // Step 2: Create upload URL
+        document.getElementById('createUploadUrl').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('uploadUrlResult');
+            resultDiv.innerHTML = '<p class="text-gray-600">Creating upload URL...</p>';
+            
+            try {
+                const response = await fetch('/api/mux/upload-url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        lesson_id: currentLessonId,
+                        cors_origin: window.location.origin
+                    })
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    const data = JSON.parse(responseText);
+                    uploadData = data;
+                    document.getElementById('simulateUpload').disabled = false;
+                    resultDiv.innerHTML = `
+                        <p class="text-green-600">Upload URL created successfully!</p>
+                        <p>Upload ID: ${data.uploadId}</p>
+                        <p class="text-sm mt-2">Type: ${data.uploadId.startsWith('simulated_') ? 'Simulated' : 'Real Mux'}</p>
+                        <pre class="mt-2 text-xs">${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="text-red-600">Error ${response.status}</p>
+                        <pre class="mt-2 text-xs">${responseText}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="text-red-600">Network Error: ${error.message}</p>
+                `;
+            }
+        });
+        
+        // Step 3a: Simulate upload completion
+        document.getElementById('simulateUpload').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('simulateResult');
+            
+            if (!uploadData) {
+                resultDiv.innerHTML = '<p class="text-red-600">Please create upload URL first</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p class="text-gray-600">Getting upload status...</p>';
+            
+            try {
+                const response = await fetch(`/api/mux/upload/${uploadData.uploadId}`);
+                const data = await response.json();
+                
+                assetId = data.assetId;
+                document.getElementById('getAssetInfo').disabled = false;
+                
+                resultDiv.innerHTML = `
+                    <p class="text-green-600">Upload status retrieved!</p>
+                    <p>Asset ID: ${data.assetId}</p>
+                    <p>Status: ${data.status}</p>
+                    <pre class="mt-2 text-xs">${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="text-red-600">Error: ${error.message}</p>
+                `;
+            }
+        });
+        
+        // Step 3b: Get asset information
+        document.getElementById('getAssetInfo').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('assetInfoResult');
+            
+            if (!assetId) {
+                resultDiv.innerHTML = '<p class="text-red-600">Please simulate upload first</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p class="text-gray-600">Getting asset information...</p>';
+            
+            try {
+                const response = await fetch(`/api/mux/asset/${assetId}`);
+                const data = await response.json();
+                
+                document.getElementById('updateLesson').disabled = false;
+                
+                resultDiv.innerHTML = `
+                    <p class="text-green-600">Asset information retrieved!</p>
+                    <p>Playback ID: ${data.playback_ids?.[0]?.id || 'N/A'}</p>
+                    <p>Status: ${data.status}</p>
+                    <pre class="mt-2 text-xs">${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="text-red-600">Error: ${error.message}</p>
+                `;
+            }
+        });
+        
+        // Step 4: Update lesson with Mux information
+        document.getElementById('updateLesson').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('updateLessonResult');
+            
+            if (!currentLessonId || !assetId) {
+                resultDiv.innerHTML = '<p class="text-red-600">Please complete previous steps first</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p class="text-gray-600">Updating lesson...</p>';
+            
+            try {
+                // First get asset info to get playback ID
+                const assetResponse = await fetch(`/api/mux/asset/${assetId}`);
+                const assetData = await assetResponse.json();
+                const playbackId = assetData.playback_ids?.[0]?.id;
+                
+                const response = await fetch(`/api/lessons/${currentLessonId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        mux_asset_id: assetId,
+                        mux_playback_id: playbackId,
+                        upload_status: 'ready'
+                    })
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    const data = JSON.parse(responseText);
+                    resultDiv.innerHTML = `
+                        <p class="text-green-600">Lesson updated successfully!</p>
+                        <p class="mt-2">The lesson should now appear in course modules.</p>
+                        <pre class="mt-2 text-xs">${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="text-red-600">Error ${response.status}</p>
+                        <pre class="mt-2 text-xs">${responseText}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="text-red-600">Network Error: ${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
