@@ -1,4 +1,10 @@
-
+/* Enhanced dropdown styling */
+.options-dropdown {
+    backdrop-filter: blur(16px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    z-index: 100 !important; /* Ensure dropdown appears above all other elements */
+    position: relative; /* Ensure proper positioning context */
+}
 
 body {
   font-family: 'Inter', sans-serif;
@@ -39,6 +45,43 @@ h1, h2, h3, .font-serif {
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.course-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.course-card .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Enhanced dropdown styling */
+.options-dropdown {
+    backdrop-filter: blur(16px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Course card draft styling */
+.course-card.is-draft {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+    border-color: rgba(245, 158, 11, 0.4);
+    z-index: 1; /* Ensure proper stacking context */
+    position: relative; /* Ensure proper positioning context */
+    contain: layout style; /* Create a new stacking context */
+}
+
+/* Premium Course Card Enhancements */
+.course-card {
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1; /* Ensure proper stacking context */
+    position: relative; /* Ensure proper positioning context */
+    contain: layout style; /* Create a new stacking context */
 }
 
 .course-card:hover {
@@ -308,7 +351,11 @@ html[data-theme='light'] .course-card {
     border-color: #e2e8f0;
     box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px 0 rgba(15, 23, 42, 0.04);
     backdrop-filter: none;
+    z-index: 1; /* Ensure course cards have proper stacking context */
+    position: relative; /* Ensure proper positioning context */
+    contain: layout style; /* Create a new stacking context */
 }
+
 html[data-theme='light'] .course-card:hover {
     border-color: #c7d2fe;
     box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.05);
@@ -319,6 +366,9 @@ html[data-theme='light'] .course-card.is-draft {
     background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
     border-color: #f59e0b;
     box-shadow: 0 1px 3px 0 rgba(245, 158, 11, 0.1), 0 1px 2px 0 rgba(245, 158, 11, 0.05);
+    z-index: 1; /* Ensure proper stacking context */
+    position: relative; /* Ensure proper positioning context */
+    contain: layout style; /* Create a new stacking context */
 }
 html[data-theme='light'] .course-card.is-draft:hover {
     border-color: #d97706;
@@ -354,6 +404,8 @@ html[data-theme='light'] .options-dropdown {
     border-color: #e2e8f0;
     box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
     backdrop-filter: blur(16px);
+    z-index: 100 !important; /* Ensure dropdown appears above all other elements in light mode */
+    position: relative; /* Ensure proper positioning context */
 }
 html[data-theme='light'] .dropdown-item {
     color: #334155 !important;
