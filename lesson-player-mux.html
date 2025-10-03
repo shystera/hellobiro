@@ -258,7 +258,7 @@
     </div>
 
     <script type="module">
-        import { auth, db, utils } from './supabase-client.js';
+        import { auth, db, utils, supabase } from './supabase-client.js';
 
         // Mux Player configuration and analytics
         let player;
@@ -272,6 +272,11 @@
         // Initialize with authentication and data loading
         document.addEventListener('DOMContentLoaded', async () => {
             try {
+                // Check if Supabase client is available
+                if (!supabase) {
+                    throw new Error('Supabase client not initialized. Please check your network connection and try again.');
+                }
+                
                 // Get reference to the player element
                 player = document.getElementById('mux-player');
                 if (!player) {
