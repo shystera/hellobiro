@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lesson Player - Kohza</title>
+    <!-- 
+        Note: Using Tailwind CSS CDN for development. 
+        In production, this should be replaced with a local build.
+    -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mux/mux-player"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -262,6 +266,8 @@
         let currentUser = null;
         let watchStartTime = null;
         let lastProgressUpdate = 0;
+        let retryCount = 0;
+        const MAX_RETRIES = 5;
 
         // Initialize with authentication and data loading
         document.addEventListener('DOMContentLoaded', async () => {
@@ -275,10 +281,6 @@
                 window.history.back();
                 return;
             }
-
-            // Set the playback ID immediately to prevent demo ID error
-            const player = document.getElementById('mux-player');
-            player.setAttribute('playback-id', playbackId);
 
             // Check authentication
             const authData = await utils.requireAuth('student');
@@ -368,7 +370,17 @@
             
             // Set up Mux player with signed playback ID (already set from URL params)
             if (lessonData && lessonData.muxPlaybackId) {
-                player.setAttribute('playback-id', lessonData.muxPlaybackId);
+                // Validate playback ID format
+                if (lessonData.muxPlaybackId && lessonData.muxPlaybackId.length > 10) {
+                    // Add a small delay to ensure the player is ready
+                    setTimeout(() => {
+                        player.setAttribute('playback-id', lessonData.muxPlaybackId);
+                    }, 100);
+                } else {
+                    console.error('Invalid playback ID:', lessonData.muxPlaybackId);
+                    showError('Video is not available. Please contact support.');
+                    return;
+                }
             }
             
             // Set up analytics metadata
@@ -382,15 +394,26 @@
             
             // Start tracking watch time
             watchStartTime = Date.now();
+            
+            // Add a fallback check in case the playback ID is not valid
+            setTimeout(() => {
+                if (!player.duration && retryCount < MAX_RETRIES) {
+                    console.log('Player not loaded, checking playback ID...');
+                    // Try to reload the player
+                    player.setAttribute('playback-id', lessonData.muxPlaybackId);
+                }
+            }, 3000);
         }
 
         // Player event listeners
         player.addEventListener('loadstart', () => {
             console.log('Video loading started');
+            hideError();
         });
 
         player.addEventListener('play', () => {
             console.log('Video started playing');
+            hideError();
             // Track play event
         });
 
@@ -418,6 +441,84 @@
             console.log('Video ended');
             await updateLessonProgress(player.duration || 0, true);
         });
+
+        // Handle player errors
+        player.addEventListener('error', async (e) => {
+            console.error('Player error:', e);
+            const error = e.detail?.error || e;
+            
+            // Check if it's a 412 error (video not ready)
+            if (error?.data?.details === 'manifestLoadError' && retryCount < MAX_RETRIES) {
+                retryCount++;
+                console.log(`Retrying video load (${retryCount}/${MAX_RETRIES})...`);
+                showRetryMessage(retryCount);
+                
+                // Wait before retrying
+                await new Promise(resolve => setTimeout(resolve, 5000 * retryCount));
+                
+                // Try to reload the player
+                const player = document.getElementById('mux-player');
+                player.setAttribute('playback-id', lessonData.muxPlaybackId);
+            } else {
+                showError('Failed to load video. Please try again later.');
+            }
+        });
+
+        // Show retry message
+        function showRetryMessage(attempt) {
+            const errorMessage = document.getElementById('error-message') || createErrorMessage();
+            errorMessage.innerHTML = `
+                <div class="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 text-yellow-200">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                        <div>
+                            <p class="font-medium">Video is still processing...</p>
+                            <p class="text-sm mt-1">Attempt ${attempt} of ${MAX_RETRIES}. Retrying in a moment...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            errorMessage.style.display = 'block';
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorMessage = document.getElementById('error-message') || createErrorMessage();
+            errorMessage.innerHTML = `
+                <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4 text-red-200">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                        <div>
+                            <p class="font-medium">Video Error</p>
+                            <p class="text-sm mt-1">${message}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            errorMessage.style.display = 'block';
+        }
+
+        // Hide error message
+        function hideError() {
+            const errorMessage = document.getElementById('error-message');
+            if (errorMessage) {
+                errorMessage.style.display = 'none';
+            }
+        }
+
+        // Create error message container
+        function createErrorMessage() {
+            const container = document.createElement('div');
+            container.id = 'error-message';
+            container.className = 'mb-4';
+            container.style.display = 'none';
+            
+            // Insert before the player
+            const playerContainer = document.querySelector('.relative.aspect-video');
+            playerContainer.parentNode.insertBefore(container, playerContainer);
+            
+            return container;
+        }
 
         // Update progress bar
         function updateProgress(percentage) {
