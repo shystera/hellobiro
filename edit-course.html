@@ -1,17 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Course - Kohza</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mux/mux-player"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="edit-course.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -29,98 +26,161 @@
             }
         }
     </script>
+    <style>
+        .drag-over {
+            background-color: rgba(147, 51, 234, 0.1);
+            border-color: #9333ea;
+        }
+        .drop-target {
+            background-color: rgba(147, 51, 234, 0.2);
+            border-color: #9333ea;
+        }
+        .drop-target-file {
+            background-color: rgba(147, 51, 234, 0.1);
+            border: 2px dashed #9333ea;
+        }
+        .outline-item.module.active > .outline-item-content {
+            background-color: rgba(147, 51, 234, 0.2);
+            border-color: #9333ea;
+        }
+        .outline-item.lesson.active > .outline-item-content {
+            background-color: rgba(147, 51, 234, 0.1);
+            border-color: #9333ea;
+        }
+        .lesson-list {
+            margin-left: 1.5rem;
+            border-left: 1px solid rgba(147, 51, 234, 0.2);
+        }
+        .lesson-list li {
+            position: relative;
+        }
+        .lesson-list li:before {
+            content: "";
+            position: absolute;
+            left: -1px;
+            top: 50%;
+            width: 0.75rem;
+            height: 1px;
+            background-color: rgba(147, 51, 234, 0.2);
+        }
+    </style>
 </head>
-<body class="antialiased">
-    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-blobs">
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
         <div class="absolute w-[80vmax] h-[80vmax] -left-[40vmax] -top-[40vmax] bg-purple-900/40 rounded-full blur-3xl opacity-50"></div>
     </div>
     
-    <header class="sticky top-0 z-40 header-bg backdrop-blur-md">
-        <div class="flex justify-between items-center w-full max-w-screen-xl mx-auto px-6 sm:px-8 py-4">
-             <a href="coach-admin-panel.html" class="nav-link text-gray-300 hover:text-white transition-colors flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+    <div class="relative z-10 min-h-screen">
+        <header class="p-6 sm:p-8 flex justify-between items-center">
+            <a href="coach-admin-panel.html" class="text-gray-300 hover:text-white transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
                 Back to Dashboard
             </a>
-            <div class="flex items-center gap-4">
-                <button id="save-changes-btn" type="button" class="bg-purple-700 text-white font-bold px-6 py-2.5 rounded-md hover:bg-purple-600 transition-colors duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed">
-                    Save Changes
-                </button>
-                <button id="theme-toggle" type="button" class="theme-toggle-btn text-gray-400 hover:text-white focus:outline-none p-2 rounded-md">
-                    <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                    <svg id="theme-icon-light" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                </button>
-            </div>
-        </div>
-    </header>
-        
-    <main id="editor-main" class="w-full max-w-screen-xl mx-auto px-6 sm:px-8 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        <!-- Left Panel: Course Outline -->
-        <aside class="lg:col-span-4 xl:col-span-3 outline-panel bg-black/40 border border-gray-800 rounded-xl p-4 h-fit lg:sticky top-24">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="font-serif text-xl font-bold heading-text">Course Outline</h2>
-            </div>
-            <ul id="course-outline-list" class="space-y-1">
-                <!-- Outline items will be dynamically inserted here -->
-            </ul>
-            <button id="add-module-btn" type="button" class="w-full mt-4 flex items-center justify-center gap-2 bg-black/40 border-2 border-dashed border-gray-700 text-gray-400 font-semibold px-4 py-2 rounded-md hover:border-purple-600 hover:text-purple-300 transition-colors duration-300 new-module-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" /></svg>
-                New Module
+            <button id="save-changes-btn" class="bg-purple-700 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                Save Changes
             </button>
-        </aside>
+        </header>
 
-        <!-- Right Panel: Editor Workspace -->
-        <section id="editor-panel" class="lg:col-span-8 xl:col-span-9">
-            <!-- Editor content will be injected here -->
-            <div id="editor-placeholder" class="text-center py-20 bg-black/20 border-2 border-dashed border-gray-800 rounded-lg editor-placeholder">
-                <svg class="mx-auto h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                </svg>
-                <h3 class="mt-4 text-xl font-semibold heading-text">Select an item to edit</h3>
-                <p class="mt-1 text-gray-500">Choose an item from the course outline to begin.</p>
+        <main class="max-w-7xl mx-auto px-6 pb-12">
+            <div class="mb-8">
+                <h1 class="text-3xl font-serif text-white mb-2">Edit Course</h1>
+                <p class="text-gray-400">Modify your course content and structure.</p>
             </div>
-        </section>
 
-    </main>
-    
-    <!-- TEMPLATES -->
-    <template id="course-editor-template">
-        <div class="editor-card">
-            <h2 class="editor-title">Course Settings</h2>
-            <div class="space-y-6">
-                <div>
-                    <label class="editor-label" for="main-course-title">Course Title</label>
-                    <input id="main-course-title" type="text" class="editor-input-xl" placeholder="Enter course title...">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Course Outline (Left Sidebar) -->
+                <div class="lg:col-span-1">
+                    <div class="sticky top-8 space-y-6">
+                        <div class="bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-serif text-white">Course Outline</h3>
+                                <button id="add-module-btn" class="bg-purple-700 hover:bg-purple-600 text-white p-2 rounded-md transition-colors" title="Add Module">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <ul id="course-outline-list" class="space-y-2">
+                                <!-- Outline will be populated by JavaScript -->
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="editor-label">Course Thumbnail</label>
-                    <div class="mt-2 flex items-center gap-6">
-                        <img id="thumbnail-preview" src="https://images.unsplash.com/photo-1518976024611-28bf4b48262e?q=80&w=800&auto=format&fit=crop" alt="Thumbnail preview" class="h-24 w-40 object-cover rounded-md bg-gray-800 border border-gray-700 thumbnail-preview">
-                        <label for="thumbnail-upload" class="editor-button-secondary">
-                            <span>Change image</span>
-                            <input id="thumbnail-upload" name="thumbnail" type="file" class="sr-only" accept="image/png, image/jpeg, image/webp">
+
+                <!-- Main Content Area -->
+                <div class="lg:col-span-3">
+                    <div class="bg-black/60 backdrop-blur-lg border border-purple-800/50 rounded-xl shadow-lg p-6">
+                        <div id="editor-panel">
+                            <!-- Editor content will be populated by JavaScript -->
+                            <div id="editor-placeholder" class="text-center py-12">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                <h3 class="mt-2 text-lg font-medium text-white">No item selected</h3>
+                                <p class="mt-1 text-gray-400">Select a course, module, or lesson from the outline to edit.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Templates -->
+    <template id="course-editor-template">
+        <div class="space-y-6">
+            <h2 class="text-2xl font-serif text-white">Course Details</h2>
+            <div>
+                <label for="course-title-input" class="block text-lg font-medium text-white mb-2">Course Title</label>
+                <input id="course-title-input" type="text" 
+                    class="w-full px-4 py-3 bg-gray-900/70 border border-gray-700 rounded-md text-white text-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600">
+            </div>
+            
+            <div>
+                <label class="block text-lg font-medium text-white mb-2">Course Thumbnail</label>
+                <div class="mt-2 flex items-center gap-6">
+                    <img id="thumbnail-preview" 
+                        src="https://images.unsplash.com/photo-1518976024611-28bf4b48262e?q=80&w=800&auto=format&fit=crop" 
+                        alt="Thumbnail preview" 
+                        class="h-32 w-56 object-cover rounded-lg bg-gray-800 border border-gray-700">
+                    <div class="flex flex-col gap-3">
+                        <label for="thumbnail-upload" class="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
+                            <span>Upload Thumbnail</span>
+                            <input id="thumbnail-upload" type="file" class="sr-only" accept="image/png, image/jpeg, image/webp">
                         </label>
+                        <p class="text-sm text-gray-400">Recommended: 1920x1080px</p>
                     </div>
                 </div>
             </div>
         </div>
     </template>
-    
+
     <template id="module-editor-template">
-        <div class="editor-card">
-            <h2 class="editor-title">Edit Module</h2>
-            <div class="space-y-6">
-                <div>
-                    <label class="editor-label" for="module-title-input">Module Title</label>
-                    <input id="module-title-input" type="text" class="editor-input-xl" placeholder="Enter module title...">
-                </div>
-                <div>
-                    <label class="editor-label">Add Lessons to this Module</label>
-                    <label class="video-upload-label mt-2">
-                        <svg class="mx-auto h-12 w-12 text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                        <span class="mt-2 block text-sm font-semibold text-gray-400">Click to upload or drag and drop</span>
-                        <span class="block text-xs text-gray-500">MP4, MOV, etc. (multiple files allowed)</span>
-                        <input type="file" multiple class="sr-only module-video-upload" accept="video/*">
+        <div class="space-y-6">
+            <h2 class="text-2xl font-serif text-white">Module Details</h2>
+            <div>
+                <label for="module-title-input" class="block text-lg font-medium text-white mb-2">Module Title</label>
+                <input id="module-title-input" type="text" 
+                    class="w-full px-4 py-3 bg-gray-900/70 border border-gray-700 rounded-md text-white text-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600">
+            </div>
+            
+            <div>
+                <label class="block text-lg font-medium text-white mb-2">Add Lessons via Video Upload</label>
+                <div class="mt-2 border-2 border-dashed border-gray-700 rounded-lg p-8 text-center hover:border-purple-500 transition-colors">
+                    <label class="video-upload-label cursor-pointer">
+                        <svg class="mx-auto h-12 w-12 text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <div class="mt-4 flex text-sm text-gray-300">
+                            <span class="relative font-medium bg-transparent rounded-md text-purple-400 hover:text-purple-300 focus-within:outline-none">
+                                Upload videos
+                            </span>
+                            <p class="pl-1">or drag and drop</p>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">MP4, MOV, etc. Multiple files allowed.</p>
+                        <input type="file" class="sr-only module-video-upload" accept="video/*" multiple>
                     </label>
                 </div>
             </div>
@@ -128,133 +188,46 @@
     </template>
 
     <template id="lesson-editor-template">
-        <div class="editor-card">
-            <h2 class="editor-title">Edit Lesson</h2>
-            <div class="space-y-6">
-                <div>
-                    <label class="editor-label" for="lesson-title-input">Lesson Title</label>
-                    <input id="lesson-title-input" type="text" class="editor-input-xl" placeholder="Enter lesson title...">
-                </div>
-                <div>
-                    <label class="editor-label">Lesson Video</label>
-                    <div class="mt-2">
-                        <div class="video-upload-container">
-                            <!-- Uploader or preview will be injected here -->
-                        </div>
-                        <div class="upload-progress-container hidden mt-2">
-                            <div class="progress-bar-bg"><div class="progress-bar-fg" style="width: 0%"></div></div>
-                        </div>
-                    </div>
+        <div class="space-y-6">
+            <h2 class="text-2xl font-serif text-white">Lesson Details</h2>
+            <div>
+                <label for="lesson-title-input" class="block text-lg font-medium text-white mb-2">Lesson Title</label>
+                <input id="lesson-title-input" type="text" 
+                    class="w-full px-4 py-3 bg-gray-900/70 border border-gray-700 rounded-md text-white text-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600">
+            </div>
+            
+            <div>
+                <label class="block text-lg font-medium text-white mb-2">Video Content</label>
+                <div class="video-upload-container mt-2">
+                    <!-- Video uploader will be populated by JavaScript -->
                 </div>
             </div>
         </div>
     </template>
 
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script type="module">
-        const supabaseUrl = 'https://himdhbledjdfoikhzwbp.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpbWRoYmxlZGpkZm9pa2h6d2JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI1MjMzMzcsImV4cCI6MjA2ODA5OTMzN30.F1vTWcvS2ivJgdhZyP-Cq31hbu9nYFB2v-CGNs3sC5U';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        import { supabase, auth, db, utils } from './supabase-client.js';
 
         let state = {};
         let activeEditor = { type: null, id: null };
+        let currentUser = null;
 
-        async function uploadVideoToSupabase(file, lessonId) {
-            const fileExt = file.name.split('.').pop();
-            const filePath = `${lessonId}/${Date.now()}.${fileExt}`;
-            
-            const { data, error } = await supabaseClient
-                .storage
-                .from('lesson-videos') // <- your bucket name
-                .upload(filePath, file, {
-                    cacheControl: '3600',
-                    upsert: true
-                });
-
-            if (error) {
-                console.error('Video upload error:', error.message);
-                return null;
-            }
-
-            const { data: publicUrlData } = supabaseClient
-                .storage
-                .from('lesson-videos')
-                .getPublicUrl(filePath);
-
-            return publicUrlData.publicUrl;
-        }
-        
-        async function handleSaveChanges() {
-            const saveButton = document.getElementById('save-changes-btn');
-            saveButton.disabled = true;
-            saveButton.textContent = 'Saving...';
-
-            try {
-                // --- Step 1: Update the Course itself ---
-                // This part would need the actual course data update logic if it existed.
-                // For now, we focus on modules and lessons as that's where changes happen.
-                
-                // --- Step 2: Get all module and lesson IDs that should exist from our state ---
-                const stateModuleIds = state.modules.map(m => m.id);
-                const allStateLessons = state.modules.flatMap(module => 
-                    module.lessons.map((lesson, index) => ({
-                        id: lesson.id,
-                        title: lesson.title,
-                        video_url: lesson.videoUrl,
-                        module_id: module.id,
-                        position: index
-                    }))
-                );
-                const allStateLessonIds = allStateLessons.map(l => l.id);
-
-                // --- Step 3: Get all existing module and lesson IDs from the database for this course ---
-                const { data: existingModules, error: fetchModulesError } = await supabaseClient
-                    .from('modules').select('id, lessons (id)').eq('course_id', state.id);
-                if (fetchModulesError) throw fetchModulesError;
-
-                const existingModuleIds = existingModules.map(m => m.id);
-                const existingLessonIds = existingModules.flatMap(m => m.lessons.map(l => l.id));
-
-                // --- Step 4: Determine what to delete ---
-                const modulesToDelete = existingModuleIds.filter(id => !stateModuleIds.includes(id));
-                const lessonsToDelete = existingLessonIds.filter(id => !allStateLessonIds.includes(id));
-                
-                if (lessonsToDelete.length > 0) {
-                    const { error } = await supabaseClient.from('lessons').delete().in('id', lessonsToDelete);
-                    if (error) throw new Error(`Failed to delete old lessons: ${error.message}`);
-                }
-                if (modulesToDelete.length > 0) {
-                    const { error } = await supabaseClient.from('modules').delete().in('id', modulesToDelete);
-                    if (error) throw new Error(`Failed to delete old modules: ${error.message}`);
-                }
-
-                // --- Step 5: Upsert Modules and Lessons ---
-                const modulesToUpsert = state.modules.map((module, index) => ({
-                    id: module.id,
-                    title: module.title,
-                    course_id: state.id,
-                    position: index
-                }));
-
-                if (modulesToUpsert.length > 0) {
-                    const { error } = await supabaseClient.from('modules').upsert(modulesToUpsert);
-                    if (error) throw new Error(`Failed to save modules: ${error.message}`);
-                }
-                if (allStateLessons.length > 0) {
-                    const { error } = await supabaseClient.from('lessons').upsert(allStateLessons);
-                    if (error) throw new Error(`Failed to save lessons: ${error.message}`);
-                }
-
-                alert('Changes saved successfully!');
-            } catch (error) {
-                console.error('Error saving changes:', error);
-                alert('Failed to save changes: ' + error.message);
-            } finally {
-                saveButton.disabled = false;
-                saveButton.textContent = 'Save Changes';
-            }
-        }
-        
+        // Check authentication
         document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const authData = await utils.requireAuth('coach');
+                if (!authData || !authData.user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                currentUser = authData.user;
+            } catch (error) {
+                console.error('Authentication error:', error);
+                window.location.href = 'login.html';
+                return;
+            }
+
             const editorPanel = document.getElementById('editor-panel');
             const outlineList = document.getElementById('course-outline-list');
             const saveChangesBtn = document.getElementById('save-changes-btn');
@@ -274,7 +247,7 @@
                 console.log('Loading course data for ID:', courseId);
                 
                 // Get course details
-                const { data: course, error: courseError } = await supabaseClient
+                const { data: course, error: courseError } = await supabase
                     .from('courses')
                     .select('*')
                     .eq('id', courseId)
@@ -286,8 +259,15 @@
                     return;
                 }
 
+                // Check if user is the course owner
+                if (course.coach_id !== currentUser.id) {
+                    alert('You do not have permission to edit this course');
+                    window.location.href = 'coach-admin-panel.html';
+                    return;
+                }
+
                 // Get modules and lessons
-                const { data: modules, error: modulesError } = await supabaseClient
+                const { data: modules, error: modulesError } = await supabase
                     .from('modules')
                     .select(`
                         *,
@@ -316,7 +296,10 @@
                             videoUrl: lesson.mux_playback_id ? `https://stream.mux.com/${lesson.mux_playback_id}.m3u8` : null,
                             videoFile: null,
                             videoName: lesson.mux_asset_id ? 'Uploaded video' : null,
-                            uploadStatus: lesson.upload_status || 'ready'
+                            uploadStatus: lesson.upload_status || 'ready',
+                            muxAssetId: lesson.mux_asset_id,
+                            muxPlaybackId: lesson.mux_playback_id,
+                            videoDuration: lesson.video_duration
                         }))
                     }))
                 };
@@ -335,7 +318,7 @@
                 return;
             }
             
-            const addVideosAsLessons = (files, moduleId) => {
+            const addVideosAsLessons = async (files, moduleId) => {
                 const videoFiles = Array.from(files).filter(file => file.type.startsWith('video/'));
                 if (videoFiles.length === 0) {
                     alert('Please select video files only.');
@@ -344,28 +327,65 @@
 
                 const module = state.modules.find(m => m.id === moduleId);
                 if (module) {
-                    videoFiles.forEach(file => {
+                    for (const file of videoFiles) {
                         const newLesson = {
                             id: `les-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
                             title: file.name.replace(/\.[^/.]+$/, ""), // Use filename as title
                             videoUrl: null,
                             videoFile: file,
                             videoName: file.name,
-                            uploadStatus: 'uploading' // 'uploading', 'complete', 'failed'
+                            uploadStatus: 'uploading', // 'uploading', 'complete', 'failed'
+                            muxAssetId: null,
+                            muxPlaybackId: null,
+                            videoDuration: null
                         };
                         module.lessons.push(newLesson);
                         
-                        uploadVideoToSupabase(file, newLesson.id).then(publicUrl => {
-                            if (publicUrl) {
-                                newLesson.videoUrl = publicUrl;
+                        // Update UI immediately to show uploading state
+                        renderOutline();
+                        
+                        // Upload video
+                        try {
+                            const uploadResult = await uploadVideoToMux(file, newLesson.id);
+                            if (uploadResult.success) {
+                                newLesson.videoUrl = uploadResult.playbackUrl;
                                 newLesson.uploadStatus = 'complete';
+                                newLesson.muxAssetId = uploadResult.assetId;
+                                newLesson.muxPlaybackId = uploadResult.playbackId;
+                                newLesson.videoDuration = uploadResult.duration;
                             } else {
                                 newLesson.uploadStatus = 'failed';
                             }
-                            renderOutline(); // Re-render outline to show status change
-                        });
-                    });
-                    renderOutline(); // Initial render with spinners
+                        } catch (error) {
+                            console.error('Upload error:', error);
+                            newLesson.uploadStatus = 'failed';
+                        }
+                        
+                        renderOutline(); // Re-render outline to show status change
+                    }
+                }
+            };
+
+            const uploadVideoToMux = async (file, lessonId) => {
+                try {
+                    // In a real implementation, you would integrate with Mux API here
+                    // For now, we'll simulate a successful upload
+                    console.log('Uploading video to Mux:', file.name);
+                    
+                    // Simulate upload delay
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    // Return simulated success data
+                    return {
+                        success: true,
+                        assetId: `asset-${Date.now()}`,
+                        playbackId: `playback-${Date.now()}`,
+                        playbackUrl: `https://stream.mux.com/playback-${Date.now()}.m3u8`,
+                        duration: Math.floor(Math.random() * 600) + 60 // Random duration between 1-10 minutes
+                    };
+                } catch (error) {
+                    console.error('Mux upload error:', error);
+                    return { success: false };
                 }
             };
 
@@ -456,10 +476,16 @@
 
                 const clone = template.content.cloneNode(true);
                 
-                clone.querySelector('input[id*="-title-input"]').value = data.title;
+                const titleInput = clone.querySelector('input[id*="-title-input"]');
+                if (titleInput) {
+                    titleInput.value = data.title;
+                }
                 
                 if (type === 'course') {
-                    clone.querySelector('#thumbnail-preview').src = data.thumbnailUrl;
+                    const thumbnailPreview = clone.querySelector('#thumbnail-preview');
+                    if (thumbnailPreview) {
+                        thumbnailPreview.src = data.thumbnailUrl;
+                    }
                 }
                 if (type === 'lesson') {
                    setupVideoUploader(clone.querySelector('.video-upload-container'), data);
@@ -531,7 +557,17 @@
                     } else if (action === 'add-lesson') {
                         const moduleId = button.dataset.moduleId;
                         const module = state.modules.find(m => m.id === moduleId);
-                        const newLesson = { id: `les-${Date.now()}`, title: 'New Lesson', videoUrl: null, videoFile: null, videoName: null };
+                        const newLesson = { 
+                            id: `les-${Date.now()}`, 
+                            title: 'New Lesson', 
+                            videoUrl: null, 
+                            videoFile: null, 
+                            videoName: null,
+                            uploadStatus: 'ready',
+                            muxAssetId: null,
+                            muxPlaybackId: null,
+                            videoDuration: null
+                        };
                         module.lessons.push(newLesson);
                         renderOutline();
                         renderEditor('lesson', newLesson.id);
@@ -540,6 +576,9 @@
                         item.videoUrl = null;
                         item.videoFile = null;
                         item.videoName = null;
+                        item.muxAssetId = null;
+                        item.muxPlaybackId = null;
+                        item.videoDuration = null;
                         renderEditor('lesson', item.id);
                     }
                 }
@@ -568,7 +607,7 @@
             editorPanel.addEventListener('change', e => {
                 if(e.target.classList.contains('lesson-video-upload')) {
                     const file = e.target.files[0];
-                    if(file) {
+                    if (file) {
                         const { item } = findItem(activeEditor.id);
                         item.videoFile = file;
                         item.videoUrl = 'local';
@@ -694,47 +733,168 @@
 
             document.addEventListener('contextmenu', event => event.preventDefault());
         });
-    </script>
-    <script>
-        // --- THEME SWITCHER ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const themeToggle = document.getElementById('theme-toggle');
-            if (!themeToggle) return;
-    
-            const darkIcon = document.getElementById('theme-icon-dark');
-            const lightIcon = document.getElementById('theme-icon-light');
-            const htmlEl = document.documentElement;
-    
-            function setTheme(theme) {
-                if (theme === 'dark') {
-                    htmlEl.setAttribute('data-theme', 'dark');
-                    if (darkIcon) darkIcon.classList.remove('hidden');
-                    if (lightIcon) lightIcon.classList.add('hidden');
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    htmlEl.setAttribute('data-theme', 'light');
-                    if (darkIcon) darkIcon.classList.add('hidden');
-                    if (lightIcon) lightIcon.classList.remove('hidden');
-                    localStorage.setItem('theme', 'light');
+
+        async function handleSaveChanges() {
+            const saveButton = document.getElementById('save-changes-btn');
+            const originalText = saveButton.textContent;
+            saveButton.disabled = true;
+            saveButton.textContent = 'Saving...';
+
+            try {
+                // --- Step 1: Update the Course itself ---
+                const { error: courseUpdateError } = await supabase
+                    .from('courses')
+                    .update({
+                        title: state.title,
+                        thumbnail_url: state.thumbnailUrl,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', state.id);
+
+                if (courseUpdateError) throw new Error(`Failed to update course: ${courseUpdateError.message}`);
+
+                // --- Step 2: Handle modules and lessons ---
+                // First, get all existing module and lesson IDs from the database for this course
+                const { data: existingModules, error: fetchModulesError } = await supabase
+                    .from('modules')
+                    .select('id, lessons (id)')
+                    .eq('course_id', state.id);
+
+                if (fetchModulesError) throw fetchModulesError;
+
+                const existingModuleIds = existingModules.map(m => m.id);
+                const existingLessonIds = existingModules.flatMap(m => m.lessons.map(l => l.id));
+
+                // --- Step 3: Determine what to delete ---
+                const stateModuleIds = state.modules.map(m => m.id).filter(id => !id.startsWith('mod-')); // Only existing modules
+                const allStateLessons = state.modules.flatMap(module => 
+                    module.lessons.map((lesson, index) => ({
+                        id: lesson.id.startsWith('les-') ? null : lesson.id, // Null for new lessons
+                        title: lesson.title,
+                        module_id: module.id.startsWith('mod-') ? null : module.id, // Null for new modules
+                        order_index: index,
+                        mux_asset_id: lesson.muxAssetId,
+                        mux_playback_id: lesson.muxPlaybackId,
+                        video_duration: lesson.videoDuration,
+                        upload_status: lesson.uploadStatus
+                    }))
+                );
+                const allStateLessonIds = allStateLessons
+                    .map(l => l.id)
+                    .filter(id => id !== null); // Only existing lessons
+
+                const modulesToDelete = existingModuleIds.filter(id => !stateModuleIds.includes(id));
+                const lessonsToDelete = existingLessonIds.filter(id => !allStateLessonIds.includes(id));
+
+                // Delete lessons first (foreign key constraint)
+                if (lessonsToDelete.length > 0) {
+                    const { error: deleteLessonsError } = await supabase
+                        .from('lessons')
+                        .delete()
+                        .in('id', lessonsToDelete);
+
+                    if (deleteLessonsError) throw new Error(`Failed to delete old lessons: ${deleteLessonsError.message}`);
                 }
+
+                // Delete modules
+                if (modulesToDelete.length > 0) {
+                    const { error: deleteModulesError } = await supabase
+                        .from('modules')
+                        .delete()
+                        .in('id', modulesToDelete);
+
+                    if (deleteModulesError) throw new Error(`Failed to delete old modules: ${deleteModulesError.message}`);
+                }
+
+                // --- Step 4: Upsert Modules ---
+                // Process modules that need to be inserted or updated
+                for (const [index, module] of state.modules.entries()) {
+                    if (module.id.startsWith('mod-')) {
+                        // New module - insert
+                        const { data: newModule, error: insertModuleError } = await supabase
+                            .from('modules')
+                            .insert({
+                                id: module.id,
+                                title: module.title,
+                                course_id: state.id,
+                                order_index: index
+                            })
+                            .select()
+                            .single();
+
+                        if (insertModuleError) throw new Error(`Failed to create module: ${insertModuleError.message}`);
+
+                        // Update the module ID in state
+                        module.id = newModule.id;
+                    } else {
+                        // Existing module - update
+                        const { error: updateModuleError } = await supabase
+                            .from('modules')
+                            .update({
+                                title: module.title,
+                                order_index: index,
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', module.id);
+
+                        if (updateModuleError) throw new Error(`Failed to update module: ${updateModuleError.message}`);
+                    }
+                }
+
+                // --- Step 5: Upsert Lessons ---
+                // Process lessons that need to be inserted or updated
+                for (const module of state.modules) {
+                    for (const [index, lesson] of module.lessons.entries()) {
+                        if (lesson.id.startsWith('les-')) {
+                            // New lesson - insert
+                            const { data: newLesson, error: insertLessonError } = await supabase
+                                .from('lessons')
+                                .insert({
+                                    id: lesson.id,
+                                    title: lesson.title,
+                                    module_id: module.id,
+                                    order_index: index,
+                                    mux_asset_id: lesson.muxAssetId,
+                                    mux_playback_id: lesson.muxPlaybackId,
+                                    video_duration: lesson.videoDuration,
+                                    upload_status: lesson.uploadStatus
+                                })
+                                .select()
+                                .single();
+
+                            if (insertLessonError) throw new Error(`Failed to create lesson: ${insertLessonError.message}`);
+
+                            // Update the lesson ID in state
+                            lesson.id = newLesson.id;
+                        } else {
+                            // Existing lesson - update
+                            const { error: updateLessonError } = await supabase
+                                .from('lessons')
+                                .update({
+                                    title: lesson.title,
+                                    order_index: index,
+                                    mux_asset_id: lesson.muxAssetId,
+                                    mux_playback_id: lesson.muxPlaybackId,
+                                    video_duration: lesson.videoDuration,
+                                    upload_status: lesson.uploadStatus,
+                                    updated_at: new Date().toISOString()
+                                })
+                                .eq('id', lesson.id);
+
+                            if (updateLessonError) throw new Error(`Failed to update lesson: ${updateLessonError.message}`);
+                        }
+                    }
+                }
+
+                alert('Changes saved successfully!');
+            } catch (error) {
+                console.error('Error saving changes:', error);
+                alert('Failed to save changes: ' + error.message);
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = originalText;
             }
-    
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = htmlEl.getAttribute('data-theme');
-                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
-            });
-    
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-            if (savedTheme) {
-                setTheme(savedTheme);
-            } else if (prefersDark) {
-                setTheme('dark');
-            } else {
-                setTheme('light');
-            }
-        });
+        }
     </script>
 </body>
 </html>
