@@ -261,7 +261,7 @@
         import { auth, db, utils } from './supabase-client.js';
 
         // Mux Player configuration and analytics
-        const player = document.getElementById('mux-player');
+        let player;
         let lessonData = null;
         let currentUser = null;
         let watchStartTime = null;
@@ -271,35 +271,210 @@
 
         // Initialize with authentication and data loading
         document.addEventListener('DOMContentLoaded', async () => {
-            // Set playback ID from URL parameters immediately to avoid demo ID error
-            const urlParams = new URLSearchParams(window.location.search);
-            const lessonId = urlParams.get('lessonId');
-            const playbackId = urlParams.get('playbackId');
+            try {
+                // Get reference to the player element
+                player = document.getElementById('mux-player');
+                if (!player) {
+                    console.error('Mux player element not found');
+                    showError('Video player not found. Please refresh the page.');
+                    return;
+                }
+                
+                // Set playback ID from URL parameters immediately to avoid demo ID error
+                const urlParams = new URLSearchParams(window.location.search);
+                const lessonId = urlParams.get('lessonId');
+                const playbackId = urlParams.get('playbackId');
 
-            if (!lessonId || !playbackId) {
-                alert('Invalid lesson URL');
-                window.history.back();
+                if (!lessonId || !playbackId) {
+                    showError('Invalid lesson URL. Missing lesson ID or playback ID.');
+                    return;
+                }
+
+                // Check authentication
+                const authData = await utils.requireAuth('student');
+                if (!authData || !authData.user) {
+                    showError('Authentication required. Please log in.');
+                    return;
+                }
+
+                currentUser = authData.user;
+                
+                await loadLessonData(lessonId, playbackId);
+                initializePlayer();
+                enableContentProtection();
+                
+                // Set up player event listeners after initialization
+                setupPlayerEventListeners();
+                
+                // Initialize theme
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                setTheme(savedTheme);
+                
+                // Add light theme styles
+                const style = document.createElement('style');
+                style.textContent = `
+                    html[data-theme='light'] body {
+                        background: #f9fafb;
+                        color: #1f2937;
+                    }
+                    html[data-theme='light'] .fixed.top-0.left-0 {
+                        display: none;
+                    }
+                    html[data-theme='light'] header {
+                        background-color: rgba(255, 255, 255, 0.9);
+                        border-color: #e5e7eb;
+                    }
+                    html[data-theme='light'] .text-white {
+                        color: #111827 !important;
+                    }
+                    html[data-theme='light'] .text-gray-100 {
+                        color: #1f2937 !important;
+                    }
+                    html[data-theme='light'] .text-gray-300 {
+                        color: #374151 !important;
+                    }
+                    html[data-theme='light'] .text-gray-400 {
+                        color: #6b7280 !important;
+                    }
+                    html[data-theme='light'] .text-gray-500 {
+                        color: #9ca3af !important;
+                    }
+                    html[data-theme='light'] .bg-gray-900\\/50 {
+                        background-color: rgba(255, 255, 255, 0.8) !important;
+                        border-color: #e5e7eb !important;
+                    }
+                    html[data-theme='light'] .bg-gray-800 {
+                        background-color: #f3f4f6 !important;
+                        color: #374151 !important;
+                    }
+                    html[data-theme='light'] .bg-gray-700 {
+                        background-color: #e5e7eb !important;
+                    }
+                    html[data-theme='light'] .border-gray-800 {
+                        border-color: #e5e7eb !important;
+                    }
+                    html[data-theme='light'] .bg-black\\/80 {
+                        background-color: rgba(255, 255, 255, 0.9) !important;
+                    }
+                    html[data-theme='light'] .lesson-item.active {
+                        background-color: rgba(147, 51, 234, 0.1) !important;
+                        border-color: rgba(147, 51, 234, 0.3) !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            } catch (error) {
+                console.error('Error initializing lesson player:', error);
+                showError('Failed to initialize lesson player: ' + (error.message || 'Please try again.'));
+            }
+        });
+
+        // Set up player event listeners
+        function setupPlayerEventListeners() {
+            if (!player) {
+                console.error('Player not initialized');
                 return;
             }
-
-            // Check authentication
-            const authData = await utils.requireAuth('student');
-            if (!authData) return;
-
-            currentUser = authData.user;
             
-            await loadLessonData(lessonId, playbackId);
-            initializePlayer();
-            enableContentProtection();
-        });
+            try {
+                player.addEventListener('loadstart', () => {
+                    console.log('Video loading started');
+                    hideError();
+                });
+
+                player.addEventListener('play', () => {
+                    console.log('Video started playing');
+                    hideError();
+                    // Track play event
+                });
+
+                player.addEventListener('pause', () => {
+                    console.log('Video paused');
+                    // Track pause event
+                });
+
+                player.addEventListener('timeupdate', async () => {
+                    try {
+                        const currentTime = player.currentTime;
+                        const duration = player.duration;
+                        if (duration > 0) {
+                            const progress = (currentTime / duration) * 100;
+                            updateProgress(progress);
+                            
+                            // Update progress in database every 10 seconds
+                            if (currentTime - lastProgressUpdate > 10) {
+                                lastProgressUpdate = currentTime;
+                                await updateLessonProgress(currentTime, progress >= 90);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error in timeupdate handler:', error);
+                    }
+                });
+
+                player.addEventListener('ended', async () => {
+                    console.log('Video ended');
+                    try {
+                        await updateLessonProgress(player.duration || 0, true);
+                    } catch (error) {
+                        console.error('Error in ended handler:', error);
+                    }
+                });
+
+                // Handle player errors
+                player.addEventListener('error', async (e) => {
+                    console.error('Player error:', e);
+                    try {
+                        const error = e.detail?.error || e;
+                        console.log('Player error details:', error);
+                        
+                        // Check if it's a 412 error (video not ready)
+                        if (error?.data?.details === 'manifestLoadError' && retryCount < MAX_RETRIES) {
+                            retryCount++;
+                            console.log(`Retrying video load (${retryCount}/${MAX_RETRIES})...`);
+                            showRetryMessage(retryCount);
+                            
+                            // Wait before retrying
+                            await new Promise(resolve => setTimeout(resolve, 5000 * retryCount));
+                            
+                            // Try to reload the player
+                            if (player && lessonData && lessonData.muxPlaybackId) {
+                                console.log('Retrying with playback ID:', lessonData.muxPlaybackId);
+                                player.setAttribute('playback-id', lessonData.muxPlaybackId);
+                            }
+                        } else {
+                            showError('Failed to load video. Please try again later.');
+                        }
+                    } catch (handlerError) {
+                        console.error('Error in error handler:', handlerError);
+                        showError('Failed to load video. Please try again later.');
+                    }
+                });
+            } catch (error) {
+                console.error('Error setting up player event listeners:', error);
+            }
+        }
 
         // Load lesson data from Supabase
         async function loadLessonData(lessonId, playbackId) {
             try {
+                console.log('Loading lesson data for ID:', lessonId);
+                
                 // Get lesson details
                 const { data: lesson, error: lessonError } = await db.getLesson(lessonId);
-                if (lessonError) throw lessonError;
+                console.log('Lesson data:', { lesson, lessonError });
+                
+                if (lessonError) {
+                    console.error('Lesson query error:', lessonError);
+                    throw new Error('Failed to load lesson information: ' + lessonError.message);
+                }
+                
+                // Validate lesson data
+                if (!lesson) {
+                    throw new Error('Lesson not found');
+                }
 
+                console.log('Loading module data for module ID:', lesson.module_id);
+                
                 // Check if student is enrolled in the course
                 const { data: module, error: moduleError } = await supabase
                     .from('modules')
@@ -313,17 +488,43 @@
                     .eq('id', lesson.module_id)
                     .single();
 
-                if (moduleError) throw moduleError;
+                console.log('Module data:', { module, moduleError });
+                
+                if (moduleError) {
+                    console.error('Module query error:', moduleError);
+                    throw new Error('Failed to load module information: ' + moduleError.message);
+                }
+                
+                // Validate module data
+                if (!module) {
+                    throw new Error('Module not found');
+                }
+                
+                if (!module.courses) {
+                    throw new Error('Course not found for this module');
+                }
 
+                console.log('Checking enrollment for user ID:', currentUser.id, 'and course ID:', module.courses.id);
+                
                 const { data: enrollment, error: enrollmentError } = await db.checkEnrollment(currentUser.id, module.courses.id);
-                if (enrollmentError || !enrollment) {
-                    alert('You are not enrolled in this course.');
-                    window.location.href = '/student-panel.html';
-                    return;
+                console.log('Enrollment data:', { enrollment, enrollmentError });
+                
+                if (enrollmentError) {
+                    console.error('Enrollment check error:', enrollmentError);
+                    throw new Error('Failed to check enrollment: ' + enrollmentError.message);
+                }
+                
+                if (!enrollment) {
+                    throw new Error('You are not enrolled in this course');
                 }
 
                 // Get current progress
                 const { data: progress, error: progressError } = await db.getLessonProgress(currentUser.id, lessonId);
+                console.log('Progress data:', { progress, progressError });
+                
+                if (progressError) {
+                    console.warn('Progress check error (not critical):', progressError);
+                }
                 
                 lessonData = {
                     id: lesson.id,
@@ -336,6 +537,8 @@
                     completed: progress?.completed || false,
                     watchTime: progress?.watch_time || 0
                 };
+
+                console.log('Lesson data loaded successfully:', lessonData);
 
                 // Update UI
                 document.getElementById('lesson-title').textContent = lessonData.title;
@@ -359,21 +562,37 @@
 
             } catch (error) {
                 console.error('Error loading lesson:', error);
-                alert('Error loading lesson. Please try again.');
-                window.history.back();
+                console.error('Error stack:', error.stack);
+                // Don't go back immediately, show the error to the user
+                showError('Failed to load lesson: ' + (error.message || 'Unknown error'));
+                // Re-throw the error so it can be handled by the calling function
+                throw error;
             }
         }
 
         // Initialize player with real Mux data
         function initializePlayer() {
-            const player = document.getElementById('mux-player');
+            // Validate that we have a player element
+            if (!player) {
+                console.error('No player element available for initialization');
+                showError('Video player not found. Please refresh the page.');
+                return;
+            }
+            
+            // Validate that we have lesson data
+            if (!lessonData) {
+                console.error('No lesson data available for player initialization');
+                showError('Lesson data not loaded properly. Please refresh the page.');
+                return;
+            }
             
             // Set up Mux player with signed playback ID (already set from URL params)
-            if (lessonData && lessonData.muxPlaybackId) {
+            if (lessonData.muxPlaybackId) {
                 // Validate playback ID format
                 if (lessonData.muxPlaybackId && lessonData.muxPlaybackId.length > 10) {
                     // Add a small delay to ensure the player is ready
                     setTimeout(() => {
+                        console.log('Setting playback ID:', lessonData.muxPlaybackId);
                         player.setAttribute('playback-id', lessonData.muxPlaybackId);
                     }, 100);
                 } else {
@@ -381,6 +600,10 @@
                     showError('Video is not available. Please contact support.');
                     return;
                 }
+            } else {
+                console.error('No playback ID available');
+                showError('Video is not available. Please contact support.');
+                return;
             }
             
             // Set up analytics metadata
@@ -397,72 +620,13 @@
             
             // Add a fallback check in case the playback ID is not valid
             setTimeout(() => {
-                if (!player.duration && retryCount < MAX_RETRIES) {
+                if (player && !player.duration && retryCount < MAX_RETRIES) {
                     console.log('Player not loaded, checking playback ID...');
                     // Try to reload the player
                     player.setAttribute('playback-id', lessonData.muxPlaybackId);
                 }
             }, 3000);
         }
-
-        // Player event listeners
-        player.addEventListener('loadstart', () => {
-            console.log('Video loading started');
-            hideError();
-        });
-
-        player.addEventListener('play', () => {
-            console.log('Video started playing');
-            hideError();
-            // Track play event
-        });
-
-        player.addEventListener('pause', () => {
-            console.log('Video paused');
-            // Track pause event
-        });
-
-        player.addEventListener('timeupdate', async () => {
-            const currentTime = player.currentTime;
-            const duration = player.duration;
-            if (duration > 0) {
-                const progress = (currentTime / duration) * 100;
-                updateProgress(progress);
-                
-                // Update progress in database every 10 seconds
-                if (currentTime - lastProgressUpdate > 10) {
-                    lastProgressUpdate = currentTime;
-                    await updateLessonProgress(currentTime, progress >= 90);
-                }
-            }
-        });
-
-        player.addEventListener('ended', async () => {
-            console.log('Video ended');
-            await updateLessonProgress(player.duration || 0, true);
-        });
-
-        // Handle player errors
-        player.addEventListener('error', async (e) => {
-            console.error('Player error:', e);
-            const error = e.detail?.error || e;
-            
-            // Check if it's a 412 error (video not ready)
-            if (error?.data?.details === 'manifestLoadError' && retryCount < MAX_RETRIES) {
-                retryCount++;
-                console.log(`Retrying video load (${retryCount}/${MAX_RETRIES})...`);
-                showRetryMessage(retryCount);
-                
-                // Wait before retrying
-                await new Promise(resolve => setTimeout(resolve, 5000 * retryCount));
-                
-                // Try to reload the player
-                const player = document.getElementById('mux-player');
-                player.setAttribute('playback-id', lessonData.muxPlaybackId);
-            } else {
-                showError('Failed to load video. Please try again later.');
-            }
-        });
 
         // Show retry message
         function showRetryMessage(attempt) {
@@ -570,8 +734,9 @@
 
         // Manual completion button
         document.addEventListener('click', async (e) => {
-            if (e.target.closest('#mark-complete-btn') && !lessonData.completed) {
-                await updateLessonProgress(player.currentTime || 0, true);
+            if (e.target.closest('#mark-complete-btn') && lessonData && !lessonData.completed) {
+                const currentTime = player ? player.currentTime : 0;
+                await updateLessonProgress(currentTime || 0, true);
             }
         });
 
@@ -585,101 +750,53 @@
             });
 
             // Disable text selection on video
-            player.style.userSelect = 'none';
-            player.style.webkitUserSelect = 'none';
+            if (player) {
+                player.style.userSelect = 'none';
+                player.style.webkitUserSelect = 'none';
 
-            // Disable drag
-            player.addEventListener('dragstart', (e) => e.preventDefault());
+                // Disable drag
+                player.addEventListener('dragstart', (e) => e.preventDefault());
+            }
 
             // Show protection overlay periodically
             setInterval(() => {
                 const overlay = document.getElementById('protection-overlay');
-                overlay.style.opacity = '1';
-                setTimeout(() => {
-                    overlay.style.opacity = '0.7';
-                }, 2000);
+                if (overlay) {
+                    overlay.style.opacity = '1';
+                    setTimeout(() => {
+                        overlay.style.opacity = '0.7';
+                    }, 2000);
+                }
             }, 30000); // Every 30 seconds
         }
 
         // Theme toggle functionality
-        const themeToggle = document.getElementById('theme-toggle');
-        const darkIcon = document.getElementById('theme-icon-dark');
-        const lightIcon = document.getElementById('theme-icon-light');
-        const htmlEl = document.documentElement;
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const darkIcon = document.getElementById('theme-icon-dark');
+            const lightIcon = document.getElementById('theme-icon-light');
+            const htmlEl = document.documentElement;
 
-        function setTheme(theme) {
-            htmlEl.setAttribute('data-theme', theme);
-            darkIcon.classList.toggle('hidden', theme === 'light');
-            lightIcon.classList.toggle('hidden', theme === 'dark');
-            localStorage.setItem('theme', theme);
-            
-            // Update Mux player theme
-            player.setAttribute('accent-color', theme === 'dark' ? '#9333ea' : '#7e22ce');
-        }
+            // Only set up theme toggle if elements exist
+            if (themeToggle && darkIcon && lightIcon && htmlEl) {
+                function setTheme(theme) {
+                    htmlEl.setAttribute('data-theme', theme);
+                    darkIcon.classList.toggle('hidden', theme === 'light');
+                    lightIcon.classList.toggle('hidden', theme === 'dark');
+                    localStorage.setItem('theme', theme);
+                    
+                    // Update Mux player theme if player exists
+                    if (player) {
+                        player.setAttribute('accent-color', theme === 'dark' ? '#9333ea' : '#7e22ce');
+                    }
+                }
 
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = htmlEl.getAttribute('data-theme');
-            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+                themeToggle.addEventListener('click', () => {
+                    const currentTheme = htmlEl.getAttribute('data-theme');
+                    setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+                });
+            }
         });
-
-        // Initialize
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        setTheme(savedTheme);
-        initializePlayer();
-        enableContentProtection();
-
-        // Light theme styles
-        const style = document.createElement('style');
-        style.textContent = `
-            html[data-theme='light'] body {
-                background: #f9fafb;
-                color: #1f2937;
-            }
-            html[data-theme='light'] .fixed.top-0.left-0 {
-                display: none;
-            }
-            html[data-theme='light'] header {
-                background-color: rgba(255, 255, 255, 0.9);
-                border-color: #e5e7eb;
-            }
-            html[data-theme='light'] .text-white {
-                color: #111827 !important;
-            }
-            html[data-theme='light'] .text-gray-100 {
-                color: #1f2937 !important;
-            }
-            html[data-theme='light'] .text-gray-300 {
-                color: #374151 !important;
-            }
-            html[data-theme='light'] .text-gray-400 {
-                color: #6b7280 !important;
-            }
-            html[data-theme='light'] .text-gray-500 {
-                color: #9ca3af !important;
-            }
-            html[data-theme='light'] .bg-gray-900\\/50 {
-                background-color: rgba(255, 255, 255, 0.8) !important;
-                border-color: #e5e7eb !important;
-            }
-            html[data-theme='light'] .bg-gray-800 {
-                background-color: #f3f4f6 !important;
-                color: #374151 !important;
-            }
-            html[data-theme='light'] .bg-gray-700 {
-                background-color: #e5e7eb !important;
-            }
-            html[data-theme='light'] .border-gray-800 {
-                border-color: #e5e7eb !important;
-            }
-            html[data-theme='light'] .bg-black\\/80 {
-                background-color: rgba(255, 255, 255, 0.9) !important;
-            }
-            html[data-theme='light'] .lesson-item.active {
-                background-color: rgba(147, 51, 234, 0.1) !important;
-                border-color: rgba(147, 51, 234, 0.3) !important;
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
