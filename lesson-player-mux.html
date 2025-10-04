@@ -31,6 +31,14 @@
             }
         }
     </script>
+    <style>
+        .tab-button {
+            transition: all 0.2s ease;
+        }
+        .tab-button:hover:not(.active) {
+            color: #e2e8f0 !important;
+        }
+    </style>
 </head>
 <body class="antialiased bg-black text-gray-100">
     <!-- Background -->
@@ -163,95 +171,22 @@
             <!-- Sidebar -->
             <div class="lg:col-span-1">
                 <div class="sticky top-24 space-y-6">
-                    <!-- Course Progress -->
-                    <div class="bg-gray-900/50 border border-gray-800 rounded-lg p-5">
-                        <h3 class="font-serif font-semibold text-lg mb-4">Course Progress</h3>
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-400">Completed</span>
-                                <span class="text-white font-medium">8/12 lessons</span>
-                            </div>
-                            <div class="w-full bg-gray-700 rounded-full h-2">
-                                <div class="bg-purple-600 h-2 rounded-full" style="width: 67%"></div>
-                            </div>
-                            <div class="flex justify-between items-center text-xs text-gray-500">
-                                <span>67% complete</span>
-                                <span>~2h remaining</span>
-                            </div>
-                        </div>
-                    </div>
-
+                    <!-- Removed as per user request -->
+                    
                     <!-- Lesson List -->
                     <div class="bg-gray-900/50 border border-gray-800 rounded-lg p-5">
-                        <h3 class="font-serif font-semibold text-lg mb-4">Lessons</h3>
+                        <!-- Tab header -->
+                        <div class="flex border-b border-gray-700 mb-4">
+                            <button class="tab-button active py-2 px-4 text-white font-medium border-b-2 border-purple-600">
+                                Lessons
+                            </button>
+                        </div>
                         <div class="space-y-2 max-h-96 overflow-y-auto">
-                            <!-- Module 1 -->
-                            <div class="mb-4">
-                                <h4 class="text-sm font-medium text-gray-300 mb-2">Module 1: Foundations</h4>
-                                <div class="space-y-1">
-                                    <button class="lesson-item active w-full text-left p-3 rounded-md bg-purple-900/30 border border-purple-700/50 transition-colors">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                            </div>
-                                            <div class="flex-1">
-                                                <p class="text-sm font-medium text-white">Introduction to Mindful Leadership</p>
-                                                <p class="text-xs text-gray-400">18 min</p>
-                                            </div>
-                                        </div>
-                                    </button>
-                                    <button class="lesson-item w-full text-left p-3 rounded-md hover:bg-gray-800/50 transition-colors">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                            </div>
-                                            <div class="flex-1">
-                                                <p class="text-sm font-medium text-gray-300">The Science of Mindfulness</p>
-                                                <p class="text-xs text-gray-400">22 min</p>
-                                            </div>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Module 2 -->
-                            <div class="mb-4">
-                                <h4 class="text-sm font-medium text-gray-300 mb-2">Module 2: Practical Applications</h4>
-                                <div class="space-y-1">
-                                    <button class="lesson-item w-full text-left p-3 rounded-md hover:bg-gray-800/50 transition-colors">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center">
-                                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
-                                            </div>
-                                            <div class="flex-1">
-                                                <p class="text-sm font-medium text-gray-300">Mindful Decision Making</p>
-                                                <p class="text-xs text-gray-400">25 min</p>
-                                            </div>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
+                            <!-- Lessons will be loaded dynamically -->
                         </div>
                     </div>
 
-                    <!-- Video Analytics (For Demo) -->
-                    <div class="bg-gray-900/50 border border-gray-800 rounded-lg p-5">
-                        <h3 class="font-serif font-semibold text-lg mb-4">Your Analytics</h3>
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-400">Watch Time</span>
-                                <span class="text-white font-medium">18:00</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-400">Engagement</span>
-                                <span class="text-green-400 font-medium">95%</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-400">Replays</span>
-                                <span class="text-white font-medium">2</span>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Video Analytics (Removed hardcoded section) -->
                 </div>
             </div>
         </div>
@@ -264,6 +199,7 @@
         let player;
         let lessonData = null;
         let currentUser = null;
+        let courseData = null; // Add course data
         let watchStartTime = null;
         let lastProgressUpdate = 0;
         let retryCount = 0;
@@ -272,6 +208,8 @@
         // Initialize with authentication and data loading
         document.addEventListener('DOMContentLoaded', async () => {
             try {
+                console.log('Initializing lesson player...');
+                
                 // Check if Supabase client is available
                 if (!supabase) {
                     throw new Error('Supabase client not initialized. Please check your network connection and try again.');
@@ -303,8 +241,15 @@
                 }
 
                 currentUser = authData.user;
+                console.log('User authenticated:', currentUser);
                 
                 await loadLessonData(lessonId, playbackId);
+                console.log('Lesson data loaded');
+                
+                // Load course data after lesson data
+                await loadCourseData();
+                console.log('Course data loaded');
+                
                 initializePlayer();
                 enableContentProtection();
                 
@@ -367,97 +312,19 @@
                     }
                 `;
                 document.head.appendChild(style);
+                
+                // Add tab functionality
+                setupTabFunctionality();
+                
+                // Ensure lessons tab is displayed
+                ensureLessonsTab();
+                
+                console.log('Lesson player initialization complete');
             } catch (error) {
                 console.error('Error initializing lesson player:', error);
                 showError('Failed to initialize lesson player: ' + (error.message || 'Please try again.'));
             }
         });
-
-        // Set up player event listeners
-        function setupPlayerEventListeners() {
-            if (!player) {
-                console.error('Player not initialized');
-                return;
-            }
-            
-            try {
-                player.addEventListener('loadstart', () => {
-                    console.log('Video loading started');
-                    hideError();
-                });
-
-                player.addEventListener('play', () => {
-                    console.log('Video started playing');
-                    hideError();
-                    // Track play event
-                });
-
-                player.addEventListener('pause', () => {
-                    console.log('Video paused');
-                    // Track pause event
-                });
-
-                player.addEventListener('timeupdate', async () => {
-                    try {
-                        const currentTime = player.currentTime;
-                        const duration = player.duration;
-                        if (duration > 0) {
-                            const progress = (currentTime / duration) * 100;
-                            updateProgress(progress);
-                            
-                            // Update progress in database every 10 seconds
-                            if (currentTime - lastProgressUpdate > 10) {
-                                lastProgressUpdate = currentTime;
-                                await updateLessonProgress(currentTime, progress >= 90);
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error in timeupdate handler:', error);
-                    }
-                });
-
-                player.addEventListener('ended', async () => {
-                    console.log('Video ended');
-                    try {
-                        await updateLessonProgress(player.duration || 0, true);
-                    } catch (error) {
-                        console.error('Error in ended handler:', error);
-                    }
-                });
-
-                // Handle player errors
-                player.addEventListener('error', async (e) => {
-                    console.error('Player error:', e);
-                    try {
-                        const error = e.detail?.error || e;
-                        console.log('Player error details:', error);
-                        
-                        // Check if it's a 412 error (video not ready)
-                        if (error?.data?.details === 'manifestLoadError' && retryCount < MAX_RETRIES) {
-                            retryCount++;
-                            console.log(`Retrying video load (${retryCount}/${MAX_RETRIES})...`);
-                            showRetryMessage(retryCount);
-                            
-                            // Wait before retrying
-                            await new Promise(resolve => setTimeout(resolve, 5000 * retryCount));
-                            
-                            // Try to reload the player
-                            if (player && lessonData && lessonData.muxPlaybackId) {
-                                console.log('Retrying with playback ID:', lessonData.muxPlaybackId);
-                                player.setAttribute('playback-id', lessonData.muxPlaybackId);
-                            }
-                        } else {
-                            showError('Failed to load video. Please try again later.');
-                        }
-                    } catch (handlerError) {
-                        console.error('Error in error handler:', handlerError);
-                        showError('Failed to load video. Please try again later.');
-                    }
-                });
-            } catch (error) {
-                console.error('Error setting up player event listeners:', error);
-            }
-        }
 
         // Load lesson data from Supabase
         async function loadLessonData(lessonId, playbackId) {
@@ -575,6 +442,180 @@
             }
         }
 
+        // Load course data with all modules and lessons
+        async function loadCourseData() {
+            try {
+                console.log('Loading course data...');
+                console.log('Lesson data available:', lessonData);
+                
+                if (!lessonData || !lessonData.course || !lessonData.course.id) {
+                    throw new Error('Course data not available');
+                }
+
+                const courseId = lessonData.course.id;
+                console.log('Loading course with ID:', courseId);
+                
+                // Get course with all modules and lessons
+                const { data: course, error: courseError } = await supabase
+                    .from('courses')
+                    .select(`
+                        *,
+                        modules (
+                            id,
+                            title,
+                            order_index,
+                            lessons (
+                                id,
+                                title,
+                                duration,
+                                order_index,
+                                mux_playback_id
+                            )
+                        )
+                    `)
+                    .eq('id', courseId)
+                    .single();
+
+                if (courseError) {
+                    throw new Error('Failed to load course data: ' + courseError.message);
+                }
+                
+                console.log('Course data loaded:', course);
+
+                // Sort modules and lessons by order_index
+                if (course.modules) {
+                    course.modules.sort((a, b) => a.order_index - b.order_index);
+                    course.modules.forEach(module => {
+                        if (module.lessons) {
+                            module.lessons.sort((a, b) => a.order_index - b.order_index);
+                        }
+                    });
+                }
+
+                courseData = course;
+                console.log('Course data processed and stored:', courseData);
+                
+                // Update lesson list in sidebar
+                updateLessonList();
+                
+                // Ensure lessons tab is displayed
+                ensureLessonsTab();
+                
+            } catch (error) {
+                console.error('Error loading course data:', error);
+            }
+        }
+
+        // Update lesson list in sidebar
+        function updateLessonList() {
+            if (!courseData || !lessonData) return;
+
+            try {
+                console.log('Updating lesson list with course data:', courseData);
+                console.log('Current lesson data:', lessonData);
+                
+                // Updated selector to be more robust
+                const lessonListContainer = document.querySelector('.bg-gray-900\\/50.border.border-gray-800.rounded-lg.p-5 .space-y-2');
+                if (!lessonListContainer) {
+                    console.error('Lesson list container not found');
+                    return;
+                }
+
+                // Clear existing content
+                lessonListContainer.innerHTML = '';
+
+                // Check if there are any modules/lessons
+                if (!courseData.modules || courseData.modules.length === 0) {
+                    lessonListContainer.innerHTML = '<p class="text-gray-400 text-center py-4">No modules available yet.</p>';
+                    return;
+                }
+
+                // Generate lesson list
+                courseData.modules.forEach((module, moduleIndex) => {
+                    console.log(`Processing module ${moduleIndex}:`, module);
+                    
+                    if (!module.lessons || module.lessons.length === 0) {
+                        console.log('No lessons in this module');
+                        return;
+                    }
+
+                    // Create module container
+                    const moduleContainer = document.createElement('div');
+                    moduleContainer.className = 'mb-4';
+                    
+                    // Module header
+                    const moduleHeader = document.createElement('h4');
+                    moduleHeader.className = 'text-sm font-medium text-gray-300 mb-2';
+                    moduleHeader.textContent = `Module ${moduleIndex + 1}: ${module.title}`;
+                    moduleContainer.appendChild(moduleHeader);
+                    
+                    // Lessons container
+                    const lessonsContainer = document.createElement('div');
+                    lessonsContainer.className = 'space-y-1';
+                    
+                    // Add lessons
+                    module.lessons.forEach((lesson, lessonIndex) => {
+                        console.log(`Processing lesson ${lessonIndex}:`, lesson);
+                        
+                        const lessonButton = document.createElement('button');
+                        lessonButton.className = `lesson-item w-full text-left p-3 rounded-md hover:bg-gray-800/50 transition-colors ${lesson.id === lessonData.id ? 'active bg-purple-900/30 border border-purple-700/50' : ''}`;
+                        lessonButton.dataset.lessonId = lesson.id;
+                        lessonButton.dataset.playbackId = lesson.mux_playback_id || '';
+                        
+                        // Add a small indicator for the current lesson
+                        const currentLessonIndicator = lesson.id === lessonData.id ? 
+                            '<span class="ml-2 text-xs bg-purple-600 text-white px-2 py-1 rounded">Current</span>' : '';
+                        
+                        lessonButton.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center ${lesson.id === lessonData.id ? 'bg-purple-600' : lesson.mux_playback_id ? 'bg-green-500' : 'bg-gray-600'}">
+                                    ${lesson.mux_playback_id ? 
+                                        `<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>` :
+                                        `<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>`
+                                    }
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium ${lesson.id === lessonData.id ? 'text-white' : 'text-gray-300'}">${lesson.title} ${currentLessonIndicator}</p>
+                                    <p class="text-xs text-gray-400">${lesson.duration ? Math.floor(lesson.duration / 60) + ' min' : 'Duration N/A'}</p>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Add click event to navigate to lesson
+                        lessonButton.addEventListener('click', () => {
+                            if (lesson.mux_playback_id) {
+                                window.location.href = `lesson-player-mux.html?lessonId=${lesson.id}&playbackId=${lesson.mux_playback_id}`;
+                            } else {
+                                alert('This lesson is not available yet.');
+                            }
+                        });
+                        
+                        lessonsContainer.appendChild(lessonButton);
+                    });
+                    
+                    moduleContainer.appendChild(lessonsContainer);
+                    lessonListContainer.appendChild(moduleContainer);
+                });
+                
+                console.log('Lesson list updated successfully');
+            } catch (error) {
+                console.error('Error updating lesson list:', error);
+                // Show error message in the lesson list container
+                const lessonListContainer = document.querySelector('.bg-gray-900\\/50.border.border-gray-800.rounded-lg.p-5 .space-y-2');
+                if (lessonListContainer) {
+                    lessonListContainer.innerHTML = '<p class="text-red-400 text-center py-4">Error loading lessons. Please try refreshing the page.</p>';
+                }
+            }
+        }
+
+        // Ensure lessons tab is properly displayed
+        function ensureLessonsTab() {
+            const lessonsTab = document.querySelector('.bg-gray-900\\/50.border.border-gray-800.rounded-lg.p-5');
+            if (lessonsTab) {
+                lessonsTab.style.display = 'block';
+            }
+        }
+
         // Initialize player with real Mux data
         function initializePlayer() {
             // Validate that we have a player element
@@ -631,6 +672,112 @@
                     player.setAttribute('playback-id', lessonData.muxPlaybackId);
                 }
             }, 3000);
+        }
+
+        // Set up player event listeners
+        function setupPlayerEventListeners() {
+            if (!player) {
+                console.error('Player not initialized');
+                return;
+            }
+            
+            try {
+                player.addEventListener('loadstart', () => {
+                    console.log('Video loading started');
+                    hideError();
+                });
+
+                player.addEventListener('play', () => {
+                    console.log('Video started playing');
+                    hideError();
+                    // Track play event
+                });
+
+                player.addEventListener('pause', () => {
+                    console.log('Video paused');
+                    // Track pause event
+                });
+
+                player.addEventListener('timeupdate', async () => {
+                    try {
+                        const currentTime = player.currentTime;
+                        const duration = player.duration;
+                        if (duration > 0) {
+                            const progress = (currentTime / duration) * 100;
+                            updateProgress(progress);
+                            
+                            // Update progress in database every 10 seconds
+                            if (currentTime - lastProgressUpdate > 10) {
+                                lastProgressUpdate = currentTime;
+                                await updateLessonProgress(currentTime, progress >= 90);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error in timeupdate handler:', error);
+                    }
+                });
+
+                player.addEventListener('ended', async () => {
+                    console.log('Video ended');
+                    try {
+                        await updateLessonProgress(player.duration || 0, true);
+                    } catch (error) {
+                        console.error('Error in ended handler:', error);
+                    }
+                });
+
+                // Handle player errors
+                player.addEventListener('error', async (e) => {
+                    console.error('Player error:', e);
+                    try {
+                        const error = e.detail?.error || e;
+                        console.log('Player error details:', error);
+                        
+                        // Check if it's a 412 error (video not ready)
+                        if (error?.data?.details === 'manifestLoadError' && retryCount < MAX_RETRIES) {
+                            retryCount++;
+                            console.log(`Retrying video load (${retryCount}/${MAX_RETRIES})...`);
+                            showRetryMessage(retryCount);
+                            
+                            // Wait before retrying
+                            await new Promise(resolve => setTimeout(resolve, 5000 * retryCount));
+                            
+                            // Try to reload the player
+                            if (player && lessonData && lessonData.muxPlaybackId) {
+                                console.log('Retrying with playback ID:', lessonData.muxPlaybackId);
+                                player.setAttribute('playback-id', lessonData.muxPlaybackId);
+                            }
+                        } else {
+                            showError('Failed to load video. Please try again later.');
+                        }
+                    } catch (handlerError) {
+                        console.error('Error in error handler:', handlerError);
+                        showError('Failed to load video. Please try again later.');
+                    }
+                });
+            } catch (error) {
+                console.error('Error setting up player event listeners:', error);
+            }
+        }
+
+        // Set up tab functionality
+        function setupTabFunctionality() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    tabButtons.forEach(btn => btn.classList.remove('active', 'border-purple-600', 'text-white'));
+                    tabButtons.forEach(btn => btn.classList.add('text-gray-400'));
+                    
+                    // Add active class to clicked button
+                    button.classList.remove('text-gray-400');
+                    button.classList.add('active', 'border-purple-600', 'text-white');
+                    
+                    // In a more complex implementation, we would show/hide different content here
+                    // For now, we just have the lessons tab
+                });
+            });
         }
 
         // Show retry message
@@ -743,7 +890,50 @@
                 const currentTime = player ? player.currentTime : 0;
                 await updateLessonProgress(currentTime || 0, true);
             }
+            
+            // Handle previous/next lesson navigation
+            if (e.target.closest('#prev-lesson-btn')) {
+                navigateToLesson('prev');
+            }
+            
+            if (e.target.closest('#next-lesson-btn')) {
+                navigateToLesson('next');
+            }
         });
+
+        // Navigate to previous or next lesson
+        function navigateToLesson(direction) {
+            if (!courseData || !lessonData) return;
+            
+            try {
+                // Get all lessons in order
+                const allLessons = courseData.modules.flatMap(module => 
+                    module.lessons.filter(lesson => lesson.mux_playback_id).map(lesson => lesson)
+                );
+                
+                // Find current lesson index
+                const currentLessonIndex = allLessons.findIndex(lesson => lesson.id === lessonData.id);
+                
+                if (currentLessonIndex === -1) return;
+                
+                let targetLesson;
+                if (direction === 'prev' && currentLessonIndex > 0) {
+                    targetLesson = allLessons[currentLessonIndex - 1];
+                } else if (direction === 'next' && currentLessonIndex < allLessons.length - 1) {
+                    targetLesson = allLessons[currentLessonIndex + 1];
+                }
+                
+                if (targetLesson && targetLesson.mux_playback_id) {
+                    window.location.href = `lesson-player-mux.html?lessonId=${targetLesson.id}&playbackId=${targetLesson.mux_playback_id}`;
+                } else if (direction === 'prev') {
+                    alert('This is the first lesson in the course.');
+                } else if (direction === 'next') {
+                    alert('This is the last lesson in the course.');
+                }
+            } catch (error) {
+                console.error('Error navigating to lesson:', error);
+            }
+        }
 
         // Content protection features
         function enableContentProtection() {

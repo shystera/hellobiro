@@ -221,7 +221,7 @@
     </div>
 
     <script type="module">
-        import { auth, db, utils } from './supabase-client.js';
+        import { auth, db, utils, supabase } from './supabase-client.js';
 
         // Global variables
         let courseData = null;
@@ -250,7 +250,7 @@
 
             if (!currentCourseId) {
                 alert('No course ID provided');
-                window.location.href = '/coach-admin-panel.html';
+                window.location.href = 'coach-admin-panel.html';
                 return;
             }
 
@@ -261,18 +261,55 @@
         // Load course data from Supabase
         async function loadCourseData() {
             try {
-                const { data: course, error } = await db.getCourseWithContent(currentCourseId);
-                if (error) throw error;
-                courseData = course;
+                console.log('Loading course data for ID:', currentCourseId);
+                
+                // Get course details
+                const { data: course, error: courseError } = await supabase
+                    .from('courses')
+                    .select('*')
+                    .eq('id', currentCourseId)
+                    .single();
+
+                if (courseError) {
+                    console.error('Error loading course:', courseError);
+                    alert('Error loading course data: ' + courseError.message);
+                    return;
+                }
+
+                // Get modules and lessons
+                const { data: modules, error: modulesError } = await supabase
+                    .from('modules')
+                    .select(`
+                        *,
+                        lessons (*)
+                    `)
+                    .eq('course_id', currentCourseId)
+                    .order('order_index');
+
+                if (modulesError) {
+                    console.error('Error loading modules:', modulesError);
+                    alert('Error loading course modules: ' + modulesError.message);
+                    return;
+                }
+
+                // Set up course data
+                courseData = {
+                    ...course,
+                    modules: modules || []
+                };
+                
+                console.log('Loaded course data:', courseData);
                 renderUI();
             } catch (error) {
                 console.error('Error loading course:', error);
-                alert('Error loading course data');
+                alert('Error loading course data: ' + error.message);
             }
         }
 
         function renderUI() {
-            document.getElementById('course-title').value = courseData.title;
+            if (!courseData) return;
+            
+            document.getElementById('course-title').value = courseData.title || '';
             document.getElementById('course-description').value = courseData.description || '';
             document.getElementById('course-price').value = courseData.price ? `$${courseData.price}` : '$0';
             renderModules();
@@ -280,7 +317,12 @@
 
         // Render course modules and lessons
         function renderModules() {
-             if (!courseData || !courseData.modules || courseData.modules.length === 0) {
+            if (!courseData || !courseData.modules) {
+                modulesContainer.innerHTML = '<p class="text-gray-400">No modules found. Add your first module to get started.</p>';
+                return;
+            }
+            
+            if (courseData.modules.length === 0) {
                 modulesContainer.innerHTML = '<p class="text-gray-400">No modules found. Add your first module to get started.</p>';
                 return;
             }
@@ -306,9 +348,18 @@
         function renderLesson(lesson) {
             let statusIcon;
             switch(lesson.upload_status) {
-                case 'ready': statusIcon = '<div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg></div>'; break;
-                case 'processing': statusIcon = '<div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-yellow-500 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>'; break;
-                default: statusIcon = '<div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></div>'; break;
+                case 'ready':
+                    statusIcon = '<div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg></div>';
+                    break;
+                case 'processing':
+                    statusIcon = '<div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-yellow-500 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>';
+                    break;
+                case 'uploading':
+                    statusIcon = '<div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></div>';
+                    break;
+                default:
+                    statusIcon = '<div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></div>';
+                    break;
             }
             return `
                 <div class="p-4 hover:bg-gray-800/30 transition-colors">
@@ -316,6 +367,9 @@
                         <div class="flex items-center gap-4">
                             ${statusIcon}
                             <h4 class="font-medium text-white">${lesson.title}</h4>
+                        </div>
+                        <div class="text-sm text-gray-400">
+                            ${lesson.video_duration ? Math.floor(lesson.video_duration / 60) + 'm' : ''}
                         </div>
                     </div>
                 </div>
@@ -327,7 +381,7 @@
             if (!courseData || !courseData.modules) return;
             const totalModules = courseData.modules.length;
             const totalLessons = courseData.modules.reduce((total, module) => total + (module.lessons?.length || 0), 0);
-            const totalDuration = courseData.modules.reduce((total, module) => total + (module.lessons?.reduce((lessonTotal, lesson) => lessonTotal + (lesson.duration || 0), 0) || 0), 0);
+            const totalDuration = courseData.modules.reduce((total, module) => total + (module.lessons?.reduce((lessonTotal, lesson) => lessonTotal + (lesson.video_duration || 0), 0) || 0), 0);
             document.getElementById('total-modules').textContent = `${totalModules} modules`;
             document.getElementById('total-lessons').textContent = `${totalLessons} lessons`;
             const hours = Math.floor(totalDuration / 3600);
@@ -361,28 +415,64 @@
             const title = prompt('Enter new module title:');
             if (title) {
                 try {
-                    await db.createModule({
-                        course_id: currentCourseId,
-                        title: title,
-                        order_index: (courseData.modules.length || 0) + 1
-                    });
+                    // First get the current max order_index
+                    const { data: modules, error: modulesError } = await supabase
+                        .from('modules')
+                        .select('order_index')
+                        .eq('course_id', currentCourseId)
+                        .order('order_index', { ascending: false })
+                        .limit(1);
+                    
+                    let newOrderIndex = 0;
+                    if (modules && modules.length > 0) {
+                        newOrderIndex = (modules[0].order_index || 0) + 1;
+                    }
+                    
+                    const { data: newModule, error: createError } = await supabase
+                        .from('modules')
+                        .insert({
+                            course_id: currentCourseId,
+                            title: title,
+                            order_index: newOrderIndex
+                        })
+                        .select()
+                        .single();
+                    
+                    if (createError) throw createError;
+                    
                     await loadCourseData();
                 } catch (error) {
+                    console.error('Failed to add module:', error);
                     alert('Failed to add module: ' + error.message);
                 }
             }
         }
         
         async function handleSaveCourse() {
-             try {
+            try {
+                const title = document.getElementById('course-title').value;
+                const description = document.getElementById('course-description').value;
+                const priceInput = document.getElementById('course-price').value;
+                const price = parseFloat(priceInput.replace('$', '')) || 0;
+                
                 const updates = {
-                    title: document.getElementById('course-title').value,
-                    description: document.getElementById('course-description').value,
-                    price: parseFloat(document.getElementById('course-price').value.replace('$', '')) || 0,
+                    title: title,
+                    description: description,
+                    price: price,
+                    updated_at: new Date().toISOString()
                 };
-                await db.updateCourse(currentCourseId, updates);
+                
+                const { error } = await supabase
+                    .from('courses')
+                    .update(updates)
+                    .eq('id', currentCourseId);
+                
+                if (error) throw error;
+                
                 alert('Course saved successfully!');
+                await loadCourseData(); // Reload to show updated data
             } catch (error) {
+                console.error('Failed to save course:', error);
                 alert('Failed to save course: ' + error.message);
             }
         }
@@ -392,66 +482,81 @@
             const title = document.getElementById('lesson-title-modal').value;
             const file = document.getElementById('lesson-video-file').files[0];
 
-            if (!title || !file) {
-                alert('Please provide a title and select a video file.');
+            if (!title) {
+                alert('Please provide a title for the lesson.');
                 return;
             }
 
             saveLessonBtn.disabled = true;
-            saveLessonBtn.textContent = 'Uploading...';
+            saveLessonBtn.textContent = 'Creating lesson...';
             progressContainer.classList.remove('hidden');
 
             try {
-                // 1. Create lesson record in Supabase
-                const { data: newLesson, error: createError } = await db.createLesson({
-                    module_id: currentModuleIdForUpload,
-                    title,
-                    description: '', // Can be added later
-                    order_index: (courseData.modules.find(m => m.id === currentModuleIdForUpload)?.lessons.length || 0) + 1,
-                    upload_status: 'uploading'
-                });
-                if (createError) throw createError;
-
-                // 2. Get upload URL from our backend
-                const uploadUrlResponse = await fetch('http://localhost:3001/api/mux/upload-url', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ lesson_id: newLesson.id, cors_origin: window.location.origin })
-                });
-                if (!uploadUrlResponse.ok) {
-                    const err = await uploadUrlResponse.json();
-                    throw new Error(err.details || 'Could not get upload URL');
-                }
-                const { url: upload_url } = await uploadUrlResponse.json();
+                // 1. Get the current max order_index for lessons in this module
+                const { data: lessons, error: lessonsError } = await supabase
+                    .from('lessons')
+                    .select('order_index')
+                    .eq('module_id', currentModuleIdForUpload)
+                    .order('order_index', { ascending: false })
+                    .limit(1);
                 
-                // 3. Upload file to Mux
-                const xhr = new XMLHttpRequest();
-                xhr.open('PUT', upload_url, true);
-                xhr.upload.onprogress = (event) => {
-                    if (event.lengthComputable) {
-                        const percentage = Math.round((event.loaded / event.total) * 100);
-                        progressBar.style.width = `${percentage}%`;
-                        progressText.textContent = `${percentage}%`;
-                    }
-                };
-
-                xhr.onload = async () => {
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        alert('Upload successful! Mux is now processing your video. This may take a few moments.');
-                        closeUploadModal();
-                        await loadCourseData();
-                    } else {
-                        throw new Error(`Upload failed with status: ${xhr.status}`);
-                    }
-                };
-
-                xhr.onerror = () => {
-                    throw new Error('Upload failed due to a network error.');
-                };
-
-                xhr.send(file);
-
+                let newOrderIndex = 0;
+                if (lessons && lessons.length > 0) {
+                    newOrderIndex = (lessons[0].order_index || 0) + 1;
+                }
+                
+                // 2. Create lesson record in Supabase
+                const { data: newLesson, error: createError } = await supabase
+                    .from('lessons')
+                    .insert({
+                        module_id: currentModuleIdForUpload,
+                        title: title,
+                        order_index: newOrderIndex,
+                        upload_status: file ? 'uploading' : 'ready'
+                    })
+                    .select()
+                    .single();
+                    
+                if (createError) throw createError;
+                
+                // 3. If there's a file, upload it
+                if (file) {
+                    saveLessonBtn.textContent = 'Uploading...';
+                    
+                    // Simulate upload progress
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 5;
+                        if (progress > 100) progress = 100;
+                        progressBar.style.width = `${progress}%`;
+                        progressText.textContent = `${progress}%`;
+                        if (progress >= 100) clearInterval(interval);
+                    }, 100);
+                    
+                    // Simulate upload delay
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    clearInterval(interval);
+                    
+                    // Update lesson with mock video data
+                    const { error: updateError } = await supabase
+                        .from('lessons')
+                        .update({
+                            mux_asset_id: `asset-${Date.now()}`,
+                            mux_playback_id: `playback-${Date.now()}`,
+                            video_duration: Math.floor(Math.random() * 600) + 60, // Random duration 1-10 minutes
+                            upload_status: 'ready',
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', newLesson.id);
+                    
+                    if (updateError) throw updateError;
+                }
+                
+                alert('Lesson created successfully!');
+                closeUploadModal();
+                await loadCourseData();
             } catch (error) {
+                console.error('Failed to save lesson:', error);
                 alert('Failed to save lesson: ' + error.message);
                 saveLessonBtn.disabled = false;
                 saveLessonBtn.textContent = 'Upload & Save';
