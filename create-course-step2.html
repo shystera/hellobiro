@@ -266,47 +266,7 @@
             initializePage(courseData, user, profile);
         });
 
-        // Create course and modules in Supabase
-        async function createCourseInSupabase(courseData, user) {
-            try {
-                // Step 1: Create the course
-                const { data: course, error: courseError } = await db.createCourse({
-                    title: courseData.step1.title,
-                    description: courseData.step1.description,
-                    price: courseData.step1.price,
-                    coach_id: user.id,
-                    status: 'draft'
-                });
-
-                if (courseError) throw courseError;
-
-                supabaseCourseId = course.id;
-                console.log('✅ Course created:', course.id);
-
-                // Step 2: Create modules
-                for (let i = 0; i < courseModules.length; i++) {
-                    const module = courseModules[i];
-
-                    const { data: supabaseModule, error: moduleError } = await db.createModule({
-                        course_id: supabaseCourseId,
-                        title: module.title,
-                        description: module.description || '',
-                        order_index: i
-                    });
-
-                    if (moduleError) throw moduleError;
-
-                    // Store the Supabase module ID
-                    module.supabaseModuleId = supabaseModule.id;
-                    console.log('✅ Module created:', supabaseModule.id);
-                }
-
-                return { success: true, courseId: supabaseCourseId };
-            } catch (error) {
-                console.error('❌ Error creating course/modules:', error);
-                return { success: false, error };
-            }
-        }
+        // Course creation will happen in Step 3 only
 
         function initializePage(courseData, user, profile) {
             // Load course summary
@@ -582,136 +542,52 @@
 
                 const lesson = findLessonById(lessonId);
 
-                // Step 1: Create lesson in Supabase first (if not already created)
-                let supabaseLessonId = lesson.supabaseLessonId;
-
-                if (!supabaseLessonId) {
-                    // Ensure course and modules are created first
-                    if (!supabaseCourseId) {
-                        const result = await createCourseInSupabase(courseData, currentUser);
-                        if (!result.success) {
-                            throw new Error('Failed to create course: ' + result.error.message);
-                        }
-                    }
-
-                    // Create lesson in Supabase
-                    const moduleIndex = courseModules.findIndex(m => m.lessons.some(l => l.id === lessonId));
-                    const module = courseModules[moduleIndex];
-
-                    // Use the proper Supabase module ID
-                    const moduleId = module.supabaseModuleId;
-
-                    // Use relative path for API calls to work with deployed version
-                    const lessonResponse = await fetch('/api/lessons', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            module_id: moduleId,
-                            title: lesson.title,
-                            description: lesson.description || '',
-                            order_index: module.lessons.findIndex(l => l.id === lessonId)
-                        })
-                    });
-
-                    if (lessonResponse.ok) {
-                        const lessonData = await lessonResponse.json();
-                        supabaseLessonId = lessonData.id;
-                        lesson.supabaseLessonId = supabaseLessonId;
-                    } else {
-                        console.warn('Could not create lesson in Supabase, continuing with upload...');
-                    }
-                }
-
-                // Step 2: Get direct upload URL from server (includes Supabase integration)
-                // Use relative path for API calls to work with deployed version
-                const uploadUrlResponse = await fetch('/api/mux/upload-url', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        lesson_id: supabaseLessonId,
-                        cors_origin: window.location.origin
-                    })
-                });
-
-                if (!uploadUrlResponse.ok) {
-                    const errorData = await uploadUrlResponse.json();
-                    throw new Error(`Failed to get upload URL: ${errorData.error || 'Unknown error'}`);
-                }
-
-                const { url: upload_url, uploadId: upload_id } = await uploadUrlResponse.json();
-
-                // Step 3: Upload directly to Mux
-                const xhr = new XMLHttpRequest();
-
-                xhr.upload.addEventListener('progress', (e) => {
-                    if (e.lengthComputable) {
-                        const percentage = Math.round((e.loaded / e.total) * 100);
-                        document.getElementById('upload-percentage').textContent = `${percentage}%`;
-                        document.getElementById('upload-progress-bar').style.width = `${percentage}%`;
-                    }
-                });
-
-                xhr.addEventListener('load', async () => {
-                    if (xhr.status === 200 || xhr.status === 201) {
-                        // Upload successful - Mux direct upload doesn't return JSON, so don't try to parse it
-                        try {
-                            // Instead of parsing xhr.responseText, we need to get the asset ID from our backend
-                            // Call the backend to get upload status and asset ID
-                            const uploadStatusResponse = await fetch(`/api/mux/upload/${upload_id}`);
+                // Simulate upload progress for better UX
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 10;
+                    document.getElementById('upload-percentage').textContent = `${progress}%`;
+                    document.getElementById('upload-progress-bar').style.width = `${progress}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(progressInterval);
+                        
+                        // Store video file data locally for Step 3 processing
+                        lesson.hasVideo = true;
+                        lesson.uploadStatus = 'ready';
+                        lesson.fileName = file.name;
+                        lesson.fileSize = file.size;
+                        lesson.uploadDate = new Date().toISOString();
+                        
+                        // Create a data URL for the video file (for small files)
+                        // Note: For production, you'd want to handle large files differently
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            lesson.videoDataUrl = e.target.result;
                             
-                            if (!uploadStatusResponse.ok) {
-                                throw new Error('Failed to get upload status');
-                            }
+                            // Update UI
+                            updateLessonDisplay(lessonId);
+                            updateSummary();
                             
-                            const uploadStatus = await uploadStatusResponse.json();
-                            const assetId = uploadStatus.assetId;
-
-                            // Update local lesson data
-                            lesson.hasVideo = true;
-                            lesson.uploadStatus = 'processing';
-                            lesson.muxUploadId = upload_id;
-                            lesson.muxAssetId = assetId;
-                            lesson.fileName = file.name;
-                            lesson.fileSize = file.size;
-                            lesson.uploadDate = new Date().toISOString();
-
-                            // Get asset details to retrieve playback ID
-                            if (assetId) {
-                                try {
-                                    // Use relative path for API calls to work with deployed version
-                                    const assetResponse = await fetch(`/api/mux/asset/${assetId}`);
-                                    if (assetResponse.ok) {
-                                        const assetData = await assetResponse.json();
-                                        const playbackId = assetData.playback_ids?.[0]?.id;
-                                        
-                                        if (playbackId) {
-                                            lesson.muxPlaybackId = playbackId;
-                                            
-                                            // Update lesson in database if it exists
-                                            if (lesson.supabaseLessonId) {
-                                                // Use relative path for API calls to work with deployed version
-                                                const updateResponse = await fetch(`/api/lessons/${lesson.supabaseLessonId}`, {
-                                                    method: 'PATCH',
-                                                    headers: {
-                                                        'Content-Type': 'application/json',
-                                                    },
-                                                    body: JSON.stringify({
-                                                        mux_asset_id: assetId,
-                                                        mux_playback_id: playbackId,
-                                                        upload_status: 'ready'
-                                                    })
-                                                });
-                                                
-                                                if (updateResponse.ok) {
-                                                    lesson.uploadStatus = 'ready';
-                                                    console.log('✅ Lesson updated in database with Mux details');
-                                                }
-                                            }
-                                        }
+                            // Save to localStorage
+                            saveData();
+                            
+                            console.log('✅ Video stored locally for Step 3 processing');
+                            
+                            // Close modal after a short delay
+                            setTimeout(() => {
+                                closeVideoModal();
+                            }, 1000);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }, 200);
+            } catch (error) {
+                console.error('❌ Video upload simulation failed:', error);
+                alert(`Video upload failed: ${error.message}`);
+                closeVideoModal();
+            }
+        }
                                     }
                                 } catch (assetError) {
                                     console.warn('Could not get asset details:', assetError);
@@ -742,28 +618,7 @@
                             closeVideoModal();
                             saveData();
 
-                            alert('Video uploaded successfully! 🎬\n\nYour video is being processed.');
-                        }
-                    } else {
-                        throw new Error(`Upload failed with status: ${xhr.status}`);
-                    }
-                });
 
-                xhr.addEventListener('error', () => {
-                    throw new Error('Upload failed due to network error');
-                });
-
-                // Start the upload
-                xhr.open('PUT', upload_url);
-                xhr.send(file);
-
-            } catch (error) {
-                console.error('Upload error:', error);
-                // Updated error message to be more appropriate for deployed version
-                alert('Failed to upload video: ' + error.message + '\n\nPlease ensure the backend server is properly configured for video uploads.');
-                closeVideoModal();
-            }
-        }
 
 
 
@@ -773,6 +628,20 @@
                 if (lesson) return lesson;
             }
             return null;
+        }
+
+        function updateLessonDisplay(lessonId) {
+            const lessonItem = document.querySelector(`[data-lesson-id="${lessonId}"]`);
+            const lesson = findLessonById(lessonId);
+
+            if (lesson && lesson.hasVideo) {
+                // Re-render the lesson HTML with updated status
+                const moduleId = courseModules.find(m => m.lessons.some(l => l.id === lessonId)).id;
+                lessonItem.outerHTML = renderLessonHtml(lesson, moduleId);
+                
+                // Re-attach event listeners
+                setupLessonEventListeners(lessonId, moduleId);
+            }
         }
 
         function updateLessonVideoStatus(lessonId) {

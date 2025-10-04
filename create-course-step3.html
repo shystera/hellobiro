@@ -194,13 +194,11 @@
                     return;
                 }
 
-                // Temporarily disabled for testing
-                // const { data: profile } = await auth.getUserProfile(user.id);
-                // if (!profile || profile.role !== 'coach') {
-                //     window.location.href = '/role.html';
-                //     return;
-                // }
-                console.log('🧪 Testing mode - authentication disabled');
+                const { data: profile } = await auth.getUserProfile(user.id);
+                if (!profile || profile.role !== 'coach') {
+                    window.location.href = '/role.html';
+                    return;
+                }
 
                 currentUser = user;
 
@@ -363,6 +361,7 @@
                             module_id: newModule.id,
                             title: lessonData.title,
                             description: lessonData.description || '',
+                            duration: lessonData.duration || 0,
                             mux_asset_id: lessonData.muxAssetId || null,
                             mux_playback_id: lessonData.muxPlaybackId || null
                         });
