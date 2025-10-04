@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Editor - Kohza</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mux/mux-player"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -95,7 +96,7 @@
                 <div class="flex items-center gap-2">
                     <img src="https://i.pravatar.cc/32?u=coach" alt="Coach"
                         class="w-8 h-8 rounded-full border-2 border-purple-600">
-                    <span class="hidden sm:block text-sm font-medium">Dr. Elena Rodriguez</span>
+                    <span id="user-display" class="hidden sm:block text-sm font-medium"></span>
                 </div>
             </div>
         </nav>
@@ -243,6 +244,11 @@
             // Check authentication
             const authData = await utils.requireAuth('coach');
             if (!authData) return;
+            
+            // Display user info
+            if (authData.profile) {
+                document.getElementById('user-display').textContent = authData.profile.full_name || authData.user.email;
+            }
             
             // Get course ID from URL
             const urlParams = new URLSearchParams(window.location.search);
