@@ -461,7 +461,7 @@
             }
 
             if (avatarElement) {
-                avatarElement.src = currentProfile.avatar_url || `https://i.pravatar.cc/40?u=${encodeURIComponent(currentUser.email)}`;
+                avatarElement.src = currentProfile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=7c3aed&color=fff`;
             }
         }
         

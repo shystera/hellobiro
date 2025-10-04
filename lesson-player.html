@@ -267,7 +267,9 @@
                 const dashboardUrl = role === 'coach' ? 'coach-admin-panel.html' : 'student-panel.html';
                 document.getElementById('brand-link').href = dashboardUrl;
                 document.getElementById('my-courses-link').href = dashboardUrl;
-                document.getElementById('user-avatar').src = `https://i.pravatar.cc/40?u=${role}`;
+                // Get user display name for avatar
+                const displayName = profile?.full_name || user?.email?.split('@')[0] || role;
+                document.getElementById('user-avatar').src = profile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=7c3aed&color=fff`;
 
 
                 initPlaylist();

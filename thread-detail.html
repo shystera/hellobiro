@@ -128,15 +128,17 @@
             // --- Page Setup ---
             document.title = `${thread.title} - Kohza`;
             document.getElementById('back-to-community-link').href = `community.html?courseId=${courseId}&role=${role}`;
-            document.getElementById('user-avatar').src = `https://i.pravatar.cc/40?u=${role}`;
-            document.getElementById('user-reply-avatar').src = `https://i.pravatar.cc/40?u=${role}`;
+            // Use initials for user avatars
+            const userDisplayName = role.charAt(0).toUpperCase() + role.slice(1);
+            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=7c3aed&color=fff`;
+            document.getElementById('user-reply-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=7c3aed&color=fff`;
 
             // --- Render Main Post ---
             const mainPostContainer = document.getElementById('main-post-container');
             mainPostContainer.innerHTML = `
                 <h1 class="text-3xl md:text-4xl font-serif font-bold heading-text mb-3">${thread.title}</h1>
                 <div class="flex items-center gap-3 text-sm text-gray-400 mb-6">
-                    <img src="https://i.pravatar.cc/40?u=${thread.avatar}" alt="Avatar of ${thread.author}" class="w-10 h-10 rounded-full border-2 border-gray-700">
+                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(thread.author)}&background=7c3aed&color=fff" alt="Avatar of ${thread.author}" class="w-10 h-10 rounded-full border-2 border-gray-700">
                     <div>
                         <span class="font-semibold text-gray-300">${thread.author}</span>
                         <span>&bull;</span>
@@ -155,7 +157,7 @@
                 repliesCountEl.textContent = `${replyCount} ${replyCount === 1 ? 'Reply' : 'Replies'}`;
                 repliesList.innerHTML = thread.replies.map(reply => `
                     <div class="reply-item flex items-start gap-4">
-                        <img src="https://i.pravatar.cc/40?u=${reply.avatar}" alt="Avatar for ${reply.author}" class="w-10 h-10 rounded-full mt-1">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(reply.author)}&background=7c3aed&color=fff" alt="Avatar for ${reply.author}" class="w-10 h-10 rounded-full mt-1">
                         <div class="flex-1">
                             <div class="flex items-center gap-3 text-sm text-gray-400 mb-1">
                                 <span class="font-semibold text-gray-300">${reply.author}</span>

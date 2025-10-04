@@ -147,7 +147,8 @@
             }
 
             // Update user avatar
-            document.getElementById('user-avatar').src = profile.avatar_url || `https://i.pravatar.cc/40?u=${user.email}`;
+            const displayName = profile.full_name || user.email.split('@')[0];
+            document.getElementById('user-avatar').src = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=7c3aed&color=fff`;
 
             // Load course data
             try {
