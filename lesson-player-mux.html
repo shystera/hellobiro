@@ -181,7 +181,7 @@
                                 Lessons
                             </button>
                         </div>
-                        <div class="space-y-2 max-h-96 overflow-y-auto">
+                        <div id="lesson-list-container" class="space-y-2 max-h-96 overflow-y-auto">
                             <!-- Lessons will be loaded dynamically -->
                         </div>
                     </div>
@@ -496,10 +496,21 @@
                 console.log('Course data processed and stored:', courseData);
                 
                 // Update lesson list in sidebar
+                console.log('About to update lesson list...');
                 updateLessonList();
                 
                 // Ensure lessons tab is displayed
+                console.log('Ensuring lessons tab is displayed...');
                 ensureLessonsTab();
+                
+                // Add a small delay and try again if the first attempt didn't work
+                setTimeout(() => {
+                    const container = document.getElementById('lesson-list-container');
+                    if (container && container.children.length === 0) {
+                        console.log('Retrying lesson list update...');
+                        updateLessonList();
+                    }
+                }, 1000);
                 
             } catch (error) {
                 console.error('Error loading course data:', error);
@@ -508,14 +519,23 @@
 
         // Update lesson list in sidebar
         function updateLessonList() {
-            if (!courseData || !lessonData) return;
+            if (!courseData || !lessonData) {
+                console.log('Missing data for lesson list update:', { courseData: !!courseData, lessonData: !!lessonData });
+                return;
+            }
 
             try {
                 console.log('Updating lesson list with course data:', courseData);
                 console.log('Current lesson data:', lessonData);
                 
-                // Updated selector to be more robust
-                const lessonListContainer = document.querySelector('.bg-gray-900\\/50.border.border-gray-800.rounded-lg.p-5 .space-y-2');
+                // Find the lesson list container using a more reliable selector
+                let lessonListContainer = document.getElementById('lesson-list-container');
+                if (!lessonListContainer) {
+                    // Fallback to finding by class structure
+                    const sidebarPanels = document.querySelectorAll('.space-y-2.max-h-96.overflow-y-auto');
+                    lessonListContainer = sidebarPanels[0]; // Should be the lessons container
+                }
+                
                 if (!lessonListContainer) {
                     console.error('Lesson list container not found');
                     return;
@@ -545,8 +565,8 @@
                     
                     // Module header
                     const moduleHeader = document.createElement('h4');
-                    moduleHeader.className = 'text-sm font-medium text-gray-300 mb-2';
-                    moduleHeader.textContent = `Module ${moduleIndex + 1}: ${module.title}`;
+                    moduleHeader.className = 'text-sm font-medium text-gray-300 mb-2 px-2';
+                    moduleHeader.textContent = `${module.title}`;
                     moduleContainer.appendChild(moduleHeader);
                     
                     // Lessons container
@@ -557,38 +577,81 @@
                     module.lessons.forEach((lesson, lessonIndex) => {
                         console.log(`Processing lesson ${lessonIndex}:`, lesson);
                         
+                        const isCurrentLesson = lesson.id === lessonData.id;
+                        const hasVideo = lesson.mux_playback_id;
+                        
                         const lessonButton = document.createElement('button');
-                        lessonButton.className = `lesson-item w-full text-left p-3 rounded-md hover:bg-gray-800/50 transition-colors ${lesson.id === lessonData.id ? 'active bg-purple-900/30 border border-purple-700/50' : ''}`;
+                        lessonButton.className = `lesson-item w-full text-left p-3 rounded-md transition-colors ${
+                            isCurrentLesson 
+                                ? 'bg-purple-900/40 border border-purple-600/50 text-white' 
+                                : hasVideo 
+                                    ? 'hover:bg-gray-800/50 text-gray-300 hover:text-white' 
+                                    : 'text-gray-500 cursor-not-allowed'
+                        }`;
                         lessonButton.dataset.lessonId = lesson.id;
                         lessonButton.dataset.playbackId = lesson.mux_playback_id || '';
                         
-                        // Add a small indicator for the current lesson
-                        const currentLessonIndicator = lesson.id === lessonData.id ? 
-                            '<span class="ml-2 text-xs bg-purple-600 text-white px-2 py-1 rounded">Current</span>' : '';
+                        // Create lesson content
+                        const lessonContent = document.createElement('div');
+                        lessonContent.className = 'flex items-center gap-3';
                         
-                        lessonButton.innerHTML = `
-                            <div class="flex items-center gap-3">
-                                <div class="w-6 h-6 rounded-full flex items-center justify-center ${lesson.id === lessonData.id ? 'bg-purple-600' : lesson.mux_playback_id ? 'bg-green-500' : 'bg-gray-600'}">
-                                    ${lesson.mux_playback_id ? 
-                                        `<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>` :
-                                        `<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>`
-                                    }
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium ${lesson.id === lessonData.id ? 'text-white' : 'text-gray-300'}">${lesson.title} ${currentLessonIndicator}</p>
-                                    <p class="text-xs text-gray-400">${lesson.duration ? Math.floor(lesson.duration / 60) + ' min' : 'Duration N/A'}</p>
-                                </div>
-                            </div>
-                        `;
+                        // Status indicator
+                        const statusIndicator = document.createElement('div');
+                        statusIndicator.className = `w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            isCurrentLesson 
+                                ? 'bg-purple-600' 
+                                : hasVideo 
+                                    ? 'bg-green-500' 
+                                    : 'bg-gray-600'
+                        }`;
+                        
+                        // Icon based on status
+                        if (isCurrentLesson) {
+                            statusIndicator.innerHTML = `<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>`;
+                        } else if (hasVideo) {
+                            statusIndicator.innerHTML = `<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>`;
+                        } else {
+                            statusIndicator.innerHTML = `<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>`;
+                        }
+                        
+                        lessonContent.appendChild(statusIndicator);
+                        
+                        // Lesson info
+                        const lessonInfo = document.createElement('div');
+                        lessonInfo.className = 'flex-1 min-w-0';
+                        
+                        const lessonTitle = document.createElement('p');
+                        lessonTitle.className = `text-sm font-medium truncate ${isCurrentLesson ? 'text-white' : 'text-gray-300'}`;
+                        lessonTitle.textContent = lesson.title;
+                        
+                        const lessonMeta = document.createElement('p');
+                        lessonMeta.className = 'text-xs text-gray-400';
+                        lessonMeta.textContent = lesson.duration ? `${Math.floor(lesson.duration / 60)} min` : 'Duration N/A';
+                        
+                        lessonInfo.appendChild(lessonTitle);
+                        lessonInfo.appendChild(lessonMeta);
+                        lessonContent.appendChild(lessonInfo);
+                        
+                        // Current lesson indicator
+                        if (isCurrentLesson) {
+                            const currentIndicator = document.createElement('span');
+                            currentIndicator.className = 'text-xs bg-purple-600 text-white px-2 py-1 rounded flex-shrink-0';
+                            currentIndicator.textContent = 'Playing';
+                            lessonContent.appendChild(currentIndicator);
+                        }
+                        
+                        lessonButton.appendChild(lessonContent);
                         
                         // Add click event to navigate to lesson
-                        lessonButton.addEventListener('click', () => {
-                            if (lesson.mux_playback_id) {
+                        if (hasVideo && !isCurrentLesson) {
+                            lessonButton.addEventListener('click', () => {
                                 window.location.href = `lesson-player-mux.html?lessonId=${lesson.id}&playbackId=${lesson.mux_playback_id}`;
-                            } else {
+                            });
+                        } else if (!hasVideo) {
+                            lessonButton.addEventListener('click', () => {
                                 alert('This lesson is not available yet.');
-                            }
-                        });
+                            });
+                        }
                         
                         lessonsContainer.appendChild(lessonButton);
                     });
@@ -601,7 +664,8 @@
             } catch (error) {
                 console.error('Error updating lesson list:', error);
                 // Show error message in the lesson list container
-                const lessonListContainer = document.querySelector('.bg-gray-900\\/50.border.border-gray-800.rounded-lg.p-5 .space-y-2');
+                const lessonListContainer = document.getElementById('lesson-list-container') || 
+                                          document.querySelector('.space-y-2.max-h-96.overflow-y-auto');
                 if (lessonListContainer) {
                     lessonListContainer.innerHTML = '<p class="text-red-400 text-center py-4">Error loading lessons. Please try refreshing the page.</p>';
                 }
@@ -610,9 +674,14 @@
 
         // Ensure lessons tab is properly displayed
         function ensureLessonsTab() {
-            const lessonsTab = document.querySelector('.bg-gray-900\\/50.border.border-gray-800.rounded-lg.p-5');
-            if (lessonsTab) {
-                lessonsTab.style.display = 'block';
+            const lessonListContainer = document.getElementById('lesson-list-container');
+            if (lessonListContainer) {
+                lessonListContainer.style.display = 'block';
+                // Also ensure parent container is visible
+                const parentContainer = lessonListContainer.closest('.bg-gray-900\\/50');
+                if (parentContainer) {
+                    parentContainer.style.display = 'block';
+                }
             }
         }
 
