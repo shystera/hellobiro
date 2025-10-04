@@ -591,55 +591,179 @@
 
         async function uploadVideoToBackend(file) {
             try {
-                // Create upload URL
+                console.log('Starting video upload to backend...', file.name);
+                
+                // Step 1: Create upload URL
                 const response = await fetch('/api/mux/upload-url', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ corsOrigin: window.location.origin })
                 });
-
-                if (!response.ok) throw new Error('Failed to create upload URL');
-
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to create upload URL: ${errorText}`);
+                }
+                
                 const { uploadId, url } = await response.json();
-
-                // Upload file
+                console.log('Upload URL created:', uploadId);
+                
+                // Step 2: Upload file to Mux
                 const uploadResponse = await fetch(url, {
                     method: 'PUT',
-                    body: file
-                });
-
-                if (!uploadResponse.ok) throw new Error('Failed to upload video');
-
-                // Poll for completion
-                let attempts = 0;
-                while (attempts < 30) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-
-                    const statusResponse = await fetch(`/api/mux/upload/${uploadId}`);
-                    const status = await statusResponse.json();
-
-                    if (status.status === 'asset_created' && status.assetId) {
-                        const assetResponse = await fetch(`/api/mux/asset/${status.assetId}`);
-                        const asset = await assetResponse.json();
-
-                        if (asset.status === 'ready') {
-                            return {
-                                success: true,
-                                assetId: asset.id,
-                                playbackId: asset.playback_ids[0]?.id,
-                                duration: asset.duration
-                            };
-                        }
+                    body: file,
+                    headers: {
+                        'Content-Type': file.type
                     }
-
+                });
+                
+                if (!uploadResponse.ok) {
+                    throw new Error(`Failed to upload video: ${uploadResponse.status} ${uploadResponse.statusText}`);
+                }
+                
+                console.log('File uploaded to Mux, waiting for processing...');
+                
+                // Step 3: Poll for completion
+                let attempts = 0;
+                const maxAttempts = 60; // 2 minutes max
+                
+                while (attempts < maxAttempts) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    try {
+                        const statusResponse = await fetch(`/api/mux/upload/${uploadId}`);
+                        if (!statusResponse.ok) {
+                            console.warn('Status check failed, retrying...');
+                            attempts++;
+                            continue;
+                        }
+                        
+                        const status = await statusResponse.json();
+                        console.log('Upload status:', status);
+                        
+                        if (status.status === 'asset_created' && status.assetId) {
+                            // Get asset details
+                            const assetResponse = await fetch(`/api/mux/asset/${status.assetId}`);
+                            if (!assetResponse.ok) {
+                                console.warn('Asset details fetch failed, retrying...');
+                                attempts++;
+                                continue;
+                            }
+                            
+                            const asset = await assetResponse.json();
+                            console.log('Asset details:', asset);
+                            
+                            if (asset.status === 'ready' && asset.playback_ids && asset.playback_ids.length > 0) {
+                                return {
+                                    success: true,
+                                    assetId: asset.id,
+                                    playbackId: asset.playback_ids[0].id,
+                                    duration: asset.duration || 0
+                                };
+                            }
+                        }
+                    } catch (pollError) {
+                        console.warn('Polling error:', pollError);
+                    }
+                    
                     attempts++;
                 }
-
-                throw new Error('Upload timeout');
-
+                
+                throw new Error('Upload processing timeout - video may still be processing');
+                
             } catch (error) {
                 console.error('Video upload error:', error);
-                return { success: false };
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function uploadLessonVideo(file) {
+            const lesson = findCurrentLesson();
+            if (!lesson) {
+                alert('No lesson selected for video upload');
+                return;
+            }
+
+            try {
+                lesson.uploadStatus = 'uploading';
+                lesson.videoFile = file;
+                lesson.videoName = file.name;
+                renderOutline();
+                
+                // Re-render the video uploader to show uploading state
+                const container = document.querySelector('.video-upload-container');
+                if (container) {
+                    setupVideoUploader(container, lesson);
+                }
+
+                const uploadResult = await uploadVideoToBackend(file);
+                
+                if (uploadResult.success) {
+                    lesson.muxAssetId = uploadResult.assetId;
+                    lesson.muxPlaybackId = uploadResult.playbackId;
+                    lesson.uploadStatus = 'ready';
+                    lesson.videoDuration = uploadResult.duration;
+                    
+                    // Update the video uploader to show success
+                    if (container) {
+                        setupVideoUploader(container, lesson);
+                    }
+                    
+                    alert('Video uploaded successfully!');
+                } else {
+                    lesson.uploadStatus = 'error';
+                    alert('Video upload failed. Please try again.');
+                }
+                
+                renderOutline();
+                hasUnsavedChanges = true;
+                
+            } catch (error) {
+                console.error('Video upload error:', error);
+                lesson.uploadStatus = 'error';
+                renderOutline();
+                alert('Video upload failed: ' + error.message);
+            }
+        }
+
+        function uploadThumbnail(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                alert('Please select a valid image file');
+                return;
+            }
+
+            // Create a URL for the uploaded image
+            const imageUrl = URL.createObjectURL(file);
+            
+            // Update the thumbnail preview
+            const thumbnailPreview = document.getElementById('thumbnail-preview');
+            if (thumbnailPreview) {
+                thumbnailPreview.src = imageUrl;
+                state.thumbnailUrl = imageUrl;
+                hasUnsavedChanges = true;
+            }
+        }
+
+        function removeVideo() {
+            const lesson = findCurrentLesson();
+            if (!lesson) return;
+            
+            if (confirm('Are you sure you want to remove this video?')) {
+                lesson.muxAssetId = null;
+                lesson.muxPlaybackId = null;
+                lesson.uploadStatus = 'pending';
+                lesson.videoFile = null;
+                lesson.videoName = null;
+                lesson.videoDuration = null;
+                
+                // Re-render the video uploader
+                const container = document.querySelector('.video-upload-container');
+                if (container) {
+                    setupVideoUploader(container, lesson);
+                }
+                
+                renderOutline();
+                hasUnsavedChanges = true;
             }
         }
 
