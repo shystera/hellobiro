@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Thumbnail Upload</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Test Thumbnail Upload</h1>
+    
+    <div>
+        <input type="file" id="thumbnailInput" accept="image/*">
+        <button onclick="uploadThumbnail()">Upload Thumbnail</button>
+    </div>
+    
+    <div id="result"></div>
+    <div id="preview"></div>
+
+    <script type="module">
+        import { storage, auth, utils } from './supabase-client.js';
+
+        window.uploadThumbnail = async function() {
+            const fileInput = document.getElementById('thumbnailInput');
+            const resultDiv = document.getElementById('result');
+            const previewDiv = document.getElementById('preview');
+            
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '<p style="color: red;">Please select a file</p>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            
+            // Check if user is authenticated and is a coach
+            const { user, profile } = await utils.checkAuth();
+            if (!user) {
+                resultDiv.innerHTML = '<p style="color: red;">Please log in first</p>';
+                return;
+            }
+            
+            if (!profile || profile.role !== 'coach') {
+                resultDiv.innerHTML = '<p style="color: red;">Only coaches can upload thumbnails</p>';
+                return;
+            }
+
+            try {
+                resultDiv.innerHTML = '<p>Uploading...</p>';
+                
+                // Generate path for test upload
+                const path = storage.generateCourseThumbnailPath('test-course', file.name);
+                
+                // Upload file
+                const { data, error } = await storage.uploadThumbnail(file, path);
+                
+                if (error) {
+                    resultDiv.innerHTML = `<p style="color: red;">Upload failed: ${error.message}</p>`;
+                    return;
+                }
+                
+                // Get public URL
+                const publicUrl = storage.getThumbnailUrl(path);
+                
+                resultDiv.innerHTML = `
+                    <p style="color: green;">Upload successful!</p>
+                    <p>Path: ${path}</p>
+                    <p>URL: <a href="${publicUrl}" target="_blank">${publicUrl}</a></p>
+                `;
+                
+                previewDiv.innerHTML = `
+                    <h3>Preview:</h3>
+                    <img src="${publicUrl}" alt="Uploaded thumbnail" style="max-width: 300px; height: auto;">
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        };
+    </script>
+</body>
+</html>

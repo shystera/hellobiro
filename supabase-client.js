@@ -605,6 +605,149 @@ export const utils = {
   }
 }
 
+// Storage helpers for thumbnails
+export const storage = {
+  // Upload thumbnail to Supabase storage (coaches only)
+  async uploadThumbnail(file, path) {
+    try {
+      // Check if user is a coach
+      const { user, profile } = await utils.checkAuth();
+      if (!user || !profile) {
+        throw new Error('Authentication required');
+      }
+      
+      if (profile.role !== 'coach') {
+        throw new Error('Only coaches can upload thumbnails');
+      }
+
+      const { data, error } = await supabase.storage
+        .from('thumbnails')
+        .upload(path, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error uploading thumbnail:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Get public URL for thumbnail (everyone can view)
+  getThumbnailUrl(path) {
+    const { data } = supabase.storage
+      .from('thumbnails')
+      .getPublicUrl(path);
+    
+    return data.publicUrl;
+  },
+
+  // Delete thumbnail (coaches only)
+  async deleteThumbnail(path) {
+    try {
+      // Check if user is a coach
+      const { user, profile } = await utils.checkAuth();
+      if (!user || !profile) {
+        throw new Error('Authentication required');
+      }
+      
+      if (profile.role !== 'coach') {
+        throw new Error('Only coaches can delete thumbnails');
+      }
+
+      const { data, error } = await supabase.storage
+        .from('thumbnails')
+        .remove([path]);
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error deleting thumbnail:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Generate thumbnail path for courses
+  generateCourseThumbnailPath(courseId, fileName) {
+    const timestamp = Date.now();
+    const extension = fileName.split('.').pop();
+    return `courses/${courseId}/thumbnail_${timestamp}.${extension}`;
+  },
+
+  // Generate thumbnail path for lessons
+  generateLessonThumbnailPath(lessonId, fileName) {
+    const timestamp = Date.now();
+    const extension = fileName.split('.').pop();
+    return `lessons/${lessonId}/thumbnail_${timestamp}.${extension}`;
+  },
+
+  // Helper function for coaches to upload course thumbnails
+  async uploadCourseThumbnail(courseId, file) {
+    try {
+      const path = this.generateCourseThumbnailPath(courseId, file.name);
+      const { data, error } = await this.uploadThumbnail(file, path);
+      
+      if (error) throw error;
+      
+      // Get the public URL
+      const thumbnailUrl = this.getThumbnailUrl(path);
+      
+      // Update the course with the thumbnail URL
+      const { data: courseData, error: courseError } = await db.updateCourse(courseId, {
+        thumbnail_url: thumbnailUrl
+      });
+      
+      if (courseError) throw courseError;
+      
+      return { 
+        data: { 
+          path, 
+          url: thumbnailUrl, 
+          course: courseData 
+        }, 
+        error: null 
+      };
+    } catch (error) {
+      console.error('Error uploading course thumbnail:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Helper function for coaches to upload lesson thumbnails
+  async uploadLessonThumbnail(lessonId, file) {
+    try {
+      const path = this.generateLessonThumbnailPath(lessonId, file.name);
+      const { data, error } = await this.uploadThumbnail(file, path);
+      
+      if (error) throw error;
+      
+      // Get the public URL
+      const thumbnailUrl = this.getThumbnailUrl(path);
+      
+      // Update the lesson with the thumbnail URL
+      const { data: lessonData, error: lessonError } = await db.updateLesson(lessonId, {
+        thumbnail_url: thumbnailUrl
+      });
+      
+      if (lessonError) throw lessonError;
+      
+      return { 
+        data: { 
+          path, 
+          url: thumbnailUrl, 
+          lesson: lessonData 
+        }, 
+        error: null 
+      };
+    } catch (error) {
+      console.error('Error uploading lesson thumbnail:', error);
+      return { data: null, error };
+    }
+  }
+}
+
 // Community helpers
 export const community = {
   // Get threads for a course
