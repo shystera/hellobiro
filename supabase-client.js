@@ -604,3 +604,98 @@ export const utils = {
     return `https://via.placeholder.com/400x225/6366f1/ffffff?text=${encodeURIComponent(title)}`
   }
 }
+
+// Community helpers
+export const community = {
+  // Get threads for a course
+  async getThreads(courseId) {
+    try {
+      const { data, error } = await supabase
+        .from('threads')
+        .select(`
+          *,
+          profiles (full_name, avatar_url)
+        `)
+        .eq('course_id', courseId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Get reply counts for each thread
+      if (data && data.length > 0) {
+        for (let thread of data) {
+          const { count } = await supabase
+            .from('replies')
+            .select('*', { count: 'exact', head: true })
+            .eq('thread_id', thread.id);
+          thread.reply_count = count || 0;
+        }
+      }
+
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error fetching threads:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Create a new thread
+  async createThread(threadData) {
+    try {
+      const { data, error } = await supabase
+        .from('threads')
+        .insert([threadData])
+        .select(`
+          *,
+          profiles (full_name, avatar_url)
+        `)
+        .single();
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error creating thread:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Get replies for a thread
+  async getReplies(threadId) {
+    try {
+      const { data, error } = await supabase
+        .from('replies')
+        .select(`
+          *,
+          profiles (full_name, avatar_url)
+        `)
+        .eq('thread_id', threadId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error fetching replies:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Create a new reply
+  async createReply(replyData) {
+    try {
+      const { data, error } = await supabase
+        .from('replies')
+        .insert([replyData])
+        .select(`
+          *,
+          profiles (full_name, avatar_url)
+        `)
+        .single();
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error creating reply:', error);
+      return { data: null, error };
+    }
+  }
+}

@@ -355,6 +355,110 @@ app.post('/api/mux/webhook', express.raw({ type: 'application/json' }), async (r
   }
 });
 
+// Community API endpoints
+
+// Get threads for a course
+app.get('/api/courses/:courseId/threads', async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    
+    const { data, error } = await supabase
+      .from('threads')
+      .select(`
+        *,
+        profiles (full_name, avatar_url),
+        replies (count)
+      `)
+      .eq('course_id', courseId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching threads:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch threads',
+      details: error.message 
+    });
+  }
+});
+
+// Create a new thread
+app.post('/api/threads', async (req, res) => {
+  try {
+    const { course_id, author_id, title, content } = req.body;
+    
+    const { data, error } = await supabase
+      .from('threads')
+      .insert([{ course_id, author_id, title, content }])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error creating thread:', error);
+    res.status(500).json({ 
+      error: 'Failed to create thread',
+      details: error.message 
+    });
+  }
+});
+
+// Get replies for a thread
+app.get('/api/threads/:threadId/replies', async (req, res) => {
+  try {
+    const { threadId } = req.params;
+    
+    const { data, error } = await supabase
+      .from('replies')
+      .select(`
+        *,
+        profiles (full_name, avatar_url)
+      `)
+      .eq('thread_id', threadId)
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching replies:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch replies',
+      details: error.message 
+    });
+  }
+});
+
+// Create a new reply
+app.post('/api/replies', async (req, res) => {
+  try {
+    const { thread_id, author_id, content } = req.body;
+    
+    const { data, error } = await supabase
+      .from('replies')
+      .insert([{ thread_id, author_id, content }])
+      .select(`
+        *,
+        profiles (full_name, avatar_url)
+      `)
+      .single();
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (error) {
+    console.error('Error creating reply:', error);
+    res.status(500).json({ 
+      error: 'Failed to create reply',
+      details: error.message 
+    });
+  }
+});
+
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error('Server error:', error);
@@ -377,6 +481,10 @@ app.use('*', (req, res) => {
   console.log(`   POST /api/videos`);
   console.log(`   PATCH /api/videos/:id`);
   console.log(`   POST /api/mux/webhook`);
+  console.log(`   GET  /api/courses/:courseId/threads`);
+  console.log(`   POST /api/threads`);
+  console.log(`   GET  /api/threads/:threadId/replies`);
+  console.log(`   POST /api/replies`);
   
   // Return a simple HTML page for debugging
   res.status(404).send(`
@@ -406,6 +514,10 @@ app.use('*', (req, res) => {
                 <li>POST /api/videos - Save video metadata</li>
                 <li>PATCH /api/videos/:id - Update video status</li>
                 <li>POST /api/mux/webhook - Mux webhook handler</li>
+                <li>GET /api/courses/:courseId/threads - Get threads for a course</li>
+                <li>POST /api/threads - Create a new thread</li>
+                <li>GET /api/threads/:threadId/replies - Get replies for a thread</li>
+                <li>POST /api/replies - Create a new reply</li>
             </ul>
         </div>
     </body>
