@@ -548,32 +548,32 @@
                     progress += 10;
                     document.getElementById('upload-percentage').textContent = `${progress}%`;
                     document.getElementById('upload-progress-bar').style.width = `${progress}%`;
-                    
+
                     if (progress >= 100) {
                         clearInterval(progressInterval);
-                        
+
                         // Store video file data locally for Step 3 processing
                         lesson.hasVideo = true;
                         lesson.uploadStatus = 'ready';
                         lesson.fileName = file.name;
                         lesson.fileSize = file.size;
                         lesson.uploadDate = new Date().toISOString();
-                        
+
                         // Create a data URL for the video file (for small files)
                         // Note: For production, you'd want to handle large files differently
                         const reader = new FileReader();
-                        reader.onload = function(e) {
+                        reader.onload = function (e) {
                             lesson.videoDataUrl = e.target.result;
-                            
+
                             // Update UI
                             updateLessonDisplay(lessonId);
                             updateSummary();
-                            
+
                             // Save to localStorage
                             saveData();
-                            
+
                             console.log('✅ Video stored locally for Step 3 processing');
-                            
+
                             // Close modal after a short delay
                             setTimeout(() => {
                                 closeVideoModal();
@@ -588,35 +588,6 @@
                 closeVideoModal();
             }
         }
-                                    }
-                                } catch (assetError) {
-                                    console.warn('Could not get asset details:', assetError);
-                                }
-                            }
-
-                            updateLessonVideoStatus(lessonId);
-                            updateSummary();
-
-                            closeVideoModal();
-                            alert('Video uploaded successfully! 🎬\n\nYour video is being processed by Mux and will be stored in Supabase when ready.');
-
-                            // Store the course data locally
-                            saveData();
-
-                            console.log('Video uploaded to Mux, details saved to database');
-
-                        } catch (parseError) {
-                            console.error('Error processing upload response:', parseError);
-                            // Still mark as uploaded
-                            lesson.hasVideo = true;
-                            lesson.uploadStatus = 'processing';
-                            lesson.muxUploadId = upload_id;
-                            lesson.fileName = file.name;
-
-                            updateLessonVideoStatus(lessonId);
-                            updateSummary();
-                            closeVideoModal();
-                            saveData();
 
 
 
@@ -638,7 +609,7 @@
                 // Re-render the lesson HTML with updated status
                 const moduleId = courseModules.find(m => m.lessons.some(l => l.id === lessonId)).id;
                 lessonItem.outerHTML = renderLessonHtml(lesson, moduleId);
-                
+
                 // Re-attach event listeners
                 setupLessonEventListeners(lessonId, moduleId);
             }
